@@ -8,4 +8,4 @@ __pycache__/
 *.pyd
 .DS_Store
 postgres_data/
-
+logs/

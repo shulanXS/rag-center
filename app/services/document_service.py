@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.providers.embedding.openai_compatible import OpenAICompatibleEmbeddingProvider
+from app.providers.keyword_search.elasticsearch import ElasticsearchKeywordSearchProvider
 from app.providers.vectorstores.pgvector import PgVectorStore
 from app.schemas.document import UploadDocumentData, UploadDocumentRequest
 from app.services.indexing_service import IndexingService
@@ -17,6 +18,7 @@ class DocumentService:
             self.db,
             embedding_provider=OpenAICompatibleEmbeddingProvider(),
             vector_store=PgVectorStore(self.db),
+            keyword_search_provider=self._build_keyword_search_provider(),
             text_splitter=TextSplitter(
                 chunk_size=settings.chunk_size,
                 chunk_overlap=settings.chunk_overlap,
@@ -24,3 +26,7 @@ class DocumentService:
         )
         return await indexing_service.index_document(request)
 
+    def _build_keyword_search_provider(self):
+        if settings.keyword_search_provider == "elasticsearch":
+            return ElasticsearchKeywordSearchProvider()
+        return None
