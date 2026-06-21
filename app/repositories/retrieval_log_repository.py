@@ -12,3 +12,10 @@ class RetrievalLogRepository:
         self.db.flush()
         return retrieval_log
 
+    def get_by_id_and_tenant(self, log_id: str, tenant_id: str) -> RetrievalLog | None:
+        return (
+            self.db.query(RetrievalLog)
+            .filter(RetrievalLog.id == log_id, RetrievalLog.tenant_id == tenant_id)
+            .one_or_none()
+        )
+

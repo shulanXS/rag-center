@@ -58,7 +58,7 @@ class ElasticsearchKeywordSearchProvider(KeywordSearchProvider):
 
         payload = "\n".join(bulk_lines) + "\n"
         try:
-            async with httpx.AsyncClient(timeout=self.timeout) as client:
+            async with httpx.AsyncClient(timeout=self.timeout, trust_env=False) as client:
                 response = await client.post(
                     f"{self.base_url}/_bulk",
                     content=payload,
@@ -135,7 +135,7 @@ class ElasticsearchKeywordSearchProvider(KeywordSearchProvider):
         }
 
         try:
-            async with httpx.AsyncClient(timeout=self.timeout) as client:
+            async with httpx.AsyncClient(timeout=self.timeout, trust_env=False) as client:
                 response = await client.post(
                     f"{self.base_url}/{self.index_name}/_search",
                     json=payload,
@@ -193,7 +193,7 @@ class ElasticsearchKeywordSearchProvider(KeywordSearchProvider):
     async def delete_by_document_id(self, document_id: str) -> None:
         payload = {"query": {"term": {"document_id": document_id}}}
         try:
-            async with httpx.AsyncClient(timeout=self.timeout) as client:
+            async with httpx.AsyncClient(timeout=self.timeout, trust_env=False) as client:
                 response = await client.post(
                     f"{self.base_url}/{self.index_name}/_delete_by_query",
                     json=payload,
@@ -219,7 +219,7 @@ class ElasticsearchKeywordSearchProvider(KeywordSearchProvider):
 
     async def ensure_index(self) -> None:
         try:
-            async with httpx.AsyncClient(timeout=self.timeout) as client:
+            async with httpx.AsyncClient(timeout=self.timeout, trust_env=False) as client:
                 response = await client.head(f"{self.base_url}/{self.index_name}")
                 if response.status_code == 200:
                     return

@@ -1,7 +1,11 @@
 from functools import lru_cache
+from pathlib import Path
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+ENV_FILE = PROJECT_ROOT / ".env"
 
 
 class Settings(BaseSettings):
@@ -35,7 +39,10 @@ class Settings(BaseSettings):
 
     chunk_size: int = Field(default=800, ge=100)
     chunk_overlap: int = Field(default=100, ge=0)
+    table_max_rows_per_chunk: int = Field(default=10, ge=1, le=100)
     top_k: int = Field(default=5, ge=1, le=50)
+    multi_kb_max: int = Field(default=5, ge=1, le=10)
+    query_max_length: int = Field(default=2000, ge=1, le=10000)
 
     rerank_enabled: bool = False
     rerank_provider: str = "llm"
@@ -56,7 +63,23 @@ class Settings(BaseSettings):
     log_request_body: bool = True
     log_response_body: bool = True
 
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
+    auth_enabled: bool = True
+
+    celery_broker_url: str = "redis://localhost:6379/0"
+    celery_result_backend: str = "redis://localhost:6379/1"
+
+    query_rewrite_enabled: bool = False
+    query_rewrite_timeout_ms: int = Field(default=2000, ge=100)
+
+    langfuse_enabled: bool = False
+    langfuse_host: str = "http://localhost:3000"
+    langfuse_public_key: str = ""
+    langfuse_secret_key: str = ""
+
+    document_storage_path: str = "data/uploads"
+    document_max_size_mb: int = Field(default=20, ge=1, le=200)
+
+    model_config = SettingsConfigDict(env_file=str(ENV_FILE), env_file_encoding="utf-8")
 
 
 @lru_cache

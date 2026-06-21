@@ -19,7 +19,10 @@ class Document(Base):
         String(36), ForeignKey("knowledge_bases.id", ondelete="CASCADE"), index=True
     )
     title: Mapped[str] = mapped_column(String(255), nullable=False)
+    content: Mapped[str] = mapped_column(Text, nullable=False, default="")
     source_type: Mapped[str] = mapped_column(String(32), nullable=False, default="text")
+    source_file_path: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    source_filename: Mapped[str | None] = mapped_column(String(255), nullable=True)
     status: Mapped[int] = mapped_column(Integer, nullable=False)
     error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)

@@ -44,6 +44,15 @@ export function isSupportedTextFile(file: File) {
   return name.endsWith(".txt") || name.endsWith(".md");
 }
 
+export function isSupportedBinaryUploadFile(file: File) {
+  const name = file.name.toLowerCase();
+  return name.endsWith(".pdf") || name.endsWith(".docx");
+}
+
+export function isSupportedUploadFile(file: File) {
+  return isSupportedTextFile(file) || isSupportedBinaryUploadFile(file);
+}
+
 export function readFileAsText(file: File) {
   return new Promise<string>((resolve, reject) => {
     const reader = new FileReader();

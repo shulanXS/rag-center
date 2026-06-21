@@ -1,5 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { PropsWithChildren, useState } from "react";
+import { PropsWithChildren, useEffect, useState } from "react";
+
+import { subscribeAuthError } from "@/lib/authError";
 
 export function AppProvider({ children }: PropsWithChildren) {
   const [queryClient] = useState(
@@ -13,7 +15,18 @@ export function AppProvider({ children }: PropsWithChildren) {
         },
       }),
   );
+  const [authError, setAuthError] = useState<string | null>(null);
 
-  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+  useEffect(() => subscribeAuthError(setAuthError), []);
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      {authError ? (
+        <div className="border-b border-destructive/30 bg-destructive/10 px-4 py-2 text-center text-sm text-destructive">
+          {authError}
+        </div>
+      ) : null}
+      {children}
+    </QueryClientProvider>
+  );
 }
-

@@ -1,10 +1,14 @@
 import { useState } from "react";
-import { uploadDocument } from "@/services/documentService";
+import { uploadDocument, uploadDocumentFile } from "@/services/documentService";
 import type { UploadFileResult } from "@/types/api";
-import { getRelativePath, isSupportedTextFile, readFileAsText } from "@/utils/file";
+import {
+  getRelativePath,
+  isSupportedBinaryUploadFile,
+  isSupportedUploadFile,
+  readFileAsText,
+} from "@/utils/file";
 
 interface UploadDocumentsInput {
-  tenantId: string;
   kbId: string;
   files: File[];
 }
@@ -14,7 +18,7 @@ export function useUploadDocuments() {
   const [currentFile, setCurrentFile] = useState<string | null>(null);
   const [results, setResults] = useState<UploadFileResult[]>([]);
 
-  async function uploadSequentially({ tenantId, kbId, files }: UploadDocumentsInput) {
+  async function uploadSequentially({ kbId, files }: UploadDocumentsInput) {
     setIsUploading(true);
     setResults([]);
 
@@ -24,12 +28,12 @@ export function useUploadDocuments() {
       const relativePath = getRelativePath(file);
       setCurrentFile(relativePath);
 
-      if (!isSupportedTextFile(file)) {
+      if (!isSupportedUploadFile(file)) {
         const result: UploadFileResult = {
           fileName: file.name,
           relativePath,
           status: "failed",
-          message: "仅支持 .txt 和 .md 文件",
+          message: "仅支持 .txt、.md、.pdf、.docx 文件",
         };
         nextResults.push(result);
         setResults([...nextResults]);
@@ -37,19 +41,28 @@ export function useUploadDocuments() {
       }
 
       try {
-        const content = await readFileAsText(file);
-        const data = await uploadDocument({
-          tenant_id: tenantId,
-          kb_id: kbId,
-          title: file.name,
-          content,
-        });
+        let data;
+        if (isSupportedBinaryUploadFile(file)) {
+          const formData = new FormData();
+          formData.append("kb_id", kbId);
+          formData.append("title", file.name);
+          formData.append("file", file);
+          data = await uploadDocumentFile(formData);
+        } else {
+          const content = await readFileAsText(file);
+          data = await uploadDocument({
+            kb_id: kbId,
+            title: file.name,
+            content,
+          });
+        }
         const result: UploadFileResult = {
           fileName: file.name,
           relativePath,
-          status: "success",
+          status: "submitted",
           documentId: data.document_id,
           chunkCount: data.chunk_count,
+          message: "已提交，正在后台索引",
         };
         nextResults.push(result);
       } catch (error) {
@@ -75,6 +88,9 @@ export function useUploadDocuments() {
     isUploading,
     results,
     uploadSequentially,
+    resetUploadState() {
+      setCurrentFile(null);
+      setResults([]);
+    },
   };
 }
-

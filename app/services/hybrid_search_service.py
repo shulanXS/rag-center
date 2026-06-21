@@ -21,6 +21,7 @@ class HybridSearchService:
                 "chunk_id": chunk_id,
                 "title": chunk["title"],
                 "content": chunk["content"],
+                "metadata": chunk.get("metadata") or {},
                 "vector_score": chunk.get("score"),
                 "bm25_score": None,
                 "vector_rank": rank,
@@ -36,6 +37,7 @@ class HybridSearchService:
                     "chunk_id": chunk_id,
                     "title": chunk["title"],
                     "content": chunk["content"],
+                    "metadata": chunk.get("metadata") or {},
                     "vector_score": None,
                     "bm25_score": chunk.get("bm25_score"),
                     "vector_rank": None,
@@ -44,6 +46,8 @@ class HybridSearchService:
             else:
                 existing["bm25_score"] = chunk.get("bm25_score")
                 existing["bm25_rank"] = rank
+                if not existing.get("metadata") and chunk.get("metadata"):
+                    existing["metadata"] = chunk.get("metadata")
 
         fused: list[dict] = []
         for chunk in merged.values():

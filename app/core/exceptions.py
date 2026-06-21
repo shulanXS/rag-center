@@ -15,6 +15,15 @@ class ErrorCode(Enum):
     METHOD_ERROR = (20007, "请求方法错误")
     KNOWLEDGE_BASE_NOT_FOUND = (20008, "知识库不存在")
     DOCUMENT_CONTENT_EMPTY = (20009, "文档内容为空")
+    UNAUTHORIZED = (20010, "未授权")
+    DOCUMENT_NOT_FOUND = (20011, "文档不存在")
+    DOCUMENT_PROCESSING = (20012, "文档正在索引中")
+    FEATURE_NOT_ALLOWED = (20013, "当前套餐不支持该功能")
+    QUOTA_EXCEEDED = (20014, "配额已用尽")
+    FEEDBACK_FAILED = (20020, "反馈提交失败")
+    FEEDBACK_LOG_MISMATCH = (20021, "检索记录与 trace 不匹配或无权访问")
+    FEEDBACK_INVALID_SCORE = (20022, "评分须在 1～5 之间")
+    DOCUMENT_PARSE_FAILED = (20023, "文档解析失败")
 
     # Database / storage: 30000-39999
     DB_ERROR = (30001, "数据库操作失败")

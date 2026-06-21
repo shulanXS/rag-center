@@ -56,6 +56,7 @@ class PgVectorStore(VectorStore):
                     "title": chunk.title,
                     "content": chunk.content,
                     "score": score,
+                    "metadata": chunk.metadata_ or {},
                 }
             )
         return results

@@ -1,9 +1,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { CheckCircle2, FileUp, FolderUp, Loader2, XCircle } from "lucide-react";
-import { ChangeEvent, useMemo, useState } from "react";
+import { CheckCircle2, Clock3, FileUp, FolderUp, Loader2, XCircle } from "lucide-react";
+import { ChangeEvent, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
+import { Link, useSearchParams } from "react-router-dom";
 import { z } from "zod";
+
+import { AppHeader } from "@/components/AppHeader";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,13 +21,11 @@ import type { KnowledgeBaseData } from "@/types/api";
 import { filterHiddenOrSystemFiles, getRelativePath, type IgnoredFile } from "@/utils/file";
 
 const createKnowledgeBaseSchema = z.object({
-  tenant_id: z.string().min(1, "请输入 tenant_id"),
   name: z.string().min(1, "请输入知识库名称"),
   description: z.string().optional(),
 });
 
 const uploadSchema = z.object({
-  tenant_id: z.string().min(1, "请输入 tenant_id"),
   kb_id: z.string().min(1, "请输入 kb_id"),
 });
 
@@ -32,15 +33,17 @@ type CreateKnowledgeBaseForm = z.infer<typeof createKnowledgeBaseSchema>;
 type UploadForm = z.infer<typeof uploadSchema>;
 
 export function KnowledgeUploadPage() {
+  const [searchParams] = useSearchParams();
+  const queryKbId = searchParams.get("kb_id") ?? "";
   const [createdKnowledgeBase, setCreatedKnowledgeBase] = useState<KnowledgeBaseData | null>(null);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [ignoredFiles, setIgnoredFiles] = useState<IgnoredFile[]>([]);
-  const { currentFile, isUploading, results, uploadSequentially } = useUploadDocuments();
+  const { currentFile, isUploading, results, uploadSequentially, resetUploadState } =
+    useUploadDocuments();
 
   const createForm = useForm<CreateKnowledgeBaseForm>({
     resolver: zodResolver(createKnowledgeBaseSchema),
     defaultValues: {
-      tenant_id: "tenant_demo",
       name: "",
       description: "",
     },
@@ -49,24 +52,34 @@ export function KnowledgeUploadPage() {
   const uploadForm = useForm<UploadForm>({
     resolver: zodResolver(uploadSchema),
     defaultValues: {
-      tenant_id: "tenant_demo",
-      kb_id: "",
+      kb_id: queryKbId,
     },
   });
+
+  useEffect(() => {
+    if (queryKbId) {
+      uploadForm.setValue("kb_id", queryKbId);
+    }
+  }, [queryKbId, uploadForm]);
 
   const createMutation = useMutation({
     mutationFn: createKnowledgeBase,
     onSuccess: (data) => {
       setCreatedKnowledgeBase(data);
-      uploadForm.setValue("tenant_id", data.tenant_id);
       uploadForm.setValue("kb_id", data.kb_id);
+      setSelectedFiles([]);
+      setIgnoredFiles([]);
+      uploadForm.clearErrors("root");
+      resetUploadState();
     },
   });
 
   const summary = useMemo(() => {
-    const success = results.filter((item) => item.status === "success").length;
+    const submitted = results.filter(
+      (item) => item.status === "submitted" || item.status === "success",
+    ).length;
     const failed = results.filter((item) => item.status === "failed").length;
-    return { success, failed, total: results.length };
+    return { submitted, failed, total: results.length };
   }, [results]);
 
   function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
@@ -86,7 +99,6 @@ export function KnowledgeUploadPage() {
       return;
     }
     await uploadSequentially({
-      tenantId: values.tenant_id,
       kbId: values.kb_id,
       files: selectedFiles,
     });
@@ -95,12 +107,14 @@ export function KnowledgeUploadPage() {
   return (
     <main className="min-h-screen px-6 py-6">
       <div className="mx-auto flex max-w-7xl flex-col gap-6">
-        <header className="flex flex-col gap-2 border-b border-border pb-5">
-          <h1 className="text-2xl font-semibold tracking-normal">RAG 知识文件管理</h1>
-          <p className="max-w-3xl text-sm text-muted-foreground">
-            创建知识库后上传本地文本文件或文件夹，系统会按文件顺序同步写入后端索引。
-          </p>
-        </header>
+        <AppHeader />
+        <p className="max-w-3xl text-sm text-muted-foreground">
+          创建知识库后上传本地文本文件或文件夹。提交后任务进入后台索引，可在
+          <Link to="/knowledge-bases" className="mx-1 text-primary underline-offset-4 hover:underline">
+            知识库列表
+          </Link>
+          查看进度。
+        </p>
 
         <section className="grid gap-6 lg:grid-cols-[420px_minmax(0,1fr)]">
           <Card>
@@ -113,11 +127,6 @@ export function KnowledgeUploadPage() {
                 onSubmit={createForm.handleSubmit((values) => createMutation.mutate(values))}
               >
                 <FieldError message={createMutation.error?.message} />
-                <div className="space-y-2">
-                  <Label htmlFor="create-tenant">tenant_id</Label>
-                  <Input id="create-tenant" {...createForm.register("tenant_id")} />
-                  <FieldError message={createForm.formState.errors.tenant_id?.message} />
-                </div>
                 <div className="space-y-2">
                   <Label htmlFor="kb-name">知识库名称</Label>
                   <Input
@@ -164,21 +173,14 @@ export function KnowledgeUploadPage() {
             </CardHeader>
             <CardContent>
               <form className="flex flex-col gap-5" onSubmit={uploadForm.handleSubmit(handleUpload)}>
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="upload-tenant">tenant_id</Label>
-                    <Input id="upload-tenant" {...uploadForm.register("tenant_id")} />
-                    <FieldError message={uploadForm.formState.errors.tenant_id?.message} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="upload-kb">kb_id</Label>
-                    <Input
-                      id="upload-kb"
-                      placeholder="创建知识库后会自动填入"
-                      {...uploadForm.register("kb_id")}
-                    />
-                    <FieldError message={uploadForm.formState.errors.kb_id?.message} />
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="upload-kb">kb_id</Label>
+                  <Input
+                    id="upload-kb"
+                    placeholder="创建知识库后会自动填入"
+                    {...uploadForm.register("kb_id")}
+                  />
+                  <FieldError message={uploadForm.formState.errors.kb_id?.message} />
                 </div>
 
                 <div className="grid gap-3 md:grid-cols-2">
@@ -193,7 +195,7 @@ export function KnowledgeUploadPage() {
                     id="folder-picker"
                     icon={<FolderUp className="h-5 w-5" />}
                     title="选择文件夹"
-                    description="按文件顺序逐个上传"
+                    description="按文件顺序逐个提交"
                     onChange={handleFileChange}
                     directory
                   />
@@ -252,13 +254,21 @@ export function KnowledgeUploadPage() {
         </section>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
+          <CardHeader className="flex flex-row items-center justify-between gap-4">
             <CardTitle>上传结果</CardTitle>
-            <div className="flex gap-2">
-              <Badge>成功 {summary.success}</Badge>
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge>已提交 {summary.submitted}</Badge>
               <Badge className={summary.failed > 0 ? "bg-destructive text-destructive-foreground" : ""}>
                 失败 {summary.failed}
               </Badge>
+              {summary.submitted > 0 ? (
+                <Link
+                  to="/knowledge-bases"
+                  className="text-sm text-primary underline-offset-4 hover:underline"
+                >
+                  去列表查看进度
+                </Link>
+              ) : null}
             </div>
           </CardHeader>
           <CardContent>
@@ -282,10 +292,12 @@ export function KnowledgeUploadPage() {
                     {results.map((result) => (
                       <tr key={result.relativePath} className="border-t border-border">
                         <td className="px-3 py-2">
-                          {result.status === "success" ? (
-                            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                          ) : (
+                          {result.status === "failed" ? (
                             <XCircle className="h-4 w-4 text-destructive" />
+                          ) : result.status === "submitted" ? (
+                            <Clock3 className="h-4 w-4 text-amber-600" />
+                          ) : (
+                            <CheckCircle2 className="h-4 w-4 text-emerald-600" />
                           )}
                         </td>
                         <td className="max-w-[320px] truncate px-3 py-2">{result.relativePath}</td>
@@ -299,7 +311,8 @@ export function KnowledgeUploadPage() {
                             result.status === "failed" ? "text-destructive" : "text-muted-foreground",
                           )}
                         >
-                          {result.message || "完成"}
+                          {result.message ||
+                            (result.status === "submitted" ? "已提交，正在后台索引" : "完成")}
                         </td>
                       </tr>
                     ))}
@@ -349,7 +362,7 @@ function FilePicker({ id, icon, title, description, directory, onChange }: FileP
         id={id}
         type="file"
         multiple
-        accept=".txt,.md,text/plain,text/markdown"
+        accept=".txt,.md,.pdf,.docx,text/plain,text/markdown,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         className="sr-only"
         onChange={onChange}
         {...directoryProps}
