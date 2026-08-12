@@ -43,7 +43,9 @@ def resolve_retrieve_request(
         preset = RETRIEVE_PROFILE_PRESETS[profile]
         assert preset is not None
         top_k = request.top_k or preset.top_k or settings.top_k
-        retrieval_options = _build_retrieval_options(preset.retrieval_options, request.retrieval_options)
+        retrieval_options = _build_retrieval_options(
+            preset.retrieval_options, request.retrieval_options
+        )
         rerank_options = _build_rerank_options(preset.rerank_options, request.rerank_options)
         query_options = _build_query_options(preset.query_options, request.query_options)
 
@@ -151,7 +153,10 @@ def _validate_plan_ceiling(
             context={"plan": plan_context.plan, "profile": profile},
         )
 
-    if _requested_query_rewrite_enabled(query_options) and not plan_context.features.query_rewrite_allowed:
+    if (
+        _requested_query_rewrite_enabled(query_options)
+        and not plan_context.features.query_rewrite_allowed
+    ):
         raise AppError(
             ErrorCode.FEATURE_NOT_ALLOWED,
             msg=f"当前套餐（{plan_context.plan}）不支持 query 改写",
@@ -172,22 +177,16 @@ def _requested_query_rewrite_enabled(query_options: QueryOptions) -> bool:
     elif not settings.query_rewrite_enabled:
         return False
 
-    if query_options.strategy == "noop":
-        return False
-    return True
+    return query_options.strategy != "noop"
 
 
 def _effective_rerank_enabled(rerank_options: RerankOptions) -> bool:
     if not _requested_rerank_enabled(rerank_options):
         return False
-    if not settings.rerank_enabled or settings.rerank_provider == "noop":
-        return False
-    return True
+    return settings.rerank_enabled
 
 
 def _effective_query_rewrite_enabled(query_options: QueryOptions) -> bool:
     if not _requested_query_rewrite_enabled(query_options):
         return False
-    if not settings.query_rewrite_enabled:
-        return False
-    return True
+    return settings.query_rewrite_enabled

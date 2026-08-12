@@ -107,6 +107,8 @@ class RetrieveRerankMetadata(BaseModel):
     model: str | None = None
     top_n: int | None = None
     candidate_count: int = 0
+    returned_count: int | None = None
+    latency_ms: int | None = None
     degraded: bool = False
     error: str | None = None
 

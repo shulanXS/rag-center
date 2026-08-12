@@ -42,7 +42,7 @@ class ErrorCode(Enum):
     LLM_MODEL_ERROR = (40006, "模型不存在或未部署")
     EMBEDDING_FAILED = (40007, "向量模型调用失败")
     LLM_PROVIDER_FAILED = (40008, "大模型服务调用失败")
-    RERANK_FAILED = (40009, "大模型重排失败")
+    RERANK_FAILED = (40009, "检索重排失败")
 
     # System / service: 50000-59999
     SERVER_ERROR = (50000, "服务器异常")

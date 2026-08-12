@@ -2,7 +2,6 @@ from app.core.config import settings
 from app.providers.llm.base import LLMProvider
 from app.providers.rerank.base import RerankProvider
 
-
 RERANK_SYSTEM_PROMPT = """你是 RAG 检索重排器。你的任务是根据用户问题，对候选知识片段进行相关性打分和排序。
 
 要求：
@@ -15,6 +14,10 @@ RERANK_SYSTEM_PROMPT = """你是 RAG 检索重排器。你的任务是根据用�
 7. JSON 格式必须是 {"rankings":[{"chunk_id":"...","rerank_score":0.0,"reason":"..."}]}。
 """
 
+LLM_RERANK_MAX_CANDIDATES = 50
+LLM_RERANK_CHUNK_MAX_CHARS = 1024
+LLM_RERANK_TEMPERATURE = 0.0
+
 
 class LLMRerankProvider(RerankProvider):
     name = "llm"
@@ -23,9 +26,9 @@ class LLMRerankProvider(RerankProvider):
         self,
         *,
         llm_provider: LLMProvider,
-        max_candidates: int = settings.rerank_max_candidates,
-        chunk_max_chars: int = settings.rerank_chunk_max_chars,
-        temperature: float = settings.rerank_temperature,
+        max_candidates: int = LLM_RERANK_MAX_CANDIDATES,
+        chunk_max_chars: int = LLM_RERANK_CHUNK_MAX_CHARS,
+        temperature: float = LLM_RERANK_TEMPERATURE,
         timeout_seconds: int = settings.llm_timeout_seconds,
     ) -> None:
         self.llm_provider = llm_provider
@@ -82,7 +85,7 @@ class LLMRerankProvider(RerankProvider):
     def _build_score_map(response: dict) -> dict[str, float]:
         rankings = response.get("rankings")
         if not isinstance(rankings, list):
-            raise ValueError("rerank response missing rankings")
+            raise TypeError("rerank response missing rankings")
 
         score_map: dict[str, float] = {}
         for item in rankings:
@@ -98,4 +101,3 @@ class LLMRerankProvider(RerankProvider):
                 score = 0.0
             score_map[chunk_id] = min(max(score, 0.0), 1.0)
         return score_map
-

@@ -12,13 +12,11 @@ from app.observability.langfuse_client import RetrieveObservability
 from app.providers.embedding.openai_compatible import OpenAICompatibleEmbeddingProvider
 from app.providers.keyword_search.base import KeywordSearchProvider
 from app.providers.keyword_search.elasticsearch import ElasticsearchKeywordSearchProvider
-from app.providers.llm.openai_compatible import OpenAICompatibleLLMProvider
-from app.providers.llm.base import LLMProvider
-from app.providers.rerank.llm import LLMRerankProvider
-from app.providers.rerank.noop import NoopRerankProvider
-from app.providers.rerank.base import RerankProvider
 from app.providers.query.base import KnowledgeBaseQueryContext, QueryProcessResult
 from app.providers.query.pipeline import QueryProcessorPipeline
+from app.providers.rerank.base import RerankProvider
+from app.providers.rerank.noop import NoopRerankProvider
+from app.providers.rerank.qwen3 import Qwen3RerankProvider
 from app.providers.vectorstores.pgvector import PgVectorStore
 from app.repositories.chunk_repository import ChunkRepository
 from app.repositories.knowledge_base_repository import KnowledgeBaseRepository
@@ -27,10 +25,10 @@ from app.repositories.tenant_repository import TenantRepository
 from app.schemas.rag import (
     QueryProcessingMetadata,
     RetrieveData,
+    RetrievedChunkData,
     RetrieveMetadata,
     RetrieveRequest,
     RetrieveRerankMetadata,
-    RetrievedChunkData,
 )
 from app.services.hybrid_search_service import HybridSearchService
 from app.services.multi_kb_fusion_service import MultiKbFusionService
@@ -40,6 +38,7 @@ from app.tenant.retrieve_policy import resolve_retrieve_request
 from app.utils.id_generator import generate_uuid
 
 logger = get_logger(__name__)
+DEFAULT_RERANK_TOP_N = 5
 
 
 class RagService:
@@ -591,12 +590,11 @@ class RagService:
         }
 
     def _count_indexed_chunks(self, tenant_id: str, kb_ids: list[str]) -> int:
-        return sum(
-            self.chunk_repository.count_by_kb_id(tenant_id, kb_id)
-            for kb_id in kb_ids
-        )
+        return sum(self.chunk_repository.count_by_kb_id(tenant_id, kb_id) for kb_id in kb_ids)
 
-    def _resolve_empty_reason(self, tenant_id: str, kb_ids: list[str], chunks: list[dict]) -> str | None:
+    def _resolve_empty_reason(
+        self, tenant_id: str, kb_ids: list[str], chunks: list[dict]
+    ) -> str | None:
         if chunks:
             return None
         if self._count_indexed_chunks(tenant_id, kb_ids) == 0:
@@ -689,11 +687,11 @@ class RagService:
         top_n = (
             request.rerank_options.top_n
             if request.rerank_options and request.rerank_options.top_n is not None
-            else settings.rerank_top_n
+            else DEFAULT_RERANK_TOP_N
         )
-        top_n = min(top_n, top_k, len(chunks)) if chunks else top_n
+        top_n = min(top_n, top_k, len(chunks)) if chunks else 0
 
-        if not enabled or settings.rerank_provider == "noop":
+        if not enabled:
             reranked = await NoopRerankProvider().rerank(
                 query=request.query,
                 chunks=chunks,
@@ -704,11 +702,14 @@ class RagService:
                 provider="noop",
                 top_n=None,
                 candidate_count=len(chunks),
+                returned_count=len(reranked),
+                latency_ms=0,
             )
 
-        candidate_count = min(len(chunks), settings.rerank_max_candidates)
+        rerank_provider = self._build_rerank_provider()
+        candidate_count = min(len(chunks), rerank_provider.max_candidates)
+        rerank_started_at = perf_counter()
         try:
-            rerank_provider = self._build_rerank_provider()
             reranked = await rerank_provider.rerank(
                 query=request.query,
                 chunks=chunks,
@@ -717,10 +718,11 @@ class RagService:
             return reranked, RetrieveRerankMetadata(
                 enabled=True,
                 provider=rerank_provider.name,
-                llm_provider=settings.llm_provider,
-                model=settings.llm_model,
+                model=rerank_provider.model,
                 top_n=top_n,
                 candidate_count=candidate_count,
+                returned_count=len(reranked),
+                latency_ms=int((perf_counter() - rerank_started_at) * 1000),
             )
         except Exception as exc:
             logger.warning(
@@ -732,32 +734,21 @@ class RagService:
                 exc_info=(type(exc), exc, exc.__traceback__),
             )
             fallback_top_n = min(top_n, len(chunks))
-            fallback_chunks = [
-                {**chunk, "rerank_score": None}
-                for chunk in chunks[:fallback_top_n]
-            ]
+            fallback_chunks = [{**chunk, "rerank_score": None} for chunk in chunks[:fallback_top_n]]
             return fallback_chunks, RetrieveRerankMetadata(
                 enabled=True,
-                provider="llm",
-                llm_provider=settings.llm_provider,
-                model=settings.llm_model,
+                provider=rerank_provider.name,
+                model=rerank_provider.model,
                 top_n=top_n,
                 candidate_count=candidate_count,
+                returned_count=len(fallback_chunks),
+                latency_ms=int((perf_counter() - rerank_started_at) * 1000),
                 degraded=True,
                 error=str(exc),
             )
 
-    def _build_llm_provider(self) -> LLMProvider:
-        if settings.llm_provider == "openai_compatible":
-            return OpenAICompatibleLLMProvider()
-        raise ValueError(f"unsupported llm provider: {settings.llm_provider}")
-
     def _build_rerank_provider(self) -> RerankProvider:
-        if settings.rerank_provider == "llm":
-            return LLMRerankProvider(llm_provider=self._build_llm_provider())
-        if settings.rerank_provider == "noop":
-            return NoopRerankProvider()
-        raise ValueError(f"unsupported rerank provider: {settings.rerank_provider}")
+        return Qwen3RerankProvider()
 
     def _build_keyword_search_provider(self) -> KeywordSearchProvider:
         if settings.keyword_search_provider == "elasticsearch":

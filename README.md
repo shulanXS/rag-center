@@ -10,7 +10,7 @@
   - `vector`：向量相似度检索（默认）
   - `bm25`：Elasticsearch 关键词检索
   - `hybrid`：向量 + BM25 双路召回，RRF 融合排序
-- **可选 LLM 重排**：对召回结果使用大模型进行二次排序
+- **可选专用精排**：使用 Qwen3-Rerank 对召回结果进行二次排序
 - **检索日志**：记录每次检索的 query、结果与耗时
 - **Web 前端**：知识库创建与批量文档上传界面
 
@@ -161,7 +161,11 @@ npm run dev
 | `TOP_K` | 默认返回条数 | `5` |
 | `CHUNK_SIZE` | 分块大小（字符） | `800` |
 | `CHUNK_OVERLAP` | 分块重叠（字符） | `100` |
-| `RERANK_ENABLED` | 是否启用 LLM 重排 | `false` |
+| `RERANK_ENABLED` | 是否启用专用精排 | `false` |
+| `RERANK_BASE_URL` | 百炼 Qwen3-Rerank Workspace 接口地址 | — |
+| `RERANK_API_KEY` | 可选精排 Key，留空复用 `MODEL_API_KEY` | — |
+| `RERANK_MODEL` | 精排模型名称 | `qwen3-rerank` |
+| `RERANK_TIMEOUT_SECONDS` | 精排接口超时秒数 | `15` |
 | `QUERY_REWRITE_ENABLED` | 是否默认启用 query 改写 | `false` |
 | `QUERY_REWRITE_TIMEOUT_MS` | query 改写 LLM 超时（毫秒） | `2000` |
 | `CELERY_BROKER_URL` | Celery Broker（Redis） | `redis://localhost:6379/0` |

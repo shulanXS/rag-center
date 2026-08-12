@@ -166,6 +166,8 @@ export interface RetrieveRerankMetadata {
   model: string | null;
   top_n: number | null;
   candidate_count: number;
+  returned_count?: number | null;
+  latency_ms?: number | null;
   degraded: boolean;
   error: string | null;
 }
@@ -246,4 +248,3 @@ export interface FeedbackData {
   log_id?: string | null;
   score: number;
 }
-

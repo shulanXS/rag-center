@@ -1,6 +1,6 @@
 {
   "name": "ecommerce_retrieval",
-  "kb_id": "b0646f80-13ee-46fb-890c-c01a7a75b449",
+  "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
   "default_profile": "balanced",
   "_comment": "Main eval set. Primary source: export_eval_cases_from_langfuse.py (<3 scores). Seed cases copied for cold start; replace kb_id before running.",
   "cases": [

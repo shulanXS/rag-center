@@ -45,11 +45,10 @@ class Settings(BaseSettings):
     query_max_length: int = Field(default=2000, ge=1, le=10000)
 
     rerank_enabled: bool = False
-    rerank_provider: str = "llm"
-    rerank_top_n: int = Field(default=5, ge=1, le=50)
-    rerank_max_candidates: int = Field(default=20, ge=1, le=50)
-    rerank_chunk_max_chars: int = Field(default=1024, ge=100)
-    rerank_temperature: float = Field(default=0.0, ge=0.0, le=2.0)
+    rerank_base_url: str = ""
+    rerank_api_key: str = ""
+    rerank_model: str = "qwen3-rerank"
+    rerank_timeout_seconds: int = Field(default=15, ge=1)
 
     log_level: str = "INFO"
     log_dir: str = "logs"
