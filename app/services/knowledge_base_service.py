@@ -8,6 +8,7 @@ from app.repositories.knowledge_base_repository import KnowledgeBaseRepository
 from app.schemas.knowledge_base import (
     CreateKnowledgeBaseRequest,
     DocumentTreeItem,
+    IndexVersionTreeItem,
     KnowledgeBaseData,
     KnowledgeBaseDetailData,
     KnowledgeBaseTreeItem,
@@ -15,6 +16,7 @@ from app.schemas.knowledge_base import (
     UpdateKnowledgeBaseRequest,
 )
 from app.services.chunk_purge_service import purge_document_chunks
+from app.services.index_version_service import IndexVersionService
 from app.services.quota_service import QuotaService
 from app.utils.id_generator import generate_uuid
 from app.utils.kb_settings import validate_kb_settings
@@ -44,6 +46,10 @@ class KnowledgeBaseService:
             settings={},
         )
         self.repository.create(knowledge_base)
+        IndexVersionService(self.db).create_initial_v1(
+            tenant_id=tenant_id,
+            kb_id=knowledge_base.id,
+        )
         self.db.commit()
         self.db.refresh(knowledge_base)
 
@@ -105,6 +111,7 @@ class KnowledgeBaseService:
                 ErrorCode.KNOWLEDGE_BASE_NOT_FOUND,
                 context={"tenant_id": tenant_id, "kb_id": kb_id},
             )
+        IndexVersionService(self.db).ensure_not_building(tenant_id, kb_id)
 
         documents = self.document_repository.list_by_kb_id(kb_id)
         if any(document.status == DocumentStatus.PROCESSING for document in documents):
@@ -131,29 +138,54 @@ class KnowledgeBaseService:
         knowledge_bases = self.repository.list_for_tree(tenant_id, keyword)
         all_documents = [document for kb in knowledge_bases for document in kb.documents]
         success_document_ids = [
-            document.id for document in all_documents if document.status == DocumentStatus.SUCCESS
+            document.id
+            for document in all_documents
+            if document.status == DocumentStatus.SUCCESS
         ]
-        chunk_counts = self.repository.get_chunk_counts(success_document_ids)
+        chunk_counts = self.repository.get_chunk_counts_by_version(success_document_ids)
 
         kb_items: list[KnowledgeBaseTreeItem] = []
         for kb in knowledge_bases:
             documents = sorted(kb.documents, key=lambda doc: doc.created_at, reverse=True)
+            versions = IndexVersionService(self.db).list_versions(tenant_id, kb.id)
+
+            def build_documents(
+                version: str,
+                version_documents=documents,
+            ) -> list[DocumentTreeItem]:
+                return [
+                    DocumentTreeItem(
+                        document_id=doc.id,
+                        title=doc.title,
+                        status=doc.status,
+                        chunk_count=chunk_counts.get((doc.id, version), 0),
+                        error_message=doc.error_message,
+                        created_at=doc.created_at,
+                    )
+                    for doc in version_documents
+                ]
+
+            active_documents = build_documents(kb.active_index_version)
             kb_items.append(
                 KnowledgeBaseTreeItem(
                     kb_id=kb.id,
                     name=kb.name,
                     description=kb.description,
+                    active_index_version=kb.active_index_version,
                     created_at=kb.created_at,
-                    documents=[
-                        DocumentTreeItem(
-                            document_id=doc.id,
-                            title=doc.title,
-                            status=doc.status,
-                            chunk_count=chunk_counts.get(doc.id, 0),
-                            error_message=doc.error_message,
-                            created_at=doc.created_at,
+                    documents=active_documents,
+                    index_versions=[
+                        IndexVersionTreeItem(
+                            version=version.version,
+                            status=version.status,
+                            is_current=version.version == kb.active_index_version,
+                            document_count=version.document_count,
+                            chunk_count=version.chunk_count,
+                            created_at=version.created_at,
+                            completed_at=version.completed_at,
+                            documents=build_documents(version.version),
                         )
-                        for doc in documents
+                        for version in versions
                     ],
                 )
             )
@@ -167,6 +199,7 @@ class KnowledgeBaseService:
             name=knowledge_base.name,
             description=knowledge_base.description,
             settings=knowledge_base.settings or {},
+            active_index_version=knowledge_base.active_index_version,
             document_count=self.repository.count_documents(knowledge_base.id),
             created_at=knowledge_base.created_at,
             updated_at=knowledge_base.updated_at,

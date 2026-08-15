@@ -27,7 +27,11 @@ import {
   deleteKnowledgeBase,
   fetchTree,
 } from "@/services/knowledgeBaseService";
-import type { DocumentTreeItem, KnowledgeBaseTreeItem } from "@/types/api";
+import type {
+  DocumentTreeItem,
+  IndexVersionTreeItem,
+  KnowledgeBaseTreeItem,
+} from "@/types/api";
 import { formatDailyRetrieveUsage } from "@/utils/tenantPlan";
 
 const DOCUMENT_STATUS_PROCESSING = 3;
@@ -40,9 +44,21 @@ function formatDate(value: string) {
   return new Date(value).toLocaleString("zh-CN");
 }
 
-function buildKbQuery(kbId: string) {
-  return `?kb_id=${encodeURIComponent(kbId)}`;
+function buildKbQuery(kbId: string, indexVersion?: string) {
+  const params = new URLSearchParams({ kb_id: kbId });
+  if (indexVersion) {
+    params.set("index_version", indexVersion);
+  }
+  return `?${params.toString()}`;
 }
+
+const INDEX_STATUS_LABELS: Record<IndexVersionTreeItem["status"], string> = {
+  building: "构建中",
+  ready: "可查询",
+  active: "当前",
+  failed: "失败",
+  archived: "可回滚",
+};
 
 async function copyText(text: string) {
   await navigator.clipboard.writeText(text);
@@ -75,7 +91,8 @@ export function KnowledgeFileTreePage() {
     refetchInterval: (query) => {
       const kbs = query.state.data?.flatMap((tenant) => tenant.knowledge_bases) ?? [];
       const processing = kbs.some((kb) =>
-        kb.documents.some((doc) => doc.status === DOCUMENT_STATUS_PROCESSING),
+        kb.documents.some((doc) => doc.status === DOCUMENT_STATUS_PROCESSING) ||
+        kb.index_versions.some((version) => version.status === "building"),
       );
       return processing ? 3000 : false;
     },
@@ -89,7 +106,8 @@ export function KnowledgeFileTreePage() {
   const hasProcessingDocuments = useMemo(
     () =>
       knowledgeBases.some((kb) =>
-        kb.documents.some((doc) => doc.status === DOCUMENT_STATUS_PROCESSING),
+        kb.documents.some((doc) => doc.status === DOCUMENT_STATUS_PROCESSING) ||
+        kb.index_versions.some((version) => version.status === "building"),
       ),
     [knowledgeBases],
   );
@@ -317,7 +335,7 @@ function KnowledgeBaseRows({
   onDeleteDocument,
   onReindex,
 }: KnowledgeBaseRowsProps) {
-  const query = buildKbQuery(kb.kb_id);
+  const query = buildKbQuery(kb.kb_id, kb.active_index_version);
 
   return (
     <>
@@ -335,9 +353,13 @@ function KnowledgeBaseRows({
             <p className="mt-1 truncate pl-6 text-xs text-muted-foreground">{kb.description}</p>
           ) : null}
         </td>
-        <td className="whitespace-nowrap px-3 py-2">—</td>
+        <td className="whitespace-nowrap px-3 py-2">
+          <Badge>当前 {kb.active_index_version}</Badge>
+        </td>
         <td className="max-w-[280px] truncate px-3 py-2 font-mono text-xs">{kb.kb_id}</td>
-        <td className="px-3 py-2">{kb.documents.length}</td>
+        <td className="px-3 py-2">
+          {kb.documents.length} 篇 / {kb.index_versions.length} 版
+        </td>
         <td className="px-3 py-2 text-muted-foreground">{formatDate(kb.created_at)}</td>
         <td className="px-3 py-2">
           <div className="flex flex-wrap gap-1">
@@ -374,55 +396,115 @@ function KnowledgeBaseRows({
         </td>
       </tr>
       {expanded
-        ? kb.documents.map((doc) => (
-            <tr key={doc.document_id} className="border-t border-border bg-muted/10">
-              <td className="max-w-0 px-3 py-2 pl-10">
-                <div className="truncate" title={doc.title}>
-                  {doc.title}
-                </div>
-                {doc.error_message ? (
-                  <p className="mt-1 truncate text-xs text-destructive" title={doc.error_message}>
-                    {truncateText(doc.error_message)}
-                  </p>
-                ) : null}
-              </td>
-              <td className="whitespace-nowrap px-3 py-2">
-                <DocumentStatusBadge status={doc.status} />
-              </td>
-              <td className="max-w-[280px] truncate px-3 py-2 font-mono text-xs">
-                {kb.kb_id}/{doc.document_id}
-              </td>
-              <td className="px-3 py-2">{doc.chunk_count}</td>
-              <td className="px-3 py-2 text-muted-foreground">{formatDate(doc.created_at)}</td>
-              <td className="px-3 py-2">
-                <div className="flex flex-wrap gap-1">
-                  {doc.status === 2 ? (
-                    <Button
-                      variant="ghost"
-                      className="h-8 px-2"
-                      type="button"
-                      onClick={() => onReindex(doc.document_id)}
-                    >
-                      <RotateCcw className="mr-1 h-3.5 w-3.5" />
-                      重试
-                    </Button>
-                  ) : null}
-                  {doc.status !== DOCUMENT_STATUS_PROCESSING ? (
-                    <Button
-                      variant="ghost"
-                      className="h-8 px-2 text-destructive"
-                      type="button"
-                      onClick={() => onDeleteDocument(doc)}
-                    >
-                      <Trash2 className="mr-1 h-3.5 w-3.5" />
-                      删除
-                    </Button>
-                  ) : null}
-                </div>
-              </td>
-            </tr>
+        ? kb.index_versions.map((version) => (
+            <IndexVersionRows
+              key={version.version}
+              kb={kb}
+              version={version}
+              onDeleteDocument={onDeleteDocument}
+              onReindex={onReindex}
+            />
           ))
         : null}
+    </>
+  );
+}
+
+function IndexVersionRows({
+  kb,
+  version,
+  onDeleteDocument,
+  onReindex,
+}: {
+  kb: KnowledgeBaseTreeItem;
+  version: IndexVersionTreeItem;
+  onDeleteDocument: (doc: DocumentTreeItem) => void;
+  onReindex: (documentId: string) => void;
+}) {
+  const query = buildKbQuery(kb.kb_id, version.version);
+  return (
+    <>
+      <tr className="border-t border-border bg-muted/30">
+        <td className="max-w-0 px-3 py-2 pl-10">
+          <div className="flex items-center gap-2">
+            <span className="font-medium">索引 {version.version}</span>
+            {version.is_current ? <Badge>默认检索</Badge> : null}
+          </div>
+        </td>
+        <td className="whitespace-nowrap px-3 py-2">
+          {INDEX_STATUS_LABELS[version.status]}
+        </td>
+        <td className="max-w-[280px] truncate px-3 py-2 font-mono text-xs">
+          {kb.kb_id}/{version.version}
+        </td>
+        <td className="px-3 py-2">{version.chunk_count}</td>
+        <td className="px-3 py-2 text-muted-foreground">{formatDate(version.created_at)}</td>
+        <td className="px-3 py-2">
+          {version.status !== "building" && version.status !== "failed" ? (
+            <Link
+              to={`/retrieve${query}`}
+              className="inline-flex h-8 items-center rounded-md px-2 text-sm hover:bg-muted"
+            >
+              用 {version.version} 检索
+            </Link>
+          ) : null}
+        </td>
+      </tr>
+      {version.documents.map((doc) => (
+        <tr
+          key={`${version.version}-${doc.document_id}`}
+          className="border-t border-border bg-muted/10"
+        >
+          <td className="max-w-0 px-3 py-2 pl-16">
+            <div className="truncate" title={doc.title}>
+              {doc.title}
+            </div>
+            {doc.error_message ? (
+              <p className="mt-1 truncate text-xs text-destructive" title={doc.error_message}>
+                {truncateText(doc.error_message)}
+              </p>
+            ) : null}
+          </td>
+          <td className="whitespace-nowrap px-3 py-2">
+            <DocumentStatusBadge status={doc.status} />
+          </td>
+          <td className="max-w-[280px] truncate px-3 py-2 font-mono text-xs">
+            {kb.kb_id}/{doc.document_id}
+          </td>
+          <td className="px-3 py-2">{doc.chunk_count}</td>
+          <td className="px-3 py-2 text-muted-foreground">{formatDate(doc.created_at)}</td>
+          <td className="px-3 py-2">
+            {version.is_current ? (
+              <div className="flex flex-wrap gap-1">
+                {doc.status === 2 ? (
+                  <Button
+                    variant="ghost"
+                    className="h-8 px-2"
+                    type="button"
+                    onClick={() => onReindex(doc.document_id)}
+                  >
+                    <RotateCcw className="mr-1 h-3.5 w-3.5" />
+                    重试
+                  </Button>
+                ) : null}
+                {doc.status !== DOCUMENT_STATUS_PROCESSING ? (
+                  <Button
+                    variant="ghost"
+                    className="h-8 px-2 text-destructive"
+                    type="button"
+                    onClick={() => onDeleteDocument(doc)}
+                  >
+                    <Trash2 className="mr-1 h-3.5 w-3.5" />
+                    删除
+                  </Button>
+                ) : null}
+              </div>
+            ) : (
+              <span className="text-xs text-muted-foreground">历史版本只读</span>
+            )}
+          </td>
+        </tr>
+      ))}
     </>
   );
 }

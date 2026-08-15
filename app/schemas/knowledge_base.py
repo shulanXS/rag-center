@@ -33,6 +33,7 @@ class KnowledgeBaseDetailData(BaseModel):
     name: str
     description: str | None
     settings: dict
+    active_index_version: str = "v1"
     document_count: int
     created_at: datetime
     updated_at: datetime
@@ -47,14 +48,44 @@ class DocumentTreeItem(BaseModel):
     created_at: datetime
 
 
+class IndexVersionTreeItem(BaseModel):
+    version: str
+    status: str
+    is_current: bool
+    document_count: int
+    chunk_count: int
+    created_at: datetime
+    completed_at: datetime | None = None
+    documents: list[DocumentTreeItem]
+
+
 class KnowledgeBaseTreeItem(BaseModel):
     kb_id: str
     name: str
     description: str | None
+    active_index_version: str = "v1"
     created_at: datetime
     documents: list[DocumentTreeItem]
+    index_versions: list[IndexVersionTreeItem] = Field(default_factory=list)
 
 
 class TenantTreeItem(BaseModel):
     tenant_id: str
     knowledge_bases: list[KnowledgeBaseTreeItem]
+
+
+class IndexVersionData(BaseModel):
+    version: str
+    status: str
+    document_count: int
+    chunk_count: int
+    error_message: str | None = None
+    created_at: datetime
+    completed_at: datetime | None = None
+    activated_at: datetime | None = None
+
+
+class RebuildIndexData(BaseModel):
+    kb_id: str
+    version: str
+    status: str

@@ -44,6 +44,7 @@ class Qwen3RerankProvider(RerankProvider):
         self.max_candidates = max_candidates
         self.chunk_max_chars = chunk_max_chars
         self.transport = transport
+        self.last_usage: dict[str, Any] = {}
 
     async def rerank(
         self,
@@ -124,6 +125,7 @@ class Qwen3RerankProvider(RerankProvider):
 
         cost_ms = int((time.perf_counter() - started_at) * 1000)
         usage = body.get("usage") if isinstance(body, dict) else None
+        self.last_usage = usage if isinstance(usage, dict) else {}
         total_tokens = usage.get("total_tokens") if isinstance(usage, dict) else None
         request_id = body.get("id") if isinstance(body, dict) else None
         logger.info(
@@ -139,6 +141,9 @@ class Qwen3RerankProvider(RerankProvider):
         return reranked
 
     def _build_document(self, chunk: dict[str, Any]) -> str:
+        retrieval_text = str(chunk.get("retrieval_text") or "").strip()
+        if retrieval_text:
+            return retrieval_text[: self.chunk_max_chars]
         title = str(chunk.get("title") or "").strip()
         content = str(chunk.get("content") or "")[: self.chunk_max_chars]
         return f"标题：{title}\n正文：{content}"

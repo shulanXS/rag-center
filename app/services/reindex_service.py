@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from app.core.logging import get_logger
 from app.models.document import Document
 from app.repositories.document_repository import DocumentRepository
+from app.repositories.knowledge_base_repository import KnowledgeBaseRepository
 from app.services.chunk_purge_service import purge_document_chunks
 from app.tasks.indexing import index_document_task
 from app.utils.status import DocumentStatus
@@ -15,7 +16,14 @@ async def queue_document_reindex(db: Session, document: Document, *, reparse: bo
         raise ValueError(f"document is processing: {document.id}")
 
     prior_status = document.status
-    await purge_document_chunks(db, document.id)
+    knowledge_base = KnowledgeBaseRepository(db).get_by_id(document.kb_id)
+    if knowledge_base is None:
+        raise ValueError(f"knowledge base not found: {document.kb_id}")
+    await purge_document_chunks(
+        db,
+        document.id,
+        index_version=knowledge_base.active_index_version,
+    )
     DocumentRepository(db).update_status(
         document,
         status=DocumentStatus.PROCESSING,

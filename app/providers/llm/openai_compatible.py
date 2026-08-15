@@ -21,6 +21,7 @@ class OpenAICompatibleLLMProvider(LLMProvider):
         self.api_key = api_key
         self.model = model
         self.timeout_seconds = timeout_seconds
+        self.last_usage: dict = {}
 
     async def chat_json(
         self,
@@ -71,6 +72,8 @@ class OpenAICompatibleLLMProvider(LLMProvider):
 
         try:
             body = response.json()
+            usage = body.get("usage") if isinstance(body, dict) else None
+            self.last_usage = usage if isinstance(usage, dict) else {}
             content = body["choices"][0]["message"]["content"]
             parsed = self._parse_json_content(content)
             cost_ms = (time.perf_counter() - started_at) * 1000

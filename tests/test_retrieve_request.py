@@ -80,3 +80,23 @@ def test_query_is_stripped():
         profile="balanced",
     )
     assert request.query == "hello"
+
+
+def test_index_version_is_optional_and_validated():
+    request = RetrieveRequest(
+        kb_id="kb-001",
+        user_id="user",
+        query="test",
+        index_version="v2",
+        profile="balanced",
+    )
+    assert request.index_version == "v2"
+
+    with pytest.raises(ValidationError):
+        RetrieveRequest(
+            kb_id="kb-001",
+            user_id="user",
+            query="test",
+            index_version="latest",
+            profile="balanced",
+        )

@@ -1,11 +1,20 @@
 import re
 from dataclasses import dataclass, field
+from uuid import NAMESPACE_URL, uuid5
 
 HEADING_RE = re.compile(r"^(#{1,6})\s+(.+)$")
 FENCE_RE = re.compile(r"^\s*```")
-HORIZONTAL_RULE_RE = re.compile(r"^-{3,}\s*$")
-SECTION_SPLIT_MIN_LEVEL = 1
-SECTION_SPLIT_MAX_LEVEL = 2
+HORIZONTAL_RULE_RE = re.compile(r"^\s*(?:-{3,}|\*{3,}|_{3,})\s*$")
+LIST_RE = re.compile(
+    r"^\s*(?:[-+*]|\d+[.)]|[（(]?[一二三四五六七八九十]+[、.)）])\s+"
+)
+NUMBERING_ONLY_RE = re.compile(
+    r"^\s*(?:\d+[.)、]?|[（(]?\d+[)）]|[一二三四五六七八九十]+[、.)）]?)\s*$"
+)
+MARKDOWN_MARK_RE = re.compile(r"[`*_>#~]+")
+MARKDOWN_LINK_RE = re.compile(r"\[([^\]]+)]\([^)]*\)")
+CONTENT_CHAR_RE = re.compile(r"[A-Za-z0-9\u4e00-\u9fff]")
+REFERENCE_POINTER_LINE_RE = re.compile(r"^>\s*关联规则")
 
 
 @dataclass(slots=True)
@@ -16,15 +25,63 @@ class SplitPiece:
 
 @dataclass(slots=True)
 class _Section:
-    heading_line: str | None
+    heading_title: str | None
     heading_path: str
+    parent_heading_path: str
+    heading_level: int | None
     body_lines: list[str]
 
 
 @dataclass(slots=True)
 class _ContentBlock:
-    kind: str  # prose | code | table
+    kind: str  # prose | list | code | table
     lines: list[str]
+
+
+def strip_markdown(value: str) -> str:
+    text = MARKDOWN_LINK_RE.sub(r"\1", value)
+    text = re.sub(r"^\s*(?:#{1,6}|[-+*]|\d+[.)])\s+", "", text, flags=re.MULTILINE)
+    text = MARKDOWN_MARK_RE.sub("", text)
+    return " ".join(text.split()).strip()
+
+
+def normalize_content(value: str) -> str:
+    return "".join(strip_markdown(value).lower().split())
+
+
+def is_reference_pointer_content(content: str) -> bool:
+    stripped = content.strip()
+    if not stripped:
+        return False
+    lines = [line.strip() for line in stripped.split("\n") if line.strip()]
+    if not lines:
+        return False
+    return all(REFERENCE_POINTER_LINE_RE.match(line) for line in lines)
+
+
+def is_low_information_content(content: str, heading: str | None = None) -> bool:
+    stripped = content.strip()
+    if not stripped or HORIZONTAL_RULE_RE.fullmatch(stripped):
+        return True
+    plain = strip_markdown(stripped)
+    if not plain or not CONTENT_CHAR_RE.search(plain):
+        return True
+    if NUMBERING_ONLY_RE.fullmatch(plain):
+        return True
+    return bool(heading and normalize_content(plain) == normalize_content(heading))
+
+
+def stable_section_id(document_id: str, index_version: str, heading_path: str) -> str:
+    section_key = heading_path.strip() or "__document_root__"
+    return str(uuid5(NAMESPACE_URL, f"rag-center:{document_id}:{index_version}:{section_key}"))
+
+
+def build_retrieval_text(*, title: str, heading_path: str, content: str) -> str:
+    lines = [f"文档：{title.strip()}"]
+    if heading_path.strip():
+        lines.append(f"章节：{heading_path.replace('/', ' > ')}")
+    lines.append(f"正文：{content.strip()}")
+    return "\n".join(lines)
 
 
 class MarkdownStructuredSplitter:
@@ -39,35 +96,76 @@ class MarkdownStructuredSplitter:
         self.chunk_overlap = chunk_overlap
         self.table_max_rows_per_chunk = table_max_rows_per_chunk
 
-    def split(self, text: str) -> list[SplitPiece]:
+    def split(
+        self,
+        text: str,
+        *,
+        document_id: str = "standalone",
+        index_version: str = "v2",
+    ) -> list[SplitPiece]:
         normalized = text.replace("\r\n", "\n").strip()
         if not normalized:
             return []
 
         sections = self._split_into_sections(normalized.split("\n"))
-        pieces: list[SplitPiece] = []
+        raw_pieces: list[SplitPiece] = []
         for section in sections:
-            pieces.extend(self._chunk_section(section))
-        return [piece for piece in pieces if piece.text.strip()]
+            raw_pieces.extend(self._chunk_section(section))
+
+        pieces: list[SplitPiece] = []
+        seen_in_section: set[tuple[str, str]] = set()
+        for piece in raw_pieces:
+            heading_title = piece.metadata.pop("_heading_title", None)
+            parent_heading_path = piece.metadata.pop("_parent_heading_path", "")
+            is_pointer = piece.metadata.get("chunk_type") == "reference_pointer"
+            if not is_pointer and is_low_information_content(piece.text, heading_title):
+                continue
+            heading_path = str(piece.metadata.get("heading_path") or "")
+            section_id = stable_section_id(document_id, index_version, heading_path)
+            dedupe_key = (section_id, normalize_content(piece.text))
+            if dedupe_key in seen_in_section:
+                continue
+            seen_in_section.add(dedupe_key)
+            piece.metadata.update(
+                {
+                    "section_id": section_id,
+                    "parent_section_id": stable_section_id(
+                        document_id, index_version, parent_heading_path
+                    )
+                    if parent_heading_path
+                    else None,
+                    "order_index": len(pieces),
+                }
+            )
+            pieces.append(piece)
+        return pieces
 
     def _split_into_sections(self, lines: list[str]) -> list[_Section]:
         sections: list[_Section] = []
         heading_stack: list[tuple[int, str]] = []
-        current_heading_line: str | None = None
+        current_heading_title: str | None = None
         current_heading_path = ""
+        current_parent_heading_path = ""
+        current_heading_level: int | None = None
         current_body: list[str] = []
 
         def flush() -> None:
-            nonlocal current_heading_line, current_heading_path, current_body
-            if current_heading_line is not None or current_body:
+            nonlocal current_heading_title, current_heading_path
+            nonlocal current_parent_heading_path, current_heading_level, current_body
+            if current_heading_title is not None or any(line.strip() for line in current_body):
                 sections.append(
                     _Section(
-                        heading_line=current_heading_line,
+                        heading_title=current_heading_title,
                         heading_path=current_heading_path,
+                        parent_heading_path=current_parent_heading_path,
+                        heading_level=current_heading_level,
                         body_lines=current_body,
                     )
                 )
-            current_heading_line = None
+            current_heading_title = None
+            current_heading_path = ""
+            current_parent_heading_path = ""
+            current_heading_level = None
             current_body = []
 
         for line in lines:
@@ -76,70 +174,67 @@ class MarkdownStructuredSplitter:
 
             match = HEADING_RE.match(line)
             if match:
+                flush()
                 level = len(match.group(1))
                 title = match.group(2).strip()
                 while heading_stack and heading_stack[-1][0] >= level:
                     heading_stack.pop()
+                parent_heading_path = "/".join(item[1] for item in heading_stack)
                 heading_stack.append((level, title))
-                heading_path = "/".join(item[1] for item in heading_stack)
-
-                if SECTION_SPLIT_MIN_LEVEL <= level <= SECTION_SPLIT_MAX_LEVEL:
-                    flush()
-                    current_heading_line = line
-                    current_heading_path = heading_path
-                else:
-                    current_body.append(line)
+                current_heading_title = title
+                current_heading_path = "/".join(item[1] for item in heading_stack)
+                current_parent_heading_path = parent_heading_path
+                current_heading_level = level
                 continue
 
-            if current_heading_line is None and not heading_stack:
-                current_body.append(line)
-                continue
             current_body.append(line)
 
         flush()
 
         if not sections and lines:
-            return [_Section(heading_line=None, heading_path="", body_lines=lines)]
+            return [
+                _Section(
+                    heading_title=None,
+                    heading_path="",
+                    parent_heading_path="",
+                    heading_level=None,
+                    body_lines=lines,
+                )
+            ]
         return sections
 
     def _chunk_section(self, section: _Section) -> list[SplitPiece]:
         blocks = self._parse_blocks(section.body_lines)
         pieces: list[SplitPiece] = []
-        heading_prefix = f"{section.heading_line}\n\n" if section.heading_line else ""
-        heading_used = False
 
         for block in blocks:
             if block.kind == "table":
-                if not heading_used and heading_prefix:
-                    # 标题仅随本节第一个块；表格块单独成 chunk，不拼标题行
-                    heading_used = True
-                pieces.extend(self._chunk_table(block.lines, section.heading_path))
-                continue
-
-            block_pieces = self._chunk_prose_block(block.lines, section.heading_path, block.kind)
-            for index, piece in enumerate(block_pieces):
-                if not heading_used and heading_prefix and index == 0:
-                    piece.text = heading_prefix + piece.text
-                    heading_used = True
+                block_pieces = self._chunk_table(block.lines, section.heading_path)
+            else:
+                block_pieces = self._chunk_prose_block(
+                    block.lines, section.heading_path, block.kind
+                )
+            for piece in block_pieces:
+                piece.metadata.update(
+                    {
+                        "heading_level": section.heading_level,
+                        "parser": "markdown",
+                        "_heading_title": section.heading_title,
+                        "_parent_heading_path": section.parent_heading_path,
+                    }
+                )
                 pieces.append(piece)
 
-        if not blocks and section.heading_line:
-            pieces.append(
-                SplitPiece(
-                    text=section.heading_line,
-                    metadata={
-                        "heading_path": section.heading_path,
-                        "chunk_type": "section",
-                    },
-                )
-            )
-        return pieces
+        return self._merge_section_pieces(pieces)
 
     def _parse_blocks(self, lines: list[str]) -> list[_ContentBlock]:
         blocks: list[_ContentBlock] = []
         index = 0
         while index < len(lines):
             line = lines[index]
+            if not line.strip():
+                index += 1
+                continue
             if FENCE_RE.match(line):
                 fence_lines = [line]
                 index += 1
@@ -161,10 +256,27 @@ class MarkdownStructuredSplitter:
                 blocks.append(_ContentBlock(kind="table", lines=table_lines))
                 continue
 
+            if LIST_RE.match(line):
+                list_lines = [line]
+                index += 1
+                while index < len(lines):
+                    current = lines[index]
+                    if LIST_RE.match(current) or (current.strip() and current[:1].isspace()):
+                        list_lines.append(current)
+                        index += 1
+                        continue
+                    break
+                blocks.append(_ContentBlock(kind="list", lines=list_lines))
+                continue
+
             prose_lines: list[str] = []
             while index < len(lines):
                 current = lines[index]
-                if FENCE_RE.match(current) or self._is_table_line(current):
+                if (
+                    FENCE_RE.match(current)
+                    or self._is_table_line(current)
+                    or LIST_RE.match(current)
+                ):
                     break
                 prose_lines.append(current)
                 index += 1
@@ -172,6 +284,71 @@ class MarkdownStructuredSplitter:
                 blocks.append(_ContentBlock(kind="prose", lines=prose_lines))
 
         return blocks
+
+    def _merge_section_pieces(self, pieces: list[SplitPiece]) -> list[SplitPiece]:
+        if not pieces:
+            return []
+
+        folded: list[SplitPiece] = []
+        leading_pointers: list[SplitPiece] = []
+        for piece in pieces:
+            if piece.metadata.get("chunk_type") == "reference_pointer":
+                if folded:
+                    self._append_piece(folded[-1], piece)
+                else:
+                    leading_pointers.append(piece)
+                continue
+            if leading_pointers:
+                for pointer in leading_pointers:
+                    self._append_piece(piece, pointer, prepend=True)
+                leading_pointers = []
+            folded.append(piece)
+        if leading_pointers:
+            folded.extend(leading_pointers)
+
+        merged: list[SplitPiece] = []
+        for piece in folded:
+            if merged and self._can_merge_pieces(merged[-1], piece):
+                self._append_piece(merged[-1], piece)
+                continue
+            merged.append(piece)
+        return merged
+
+    def _can_merge_pieces(self, left: SplitPiece, right: SplitPiece) -> bool:
+        if left.metadata.get("chunk_type") == "reference_pointer":
+            return True
+        if right.metadata.get("chunk_type") == "reference_pointer":
+            return True
+        if left.metadata.get("table_part") is not None and right.metadata.get("table_part") is not None:
+            return False
+        combined = len(left.text) + 2 + len(right.text)
+        return combined <= self.chunk_size
+
+    @staticmethod
+    def _append_piece(target: SplitPiece, source: SplitPiece, *, prepend: bool = False) -> None:
+        if prepend:
+            target.text = f"{source.text.rstrip()}\n\n{target.text.lstrip()}"
+        else:
+            target.text = f"{target.text.rstrip()}\n\n{source.text.lstrip()}"
+        source_type = str(source.metadata.get("chunk_type") or "prose")
+        target_type = str(target.metadata.get("chunk_type") or "prose")
+        types = {target_type, source_type}
+        types.discard("reference_pointer")
+        if types == {"table"}:
+            chunk_type = "table"
+        elif types == {"list"}:
+            chunk_type = "list"
+        elif types == {"code"}:
+            chunk_type = "code"
+        else:
+            chunk_type = "prose"
+        target.metadata["chunk_type"] = chunk_type
+        refs = list(target.metadata.get("reference_texts") or [])
+        refs.extend(source.metadata.get("reference_texts") or [])
+        if source_type == "reference_pointer" and source.text not in refs:
+            refs.append(source.text)
+        if refs:
+            target.metadata["reference_texts"] = refs
 
     def _chunk_prose_block(
         self,
@@ -183,7 +360,25 @@ class MarkdownStructuredSplitter:
         if not text:
             return []
 
-        chunk_type = "code" if kind == "code" else "section"
+        chunk_type = kind if kind in {"code", "list"} else "prose"
+        paragraphs = re.split(r"\n\s*\n", text)
+        if len(paragraphs) > 1 and kind != "code":
+            return self._split_paragraphs(
+                [paragraph.strip() for paragraph in paragraphs if paragraph.strip()],
+                heading_path,
+                chunk_type,
+            )
+        if is_reference_pointer_content(text):
+            return [
+                SplitPiece(
+                    text=text,
+                    metadata={
+                        "heading_path": heading_path,
+                        "chunk_type": "reference_pointer",
+                        "reference_texts": [text],
+                    },
+                )
+            ]
         if len(text) <= self.chunk_size:
             return [
                 SplitPiece(
@@ -292,6 +487,19 @@ class MarkdownStructuredSplitter:
         for paragraph in paragraphs:
             paragraph = paragraph.strip()
             if not paragraph:
+                continue
+            if is_reference_pointer_content(paragraph):
+                flush_buffer()
+                pieces.append(
+                    SplitPiece(
+                        text=paragraph,
+                        metadata={
+                            "heading_path": heading_path,
+                            "chunk_type": "reference_pointer",
+                            "reference_texts": [paragraph],
+                        },
+                    )
+                )
                 continue
             extra = len(paragraph) + (2 if buffer else 0)
             if buffer and buffer_len + extra > self.chunk_size:

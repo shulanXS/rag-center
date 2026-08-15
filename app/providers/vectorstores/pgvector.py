@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
 from app.models.chunk import Chunk
@@ -22,6 +22,11 @@ class PgVectorStore(VectorStore):
                 document_id=chunk["document_id"],
                 title=chunk["title"],
                 content=chunk["content"],
+                retrieval_text=chunk.get("retrieval_text"),
+                index_version=chunk.get("index_version", "v1"),
+                section_id=chunk.get("section_id"),
+                parent_section_id=chunk.get("parent_section_id"),
+                order_index=chunk.get("order_index"),
                 metadata_=chunk.get("metadata", {}),
                 embedding=chunk["embedding"],
             )
@@ -35,15 +40,22 @@ class PgVectorStore(VectorStore):
         *,
         tenant_id: str,
         kb_id: str,
+        index_version: str | None = None,
         top_k: int = 5,
     ) -> list[dict]:
         distance = Chunk.embedding.cosine_distance(query_vector).label("distance")
-        stmt = (
-            select(Chunk, distance)
-            .where(Chunk.tenant_id == tenant_id, Chunk.kb_id == kb_id)
-            .order_by(distance)
-            .limit(top_k)
+        stmt = select(Chunk, distance).where(
+            Chunk.tenant_id == tenant_id, Chunk.kb_id == kb_id
         )
+        if index_version is not None:
+            stmt = stmt.where(Chunk.index_version == index_version)
+        stmt = stmt.where(
+            or_(
+                Chunk.metadata_["chunk_type"].astext.is_(None),
+                Chunk.metadata_["chunk_type"].astext != "reference_pointer",
+            )
+        )
+        stmt = stmt.order_by(distance).limit(top_k)
         rows = self.db.execute(stmt).all()
 
         results: list[dict] = []
@@ -55,12 +67,18 @@ class PgVectorStore(VectorStore):
                     "chunk_id": chunk.id,
                     "title": chunk.title,
                     "content": chunk.content,
+                    "retrieval_text": chunk.retrieval_text,
+                    "index_version": chunk.index_version,
+                    "section_id": chunk.section_id,
+                    "parent_section_id": chunk.parent_section_id,
+                    "order_index": chunk.order_index,
                     "score": score,
                     "metadata": chunk.metadata_ or {},
                 }
             )
         return results
 
-    async def delete_by_document_id(self, document_id: str) -> None:
-        self.chunk_repository.delete_by_document_id(document_id)
-
+    async def delete_by_document_id(
+        self, document_id: str, *, index_version: str | None = None
+    ) -> None:
+        self.chunk_repository.delete_by_document_id(document_id, index_version=index_version)

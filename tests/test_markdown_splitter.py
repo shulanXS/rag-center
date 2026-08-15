@@ -42,7 +42,7 @@ def test_plain_text_without_headings():
     text = "第一段。\n\n第二段内容。"
     pieces = make_splitter(chunk_size=800).split(text)
     assert len(pieces) >= 1
-    assert pieces[0].metadata.get("chunk_type") == "section"
+    assert pieces[0].metadata.get("chunk_type") == "prose"
 
 
 def test_small_table_kept_whole():
@@ -105,12 +105,12 @@ def test_h1_and_h2_both_split_sections():
     assert "测试知识库/第一节" in paths
     assert "测试知识库/第二节" in paths
     preamble = next(p for p in pieces if p.metadata.get("heading_path") == "测试知识库")
-    assert preamble.text.startswith("# 测试知识库")
+    assert not preamble.text.startswith("# 测试知识库")
     assert "文首说明段落" in preamble.text
     assert "第一节的内容" not in preamble.text
 
 
-def test_h3_stays_in_h2_section():
+def test_h3_creates_child_sections():
     text = """## 仓库作业
 
 ### 4.1 出库时效
@@ -123,10 +123,10 @@ def test_h3_stays_in_h2_section():
 """
     pieces = make_splitter().split(text)
     paths = {piece.metadata.get("heading_path") for piece in pieces}
-    assert paths == {"仓库作业"}
+    assert paths == {"仓库作业/4.1 出库时效", "仓库作业/4.2 入库时效"}
     combined = "\n".join(piece.text for piece in pieces)
-    assert "### 4.1 出库时效" in combined
-    assert "### 4.2 入库时效" in combined
+    assert "### 4.1 出库时效" not in combined
+    assert "### 4.2 入库时效" not in combined
     assert "出库说明段落" in combined
     assert "入库说明段落" in combined
 
@@ -160,7 +160,7 @@ def test_mixed_heading_paragraph_table():
 """
     pieces = make_splitter().split(text)
     types = [piece.metadata.get("chunk_type") for piece in pieces]
-    assert "section" in types
+    assert "prose" in types
     assert "table" in types
     table_piece = next(piece for piece in pieces if piece.metadata.get("chunk_type") == "table")
     assert "券为什么不能用" in table_piece.text

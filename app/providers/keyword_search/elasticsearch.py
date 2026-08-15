@@ -1,5 +1,5 @@
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from time import perf_counter
 from typing import Any
 
@@ -34,7 +34,7 @@ class ElasticsearchKeywordSearchProvider(KeywordSearchProvider):
         started_at = perf_counter()
         await self.ensure_index()
         bulk_lines: list[str] = []
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
 
         for chunk in chunks:
             doc_id = chunk["chunk_id"]
@@ -45,6 +45,11 @@ class ElasticsearchKeywordSearchProvider(KeywordSearchProvider):
                 "chunk_id": chunk["chunk_id"],
                 "title": chunk["title"],
                 "content": chunk["content"],
+                "retrieval_text": chunk.get("retrieval_text"),
+                "index_version": chunk.get("index_version", "v1"),
+                "section_id": chunk.get("section_id"),
+                "parent_section_id": chunk.get("parent_section_id"),
+                "order_index": chunk.get("order_index"),
                 "metadata": chunk.get("metadata", {}),
                 "created_at": now,
             }
@@ -113,20 +118,25 @@ class ElasticsearchKeywordSearchProvider(KeywordSearchProvider):
         query: str,
         tenant_id: str,
         kb_id: str,
+        index_version: str | None = None,
         top_k: int = 20,
     ) -> list[dict]:
         started_at = perf_counter()
+        filters: list[dict[str, Any]] = [
+            {"term": {"tenant_id": tenant_id}},
+            {"term": {"kb_id": kb_id}},
+        ]
+        if index_version is not None:
+            filters.append({"term": {"index_version": index_version}})
+        fields = ["retrieval_text"] if index_version and index_version != "v1" else ["title^2", "content"]
         payload: dict[str, Any] = {
             "query": {
                 "bool": {
-                    "filter": [
-                        {"term": {"tenant_id": tenant_id}},
-                        {"term": {"kb_id": kb_id}},
-                    ],
+                    "filter": filters,
                     "must": {
                         "multi_match": {
                             "query": query,
-                            "fields": ["title^2", "content"],
+                            "fields": fields,
                         }
                     },
                 }
@@ -171,6 +181,11 @@ class ElasticsearchKeywordSearchProvider(KeywordSearchProvider):
                     "chunk_id": source.get("chunk_id"),
                     "title": source.get("title", ""),
                     "content": source.get("content", ""),
+                    "retrieval_text": source.get("retrieval_text"),
+                    "index_version": source.get("index_version", "v1"),
+                    "section_id": source.get("section_id"),
+                    "parent_section_id": source.get("parent_section_id"),
+                    "order_index": source.get("order_index"),
                     "bm25_score": float(hit.get("_score") or 0.0),
                     "metadata": source.get("metadata", {}),
                 }
@@ -190,8 +205,13 @@ class ElasticsearchKeywordSearchProvider(KeywordSearchProvider):
         )
         return results
 
-    async def delete_by_document_id(self, document_id: str) -> None:
-        payload = {"query": {"term": {"document_id": document_id}}}
+    async def delete_by_document_id(
+        self, document_id: str, *, index_version: str | None = None
+    ) -> None:
+        filters: list[dict[str, Any]] = [{"term": {"document_id": document_id}}]
+        if index_version is not None:
+            filters.append({"term": {"index_version": index_version}})
+        payload = {"query": {"bool": {"filter": filters}}}
         try:
             async with httpx.AsyncClient(timeout=self.timeout, trust_env=False) as client:
                 response = await client.post(
@@ -217,11 +237,33 @@ class ElasticsearchKeywordSearchProvider(KeywordSearchProvider):
                 context={"index": self.index_name, "document_id": document_id},
             ) from exc
 
+    async def delete_by_kb_version(
+        self, *, tenant_id: str, kb_id: str, index_version: str
+    ) -> None:
+        payload = {
+            "query": {
+                "bool": {
+                    "filter": [
+                        {"term": {"tenant_id": tenant_id}},
+                        {"term": {"kb_id": kb_id}},
+                        {"term": {"index_version": index_version}},
+                    ]
+                }
+            }
+        }
+        async with httpx.AsyncClient(timeout=self.timeout, trust_env=False) as client:
+            response = await client.post(
+                f"{self.base_url}/{self.index_name}/_delete_by_query?refresh=true&conflicts=proceed",
+                json=payload,
+            )
+            response.raise_for_status()
+
     async def ensure_index(self) -> None:
         try:
             async with httpx.AsyncClient(timeout=self.timeout, trust_env=False) as client:
                 response = await client.head(f"{self.base_url}/{self.index_name}")
                 if response.status_code == 200:
+                    await self._ensure_mapping(client)
                     return
                 if response.status_code != 404:
                     response.raise_for_status()
@@ -264,6 +306,10 @@ class ElasticsearchKeywordSearchProvider(KeywordSearchProvider):
                     "kb_id": {"type": "keyword"},
                     "document_id": {"type": "keyword"},
                     "chunk_id": {"type": "keyword"},
+                    "index_version": {"type": "keyword"},
+                    "section_id": {"type": "keyword"},
+                    "parent_section_id": {"type": "keyword"},
+                    "order_index": {"type": "integer"},
                     "title": {
                         "type": "text",
                         "analyzer": "ik_max_word",
@@ -274,11 +320,76 @@ class ElasticsearchKeywordSearchProvider(KeywordSearchProvider):
                         "analyzer": "ik_max_word",
                         "search_analyzer": "ik_smart",
                     },
-                    "metadata": {"type": "object", "enabled": True},
+                    "retrieval_text": {
+                        "type": "text",
+                        "analyzer": "ik_max_word",
+                        "search_analyzer": "ik_smart",
+                    },
+                    "metadata": {"type": "object", "enabled": False},
                     "created_at": {"type": "date"},
                 }
             },
         }
+
+    async def _ensure_mapping(self, client: httpx.AsyncClient) -> None:
+        response = await client.put(
+            f"{self.base_url}/{self.index_name}/_mapping",
+            json={
+                "properties": {
+                    "index_version": {"type": "keyword"},
+                    "retrieval_text": {
+                        "type": "text",
+                        "analyzer": "ik_max_word",
+                        "search_analyzer": "ik_smart",
+                    },
+                    "section_id": {"type": "keyword"},
+                    "parent_section_id": {"type": "keyword"},
+                    "order_index": {"type": "integer"},
+                }
+            },
+        )
+        response.raise_for_status()
+
+    async def backfill_v1_index_version(self) -> dict[str, int]:
+        await self.ensure_index()
+        payload = {
+            "script": {
+                "source": "if (ctx._source.index_version == null) { ctx._source.index_version = 'v1' }",
+                "lang": "painless",
+            },
+            "query": {"bool": {"must_not": {"exists": {"field": "index_version"}}}},
+        }
+        async with httpx.AsyncClient(timeout=self.timeout, trust_env=False) as client:
+            response = await client.post(
+                f"{self.base_url}/{self.index_name}/_update_by_query?refresh=true&conflicts=proceed",
+                json=payload,
+            )
+            response.raise_for_status()
+            body = response.json()
+        return {
+            "total": int(body.get("total") or 0),
+            "updated": int(body.get("updated") or 0),
+            "version_conflicts": int(body.get("version_conflicts") or 0),
+        }
+
+    async def count_by_version(
+        self, *, tenant_id: str, kb_id: str, index_version: str | None
+    ) -> int:
+        filters: list[dict[str, Any]] = [
+            {"term": {"tenant_id": tenant_id}},
+            {"term": {"kb_id": kb_id}},
+        ]
+        if index_version is None:
+            filters.append({"bool": {"must_not": {"exists": {"field": "index_version"}}}})
+        else:
+            filters.append({"term": {"index_version": index_version}})
+        async with httpx.AsyncClient(timeout=self.timeout, trust_env=False) as client:
+            response = await client.post(
+                f"{self.base_url}/{self.index_name}/_count",
+                json={"query": {"bool": {"filter": filters}}},
+            )
+            response.raise_for_status()
+            return int(response.json().get("count") or 0)
 
 
 def _response_text(exc: httpx.HTTPError) -> str | None:

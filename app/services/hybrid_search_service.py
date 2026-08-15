@@ -17,11 +17,7 @@ class HybridSearchService:
         for rank, chunk in enumerate(vector_chunks, start=1):
             chunk_id = chunk["chunk_id"]
             merged[chunk_id] = {
-                "document_id": chunk["document_id"],
-                "chunk_id": chunk_id,
-                "title": chunk["title"],
-                "content": chunk["content"],
-                "metadata": chunk.get("metadata") or {},
+                **chunk,
                 "vector_score": chunk.get("score"),
                 "bm25_score": None,
                 "vector_rank": rank,
@@ -33,11 +29,7 @@ class HybridSearchService:
             existing = merged.get(chunk_id)
             if existing is None:
                 merged[chunk_id] = {
-                    "document_id": chunk["document_id"],
-                    "chunk_id": chunk_id,
-                    "title": chunk["title"],
-                    "content": chunk["content"],
-                    "metadata": chunk.get("metadata") or {},
+                    **chunk,
                     "vector_score": None,
                     "bm25_score": chunk.get("bm25_score"),
                     "vector_rank": None,
@@ -46,8 +38,16 @@ class HybridSearchService:
             else:
                 existing["bm25_score"] = chunk.get("bm25_score")
                 existing["bm25_rank"] = rank
-                if not existing.get("metadata") and chunk.get("metadata"):
-                    existing["metadata"] = chunk.get("metadata")
+                for field in (
+                    "retrieval_text",
+                    "index_version",
+                    "section_id",
+                    "parent_section_id",
+                    "order_index",
+                    "metadata",
+                ):
+                    if existing.get(field) is None and chunk.get(field) is not None:
+                        existing[field] = chunk[field]
 
         fused: list[dict] = []
         for chunk in merged.values():

@@ -1,0 +1,345 @@
+{
+  "name": "opt16_context_retrieval",
+  "knowledge_base_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+  "tenant_id": "tenant_ecom_pro",
+  "profile": "custom",
+  "top_k": 10,
+  "retrieval_options": {
+    "mode": "hybrid",
+    "vector_top_k": 20,
+    "bm25_top_k": 20,
+    "rrf_k": 60
+  },
+  "rerank_enabled": false,
+  "query_rewrite_enabled": false,
+  "annotation": {
+    "method": "document_grounded_spec",
+    "rubric": "0=无关，1=主题相关，2=有效支撑，3=核心证据",
+    "chunk_id_independent": true
+  },
+  "suites": {
+    "core": {
+      "description": "优化十六默认验收集，覆盖父子章节、相邻片段、跨章节、跨文档引用和无需扩展的完整证据",
+      "case_ids": [
+        "live_category_qualification",
+        "live_campaign_shipping",
+        "live_order_responsibility",
+        "search_ad_invoice_reconciliation",
+        "search_personalization_off",
+        "payment_combined_refund",
+        "payment_duplicate_charge",
+        "payment_risk_appeal",
+        "member_points_refund",
+        "member_plus_cancel",
+        "aftersales_intercept_refund",
+        "aftersales_seven_day_freight"
+      ]
+    },
+    "full": {
+      "description": "优化十六完整回归集",
+      "case_ids": "all"
+    }
+  },
+  "cases": [
+    {
+      "id": "live_category_qualification",
+      "question": "直播带货美妆或医疗器械需要哪些额外资质？",
+      "ground_truth": "达人需先取得带货权限，食品、美妆、医疗器械等类目还需满足对应类目资质要求。",
+      "expected_documents": ["直播带货与内容营销合规.md", "商品上架与类目合规规范.md"],
+      "expected_headings": ["2. 开播与账号要求", "3. 类目资质对照（示例）"],
+      "expected_relation": "reference",
+      "context_required": true,
+      "expected_keywords": ["带货权限", "类目资质"]
+    },
+    {
+      "id": "live_campaign_shipping",
+      "question": "大场直播产生的大促订单多久要发货，超时如何处理？",
+      "ground_truth": "直播大促订单适用活动发货SLA；大促订单通常48小时内揽收，超时按活动规则赔付。",
+      "expected_documents": ["直播带货与内容营销合规.md", "仓储物流与发货履约SLA.md", "促销活动与优惠券使用规则.md"],
+      "expected_headings": ["5. 直播间交易特殊规则", "2. 发货 SLA", "5. 大促商家规则（节选）"],
+      "expected_relation": "reference",
+      "context_required": true,
+      "expected_keywords": ["48 小时", "揽收", "赔付"]
+    },
+    {
+      "id": "live_member_price_protection",
+      "question": "白金会员在直播间买贵了，能申请多少天价保，秒杀商品适用吗？",
+      "ground_truth": "白金会员价保周期为30天，但秒杀和清仓等排除活动不适用，具体以促销价保规则为准。",
+      "expected_documents": ["直播带货与内容营销合规.md", "会员体系与积分权益说明.md", "促销活动与优惠券使用规则.md"],
+      "expected_headings": ["8. 客服常见问题应答", "4. 价保与会员专属服务", "4. 价格保护（价保）"],
+      "expected_relation": "reference",
+      "context_required": true,
+      "expected_keywords": ["30 天", "秒杀", "清仓"]
+    },
+    {
+      "id": "live_refund_commission",
+      "question": "直播订单发生售后退款后，达人佣金还会保留吗？",
+      "ground_truth": "不会，售后成功退款后对应达人佣金会被收回。",
+      "expected_documents": ["直播带货与内容营销合规.md"],
+      "expected_headings": ["4. 选品与佣金"],
+      "expected_relation": "none",
+      "context_required": false,
+      "expected_keywords": ["退货扣佣", "收回"]
+    },
+    {
+      "id": "live_order_responsibility",
+      "question": "直播间下单后由主播还是店铺商家承担售后和发票义务？",
+      "ground_truth": "消费者与店铺商家建立买卖合同，售后和发票义务主体是店铺商家，达人通常不是合同卖方。",
+      "expected_documents": ["直播带货与内容营销合规.md"],
+      "expected_headings": ["1. 角色与责任"],
+      "expected_relation": "same_section",
+      "context_required": true,
+      "expected_keywords": ["店铺商家", "售后", "发票"]
+    },
+    {
+      "id": "search_title_category",
+      "question": "商品堆砌无关关键词或放错类目，会影响自然搜索吗？",
+      "ground_truth": "会。堆砌无关关键词、错放类目属于搜索违规，可被降权7至90天或清退；标题和类目还需符合上架规范。",
+      "expected_documents": ["搜索推荐与广告投放规则.md", "商品上架与类目合规规范.md"],
+      "expected_headings": ["1. 自然搜索排序因素（概要）", "2. 商品信息要求"],
+      "expected_relation": "reference",
+      "context_required": true,
+      "expected_keywords": ["降权", "7~90 天", "错放类目"]
+    },
+    {
+      "id": "search_medical_admission",
+      "question": "医疗类商品已经上架，为什么广告素材仍可能被拒绝？",
+      "ground_truth": "医疗类广告除商品上架外还需通过单独类目资质审核，素材不得使用绝对化用语或虚假功效。",
+      "expected_documents": ["搜索推荐与广告投放规则.md", "商品上架与类目合规规范.md"],
+      "expected_headings": ["4. 投放准入与素材规范", "3. 类目资质对照（示例）"],
+      "expected_relation": "reference",
+      "context_required": true,
+      "expected_keywords": ["类目资质", "虚假功效", "绝对化用语"]
+    },
+    {
+      "id": "search_ad_invoice_reconciliation",
+      "question": "广告费账单有差异怎么申诉，广告费发票由谁开？",
+      "ground_truth": "广告账单异议应在账单日后7天内提出；广告费发票按合同税率由平台向商家开具，详细对账和发票规则见商家结算文档。",
+      "expected_documents": ["搜索推荐与广告投放规则.md", "商家入驻结算与对账流程.md"],
+      "expected_headings": ["5. 出价、预算与结算", "4. 对账与提现", "6. 发票与税务"],
+      "expected_relation": "reference",
+      "context_required": true,
+      "expected_keywords": ["7 天", "发票", "对账"]
+    },
+    {
+      "id": "search_ad_spend_no_impression",
+      "question": "广告费已经扣了却没有展现，应该先排查什么？",
+      "ground_truth": "依次检查预算、出价、投放时段、素材是否拒审以及商品和店铺是否满足投放准入。",
+      "expected_documents": ["搜索推荐与广告投放规则.md"],
+      "expected_headings": ["4. 投放准入与素材规范", "5. 出价、预算与结算", "8. 客服 / 商家运营常见问题"],
+      "expected_relation": "reference",
+      "context_required": true,
+      "expected_keywords": ["预算", "出价", "素材拒审"]
+    },
+    {
+      "id": "search_personalization_off",
+      "question": "关闭个性化推荐后是不是就完全看不到推荐和广告了？",
+      "ground_truth": "不是。关闭后仍会展示热门或编辑精选，只会减少基于个人行为的定向；广告偏好也不保证完全消失。",
+      "expected_documents": ["搜索推荐与广告投放规则.md"],
+      "expected_headings": ["7. 消费者侧透明度"],
+      "expected_relation": "none",
+      "context_required": false,
+      "expected_keywords": ["热门", "编辑精选", "不保证完全消失"]
+    },
+    {
+      "id": "payment_combined_refund",
+      "question": "组合支付发生部分退款后，银行卡、优惠券和积分分别怎么退？",
+      "ground_truth": "现金部分按原支付比例和原路退回；优惠券按促销规则决定是否退回；已抵扣积分按等值规则退回，过期积分不退。",
+      "expected_documents": ["支付方式与资金安全规范.md", "促销活动与优惠券使用规则.md", "会员体系与积分权益说明.md"],
+      "expected_headings": ["3. 退款原路退回", "2. 优惠券分类", "2. 积分规则"],
+      "expected_relation": "reference",
+      "context_required": true,
+      "expected_keywords": ["按支付比例", "优惠券", "积分"]
+    },
+    {
+      "id": "payment_bank_refund_timing",
+      "question": "退货审核通过后，银行卡退款一般多久能到账？",
+      "ground_truth": "商家完成售后审核并同意退款后，银行卡通常1至3个工作日原路退回，节假日顺延。",
+      "expected_documents": ["售后服务与退换货政策.md", "支付方式与资金安全规范.md"],
+      "expected_headings": ["4. 售后时效 SLA", "3. 退款原路退回"],
+      "expected_relation": "reference",
+      "context_required": true,
+      "expected_keywords": ["银行卡", "1~3 工作日", "原路退回"]
+    },
+    {
+      "id": "payment_duplicate_charge",
+      "question": "同一个订单被重复扣款，多余的钱多久退回？",
+      "ground_truth": "系统识别同一订单多次成功扣款后会自动退回多余款项，通常1至3个工作日。",
+      "expected_documents": ["支付方式与资金安全规范.md"],
+      "expected_headings": ["2. 支付流程与超时"],
+      "expected_relation": "none",
+      "context_required": false,
+      "expected_keywords": ["重复支付", "自动退回", "1~3 工作日"]
+    },
+    {
+      "id": "payment_risk_appeal",
+      "question": "异地登录后大额支付被风控拦截，怎么申诉，多久复核？",
+      "ground_truth": "异地异常登录后大额支付可能需要短信或人脸二次验证；误杀可提交支付安全申诉，风控48小时内复核。",
+      "expected_documents": ["支付方式与资金安全规范.md"],
+      "expected_headings": ["5. 风控拦截场景"],
+      "expected_relation": "same_section",
+      "context_required": true,
+      "expected_keywords": ["二次验证", "48 小时", "支付安全申诉"]
+    },
+    {
+      "id": "payment_merchant_reconciliation",
+      "question": "商家发现支付结算单有差异，应在什么时候申诉，提现多久到？",
+      "ground_truth": "商家应在结算单发布后7天内提交差异申诉；可提现余额发起提现后通常1至3个工作日到账。",
+      "expected_documents": ["支付方式与资金安全规范.md", "商家入驻结算与对账流程.md"],
+      "expected_headings": ["7. 对账与异常处理", "4. 对账与提现"],
+      "expected_relation": "reference",
+      "context_required": true,
+      "expected_keywords": ["7 天", "1~3 个工作日", "提现"]
+    },
+    {
+      "id": "member_points_refund",
+      "question": "积分抵扣订单退款后，积分和现金分别怎么退？",
+      "ground_truth": "已使用积分按抵扣金额等值退回积分池，已过期积分不退；现金部分按原支付渠道原路退回。",
+      "expected_documents": ["会员体系与积分权益说明.md", "支付方式与资金安全规范.md"],
+      "expected_headings": ["2. 积分规则", "3. 退款原路退回"],
+      "expected_relation": "reference",
+      "context_required": true,
+      "expected_keywords": ["等值", "过期", "原路退回"]
+    },
+    {
+      "id": "member_platinum_price_protection",
+      "question": "白金会员购买清仓商品后降价，可以按30天价保退差价吗？",
+      "ground_truth": "不可以。白金会员通常享受30天价保，但清仓和秒杀属于排除活动。",
+      "expected_documents": ["会员体系与积分权益说明.md", "促销活动与优惠券使用规则.md"],
+      "expected_headings": ["4. 价保与会员专属服务", "4. 价格保护（价保）"],
+      "expected_relation": "reference",
+      "context_required": true,
+      "expected_keywords": ["30 天", "清仓", "除外"]
+    },
+    {
+      "id": "member_enterprise_payment_invoice",
+      "question": "企业购会员如何对公付款，能开增值税专用发票吗？",
+      "ground_truth": "企业购会员完成企业认证并通过授信后可使用对公转账或月结账期，也支持按企业抬头批量开具增值税专用发票。",
+      "expected_documents": ["会员体系与积分权益说明.md", "支付方式与资金安全规范.md", "商家入驻结算与对账流程.md"],
+      "expected_headings": ["5. 企业购会员", "1. 支持的支付方式", "6. 发票与税务"],
+      "expected_relation": "reference",
+      "context_required": true,
+      "expected_keywords": ["对公转账", "增值税专用发票", "企业认证"]
+    },
+    {
+      "id": "member_plus_cancel",
+      "question": "Plus年卡买后7天内可以全额退款吗？",
+      "ground_truth": "只有在7日内且没有使用任何Plus专属权益时才能全额退款；已使用权益则按剩余天数折算，领取券包视为使用当月权益。",
+      "expected_documents": ["会员体系与积分权益说明.md"],
+      "expected_headings": ["3. 付费会员（Plus）"],
+      "expected_relation": "same_section",
+      "context_required": true,
+      "expected_keywords": ["7 日内", "未使用", "券包"]
+    },
+    {
+      "id": "member_level_downgrade",
+      "question": "会员等级为什么会下降，降级后有没有缓冲期？",
+      "ground_truth": "每月1日按近12个月实付重新计算等级，未达到门槛会降级，但有1个自然月缓冲期。",
+      "expected_documents": ["会员体系与积分权益说明.md"],
+      "expected_headings": ["1. 会员等级"],
+      "expected_relation": "same_section",
+      "context_required": true,
+      "expected_keywords": ["滚动 12 个月", "1 个自然月", "实付"]
+    },
+    {
+      "id": "aftersales_shipping_insurance",
+      "question": "七天无理由退货的运费由谁承担，有运费险怎么理赔？",
+      "ground_truth": "无理由退货通常由买家承担运费；有运费险时按保障规则理赔首重，理赔与退款相互独立。",
+      "expected_documents": ["售后服务与退换货政策.md", "平台交易规则与买家保障.md"],
+      "expected_headings": ["2. 七天无理由退货", "3.3 运费险"],
+      "expected_relation": "reference",
+      "context_required": true,
+      "expected_keywords": ["买家承担", "运费险", "首重"]
+    },
+    {
+      "id": "aftersales_full_timeline",
+      "question": "商家收到退货后多久完成质检，银行卡退款还要多久？",
+      "ground_truth": "商家签收退货后应在48小时内完成质检并同意或拒绝退款；同意后银行卡通常1至3个工作日原路退回。",
+      "expected_documents": ["售后服务与退换货政策.md", "支付方式与资金安全规范.md"],
+      "expected_headings": ["4. 售后时效 SLA", "3. 退款原路退回"],
+      "expected_relation": "reference",
+      "context_required": true,
+      "expected_keywords": ["48 小时", "1~3 个工作日", "银行卡"]
+    },
+    {
+      "id": "aftersales_intercept_refund",
+      "question": "商品已经发货但未签收，拦截成功后怎么退款，失败怎么办？",
+      "ground_truth": "已发货未签收可以申请快递拦截；拦截成功则退款，失败需按退货流程处理，退货入库后由仓库质检并触发退款。",
+      "expected_documents": ["售后服务与退换货政策.md", "仓储物流与发货履约SLA.md"],
+      "expected_headings": ["6. 拒收与拦截", "6. 逆向物流（退货）"],
+      "expected_relation": "reference",
+      "context_required": true,
+      "expected_keywords": ["拦截", "退货流程", "质检"]
+    },
+    {
+      "id": "aftersales_seven_day_freight",
+      "question": "七天无理由退货要满足哪些条件，退货运费由谁出？",
+      "ground_truth": "应在确认收货后7个自然日内发起且商品完好、不影响二次销售；无理由退货运费通常由买家承担。",
+      "expected_documents": ["售后服务与退换货政策.md"],
+      "expected_headings": ["2. 七天无理由退货"],
+      "expected_relation": "same_section",
+      "context_required": true,
+      "expected_keywords": ["7 个自然日", "不影响二次销售", "买家承担"]
+    },
+    {
+      "id": "aftersales_auto_approval",
+      "question": "商家超过多久不审核退货会自动同意，费用谁承担？",
+      "ground_truth": "商家应在24小时内审核退货申请，超时系统按买家诉求自动通过，费用由商家承担。",
+      "expected_documents": ["售后服务与退换货政策.md"],
+      "expected_headings": ["4. 售后时效 SLA"],
+      "expected_relation": "same_section",
+      "context_required": true,
+      "expected_keywords": ["24 小时", "自动通过", "商家承担"]
+    },
+    {
+      "id": "promotion_discount_order",
+      "question": "活动价、跨店满减、平台券、店铺券、红包和积分按什么顺序抵扣？",
+      "ground_truth": "顺序为活动价、跨店满减、店铺满减、平台券、店铺券、红包，最后积分抵扣。",
+      "expected_documents": ["促销活动与优惠券使用规则.md"],
+      "expected_headings": ["3. 叠加优先级（结算顺序）"],
+      "expected_relation": "none",
+      "context_required": false,
+      "expected_keywords": ["活动价", "平台券", "积分抵扣"]
+    },
+    {
+      "id": "platform_unshipped_refund",
+      "question": "订单还没发货时申请退款，多久能原路退回？",
+      "ground_truth": "未发货订单可以申请极速退款，申请后2小时内原路退回。",
+      "expected_documents": ["平台交易规则与买家保障.md"],
+      "expected_headings": ["3.2 极速退款"],
+      "expected_relation": "none",
+      "context_required": false,
+      "expected_keywords": ["未发货", "2 小时", "原路退款"]
+    },
+    {
+      "id": "promotion_campaign_compensation",
+      "question": "大促订单要求多久揽收，延迟发货赔付多少？",
+      "ground_truth": "大促订单一般要求48小时内揽收，特殊类目72小时；延迟发货按订单金额5%赔付券，单笔上限30元。",
+      "expected_documents": ["促销活动与优惠券使用规则.md", "仓储物流与发货履约SLA.md"],
+      "expected_headings": ["5. 大促商家规则（节选）", "2. 发货 SLA"],
+      "expected_relation": "none",
+      "context_required": true,
+      "expected_keywords": ["48 小时", "5%", "30 元"]
+    },
+    {
+      "id": "merchant_settlement_aftersales",
+      "question": "订单确认收货后多久结算，售后进行中的订单会不会结算？",
+      "ground_truth": "结算周期从确认收货日或超时确认日计算；售后进行中的订单延迟结算，直到售后关闭。",
+      "expected_documents": ["商家入驻结算与对账流程.md"],
+      "expected_headings": ["2. 货款结算周期"],
+      "expected_relation": "same_section",
+      "context_required": true,
+      "expected_keywords": ["确认收货", "售后进行中", "延迟结算"]
+    },
+    {
+      "id": "product_ad_category_compliance",
+      "question": "商品要投放医疗类广告，上架和广告阶段分别要满足什么条件？",
+      "ground_truth": "商品上架需具备相应类目资质并通过审核；广告投放还要求店铺正常、商品有库存，医疗类目需额外审核且素材不得虚假宣传。",
+      "expected_documents": ["商品上架与类目合规规范.md", "搜索推荐与广告投放规则.md"],
+      "expected_headings": ["1. 上架准入", "3. 类目资质对照（示例）", "4. 投放准入与素材规范"],
+      "expected_relation": "reference",
+      "context_required": true,
+      "expected_keywords": ["类目资质", "额外审核", "素材"]
+    }
+  ]
+}

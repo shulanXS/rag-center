@@ -9,6 +9,7 @@ from app.core.exceptions import AppError, ErrorCode
 from app.core.logging import get_logger
 from app.db.session import SessionLocal
 from app.repositories.document_repository import DocumentRepository
+from app.services.index_version_service import IndexVersionService
 from app.services.indexing_service import create_indexing_service
 from app.utils.status import DocumentStatus
 
@@ -25,9 +26,7 @@ RETRYABLE_ERROR_CODES = {
 def _is_retryable(exc: BaseException) -> bool:
     if isinstance(exc, AppError):
         return exc.code in RETRYABLE_ERROR_CODES
-    if isinstance(exc, (httpx.TimeoutException, httpx.ConnectError, httpx.NetworkError, ConnectionError)):
-        return True
-    return False
+    return isinstance(exc, (httpx.TimeoutException, httpx.ConnectError, httpx.NetworkError, ConnectionError))
 
 
 def _mark_document_failed(db: Session, document_id: str, error_message: str) -> None:
@@ -88,5 +87,26 @@ def index_document_task(self, document_id: str, reparse: bool = False) -> None:
                 document_id,
             )
             raise
+    finally:
+        db.close()
+
+
+@celery_app.task(bind=True, max_retries=1, default_retry_delay=30)
+def rebuild_knowledge_base_index_task(
+    self, tenant_id: str, kb_id: str, version: str
+) -> None:
+    db = SessionLocal()
+    try:
+        asyncio.run(IndexVersionService(db).rebuild(tenant_id, kb_id, version))
+    except Exception as exc:
+        logger.exception(
+            "INDEX_VERSION_REBUILD_FAILED | tenant_id=%s | kb_id=%s | version=%s",
+            tenant_id,
+            kb_id,
+            version,
+        )
+        if _is_retryable(exc) and self.request.retries < self.max_retries:
+            raise self.retry(exc=exc)
+        raise
     finally:
         db.close()

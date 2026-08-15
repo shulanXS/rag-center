@@ -35,6 +35,8 @@ import {
 } from "@/utils/tenantPlan";
 
 const RETRIEVAL_MODES: RetrievalMode[] = ["vector", "bm25", "hybrid"];
+const INDEX_VERSIONS = ["v2", "v1"] as const;
+const QUERYABLE_INDEX_STATUSES = new Set(["active", "ready", "archived"]);
 const fieldLabelClass = "w-[100px] shrink-0 text-right text-sm font-medium";
 
 const PARAM_TOOLTIPS = {
@@ -123,6 +125,7 @@ function buildRetrievePayload(
   const payload: RetrieveRequest = {
     user_id: "debug_user",
     query: form.query.trim(),
+    index_version: form.index_version,
     profile,
   };
 
@@ -164,6 +167,7 @@ function buildRetrievePayload(
 
 interface RetrieveForm {
   query: string;
+  index_version: string;
   top_k: number;
   mode: RetrievalMode;
   vector_top_k: number;
@@ -174,8 +178,9 @@ interface RetrieveForm {
   query_rewrite_enabled: boolean;
 }
 
-const defaultForm = (): RetrieveForm => ({
+const defaultForm = (indexVersion = "v2"): RetrieveForm => ({
   query: "",
+  index_version: indexVersion,
   top_k: 5,
   mode: "hybrid",
   vector_top_k: 20,
@@ -189,6 +194,11 @@ const defaultForm = (): RetrieveForm => ({
 export function RetrievePage() {
   const [searchParams] = useSearchParams();
   const queryKbId = searchParams.get("kb_id") ?? "";
+  const queryIndexVersion = searchParams.get("index_version");
+  const initialIndexVersion =
+    queryIndexVersion && /^v[1-9][0-9]*$/.test(queryIndexVersion)
+      ? queryIndexVersion
+      : "v2";
 
   const { data: tenantInfo, isLoading: authLoading } = useQuery({
     queryKey: ["authMe"],
@@ -206,7 +216,7 @@ export function RetrievePage() {
   );
 
   const appliedQueryKbRef = useRef<string | null>(null);
-  const [form, setForm] = useState<RetrieveForm>(() => defaultForm());
+  const [form, setForm] = useState<RetrieveForm>(() => defaultForm(initialIndexVersion));
   const [selectedKbIds, setSelectedKbIds] = useState<string[]>([]);
   const [profile, setProfile] = useState<RetrieveProfile>("balanced");
   const [paramsExpanded, setParamsExpanded] = useState(false);
@@ -300,6 +310,18 @@ export function RetrievePage() {
     }
     if (selectedKbIds.length > tenantInfo.limits.max_kb_per_retrieve) {
       setFormError(`当前套餐最多支持 ${tenantInfo.limits.max_kb_per_retrieve} 个知识库联合检索`);
+      return;
+    }
+    const unavailableKb = knowledgeBases.find(
+      (kb) =>
+        selectedKbIds.includes(kb.kb_id) &&
+        !kb.index_versions.some(
+          (item) =>
+            item.version === form.index_version && QUERYABLE_INDEX_STATUSES.has(item.status),
+        ),
+    );
+    if (unavailableKb) {
+      setFormError(`知识库「${unavailableKb.name}」没有可查询的 ${form.index_version} 索引`);
       return;
     }
     setFormError(null);
@@ -444,6 +466,38 @@ export function RetrievePage() {
                     已选 {selectedKbIds.length} / {tenantInfo.limits.max_kb_per_retrieve} 个库
                   </p>
                 ) : null}
+                <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border pt-3">
+                  <span className="text-xs font-medium text-muted-foreground">索引版本</span>
+                  {INDEX_VERSIONS.map((version) => {
+                    const unavailable = selectedKbIds.some((kbId) => {
+                      const kb = knowledgeBases.find((item) => item.kb_id === kbId);
+                      return (
+                        kb != null &&
+                        !kb.index_versions.some(
+                          (item) =>
+                            item.version === version &&
+                            QUERYABLE_INDEX_STATUSES.has(item.status),
+                        )
+                      );
+                    });
+                    return (
+                      <Button
+                        key={version}
+                        type="button"
+                        className="h-8"
+                        variant={form.index_version === version ? "default" : "outline"}
+                        disabled={unavailable}
+                        onClick={() => updateForm("index_version", version)}
+                      >
+                        {version}
+                        {version === "v2" ? "（默认）" : ""}
+                      </Button>
+                    );
+                  })}
+                  <span className="text-xs text-muted-foreground">
+                    当前检索将只查询 {form.index_version}，不会混合不同版本
+                  </span>
+                </div>
               </div>
 
               {showAdvanced ? (
@@ -937,6 +991,7 @@ function RetrieveResultsList({ chunks }: { chunks: RetrievedChunkData[] }) {
                   {chunk.kb_name ?? chunk.kb_id.slice(0, 8)}
                 </Badge>
               ) : null}
+              {chunk.index_version ? <Badge>索引 {chunk.index_version}</Badge> : null}
             </div>
             <ChunkMetricsList metrics={buildChunkMetrics(chunk)} />
             <ChunkIds documentId={chunk.document_id} chunkId={chunk.chunk_id} />
@@ -953,10 +1008,60 @@ function RetrieveResultsList({ chunks }: { chunks: RetrievedChunkData[] }) {
               </p>
             ) : null}
           </div>
-          <MarkdownContent content={chunk.content} />
+          <div className="min-w-0 flex-1 space-y-3">
+            <MarkdownContent content={chunk.content} />
+            {chunk.context ? <ChunkContextDetails chunk={chunk} /> : null}
+          </div>
         </div>
       ))}
     </div>
+  );
+}
+
+const contextRelationLabels = {
+  anchor: "原始命中",
+  previous: "前一片段",
+  next: "后一片段",
+  same_section: "同章节",
+  parent_section: "父章节",
+  reference: "明确引用",
+} as const;
+
+function ChunkContextDetails({ chunk }: { chunk: RetrievedChunkData }) {
+  const context = chunk.context;
+  if (!context) return null;
+
+  return (
+    <details className="rounded-md border border-border bg-muted/30 p-3 text-sm">
+      <summary className="cursor-pointer font-medium">
+        上下文补充（{Math.max(context.sources.length - 1, 0)} 条）
+      </summary>
+      <div className="mt-3 space-y-3">
+        <div className="space-y-2">
+          {context.sources.map((source) => (
+            <div key={`${source.relation}-${source.chunk_id}`} className="rounded border bg-background p-2">
+              <div className="mb-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                <Badge>{contextRelationLabels[source.relation]}</Badge>
+                {source.title ? <span>{source.title}</span> : null}
+                <span>Chunk {source.chunk_id}</span>
+              </div>
+              {source.content ? <MarkdownContent content={source.content} /> : null}
+            </div>
+          ))}
+        </div>
+        <div>
+          <div className="mb-1 text-xs font-medium text-muted-foreground">组合后的上下文</div>
+          <MarkdownContent content={context.content} />
+        </div>
+        <div className="space-y-1 text-xs text-muted-foreground">
+          {chunk.order_index != null ? <p>片段顺序：{chunk.order_index}</p> : null}
+          {chunk.parent_section_id ? <p>父章节 ID：{chunk.parent_section_id}</p> : null}
+          {context.latency_ms != null ? <p>扩展耗时：{context.latency_ms} ms</p> : null}
+          {context.degraded ? <p className="text-amber-700">上下文扩展已降级</p> : null}
+          {context.error ? <p className="text-amber-700">{context.error}</p> : null}
+        </div>
+      </div>
+    </details>
   );
 }
 

@@ -13,11 +13,13 @@ class VectorStore(ABC):
         *,
         tenant_id: str,
         kb_id: str,
+        index_version: str | None = None,
         top_k: int = 5,
     ) -> list[dict]:
         pass
 
     @abstractmethod
-    async def delete_by_document_id(self, document_id: str) -> None:
+    async def delete_by_document_id(
+        self, document_id: str, *, index_version: str | None = None
+    ) -> None:
         pass
-

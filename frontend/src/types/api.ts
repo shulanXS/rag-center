@@ -22,6 +22,7 @@ export interface KnowledgeBaseDetailData {
   name: string;
   description: string | null;
   settings: Record<string, unknown>;
+  active_index_version: string;
   document_count: number;
   created_at: string;
   updated_at: string;
@@ -42,12 +43,25 @@ export interface DocumentTreeItem {
   created_at: string;
 }
 
+export interface IndexVersionTreeItem {
+  version: string;
+  status: "building" | "ready" | "active" | "failed" | "archived";
+  is_current: boolean;
+  document_count: number;
+  chunk_count: number;
+  created_at: string;
+  completed_at?: string | null;
+  documents: DocumentTreeItem[];
+}
+
 export interface KnowledgeBaseTreeItem {
   kb_id: string;
   name: string;
   description: string | null;
+  active_index_version: string;
   created_at: string;
   documents: DocumentTreeItem[];
+  index_versions: IndexVersionTreeItem[];
 }
 
 export interface TenantTreeItem {
@@ -135,6 +149,7 @@ export interface RetrieveRequest {
   kb_ids?: string[];
   user_id: string;
   query: string;
+  index_version?: string;
   profile: RetrieveProfile;
   top_k?: number;
   retrieval_options?: RetrievalOptions;
@@ -149,6 +164,11 @@ export interface RetrievedChunkData {
   chunk_id: string;
   title: string;
   content: string;
+  retrieval_text?: string | null;
+  index_version?: string;
+  section_id?: string | null;
+  parent_section_id?: string | null;
+  order_index?: number | null;
   score: number;
   vector_score: number | null;
   bm25_score: number | null;
@@ -157,6 +177,31 @@ export interface RetrievedChunkData {
   retrieval_source: string | null;
   rerank_score: number | null;
   metadata?: Record<string, unknown> | null;
+  context?: RetrievedChunkContext | null;
+}
+
+export type RetrievedChunkRelation =
+  | "anchor"
+  | "previous"
+  | "next"
+  | "same_section"
+  | "parent_section"
+  | "reference";
+
+export interface RetrievedChunkContext {
+  content: string;
+  chunk_ids: string[];
+  sources: Array<{
+    chunk_id: string;
+    relation: RetrievedChunkRelation;
+    content?: string | null;
+    document_id?: string | null;
+    title?: string | null;
+    metadata?: Record<string, unknown> | null;
+  }>;
+  latency_ms?: number | null;
+  degraded?: boolean;
+  error?: string | null;
 }
 
 export interface RetrieveRerankMetadata {
@@ -190,6 +235,8 @@ export interface RetrieveRetrievalMetadata {
   kb_count?: number;
   kb_ids?: string[];
   per_kb_top_k?: number;
+  index_version?: string;
+  index_versions?: Record<string, string>;
 }
 
 export interface QueryProcessingMetadata {
@@ -222,6 +269,22 @@ export interface RetrieveMetadata {
   vector_store: string;
   latency_ms: number;
   retrieval: RetrieveRetrievalMetadata | null;
+  candidate_filter?: {
+    candidate_count_before_filter?: number;
+    candidate_count_after_filter?: number;
+    filtered_count?: number;
+    filtered_reasons?: Record<string, number>;
+  } | null;
+  context?: {
+    executed: boolean;
+    anchor_count: number;
+    expanded_anchor_count: number;
+    supplemental_chunk_count: number;
+    deduplicated_count: number;
+    latency_ms: number;
+    degraded: boolean;
+    error?: string | null;
+  } | null;
   rerank: RetrieveRerankMetadata;
   query_processing: QueryProcessingMetadata | null;
   tenant_policy?: TenantPolicyMetadata | null;

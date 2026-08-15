@@ -1,4 +1,4 @@
-from sqlalchemy import delete, func, select
+from sqlalchemy import and_, func, or_, select
 from sqlalchemy.orm import Session, selectinload
 
 from app.models.chunk import Chunk
@@ -59,12 +59,36 @@ class KnowledgeBaseRepository:
         self.db.delete(knowledge_base)
         self.db.flush()
 
-    def get_chunk_counts(self, document_ids: list[str]) -> dict[str, int]:
-        if not document_ids:
+    def get_chunk_counts(self, index_versions: dict[str, str]) -> dict[str, int]:
+        """Count chunks for each document's currently selected index version."""
+        if not index_versions:
             return {}
+        version_scopes = [
+            and_(
+                Chunk.document_id == document_id,
+                Chunk.index_version == index_version,
+            )
+            for document_id, index_version in index_versions.items()
+        ]
         stmt = (
             select(Chunk.document_id, func.count())
-            .where(Chunk.document_id.in_(document_ids))
+            .where(or_(*version_scopes))
             .group_by(Chunk.document_id)
         )
         return dict(self.db.execute(stmt).all())
+
+    def get_chunk_counts_by_version(
+        self,
+        document_ids: list[str],
+    ) -> dict[tuple[str, str], int]:
+        if not document_ids:
+            return {}
+        stmt = (
+            select(Chunk.document_id, Chunk.index_version, func.count())
+            .where(Chunk.document_id.in_(document_ids))
+            .group_by(Chunk.document_id, Chunk.index_version)
+        )
+        return {
+            (str(document_id), str(index_version)): int(count)
+            for document_id, index_version, count in self.db.execute(stmt).all()
+        }

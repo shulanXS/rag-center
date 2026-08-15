@@ -1,8 +1,7 @@
+import httpx
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
-import httpx
-
 from app.core.exceptions import AppError, ErrorCode
 from app.core.logging import get_logger
 from app.models.document import Document
@@ -12,13 +11,20 @@ from app.providers.keyword_search.base import KeywordSearchProvider
 from app.providers.keyword_search.elasticsearch import ElasticsearchKeywordSearchProvider
 from app.providers.vectorstores.base import VectorStore
 from app.providers.vectorstores.pgvector import PgVectorStore
+from app.models.chunk import Chunk
+from app.repositories.chunk_repository import ChunkRepository
 from app.repositories.document_repository import DocumentRepository
+from app.repositories.index_version_repository import IndexVersionRepository
 from app.repositories.knowledge_base_repository import KnowledgeBaseRepository
 from app.schemas.document import UploadDocumentRequest
 from app.services.document_ingestion import prepare_document_content
 from app.utils.id_generator import generate_uuid
+from app.utils.markdown_splitter import (
+    MarkdownStructuredSplitter,
+    SplitPiece,
+    build_retrieval_text,
+)
 from app.utils.status import DocumentStatus
-from app.utils.markdown_splitter import MarkdownStructuredSplitter, SplitPiece
 
 logger = get_logger(__name__)
 
@@ -65,6 +71,8 @@ class IndexingService:
         self.text_splitter = text_splitter
         self.knowledge_base_repository = KnowledgeBaseRepository(db)
         self.document_repository = DocumentRepository(db)
+        self.chunk_repository = ChunkRepository(db)
+        self.index_version_repository = IndexVersionRepository(db)
 
     def create_document_record(self, tenant_id: str, request: UploadDocumentRequest) -> Document:
         logger.info(
@@ -83,6 +91,7 @@ class IndexingService:
                 ErrorCode.KNOWLEDGE_BASE_NOT_FOUND,
                 context={"tenant_id": tenant_id, "kb_id": request.kb_id},
             )
+        self._ensure_not_building(tenant_id, request.kb_id)
 
         document = Document(
             id=generate_uuid(),
@@ -128,6 +137,7 @@ class IndexingService:
                 ErrorCode.KNOWLEDGE_BASE_NOT_FOUND,
                 context={"tenant_id": tenant_id, "kb_id": kb_id},
             )
+        self._ensure_not_building(tenant_id, kb_id)
 
         document = Document(
             id=document_id or generate_uuid(),
@@ -214,7 +224,13 @@ class IndexingService:
             return 0
 
         try:
-            chunk_count = await self._index_document_content(document)
+            knowledge_base = self.knowledge_base_repository.get_by_id(document.kb_id)
+            if knowledge_base is None:
+                raise AppError(ErrorCode.KNOWLEDGE_BASE_NOT_FOUND)
+            chunk_count = await self._index_document_content(
+                document,
+                index_version=knowledge_base.active_index_version,
+            )
             self.document_repository.update_status(document, status=DocumentStatus.SUCCESS)
             self.db.commit()
             logger.info(
@@ -257,15 +273,23 @@ class IndexingService:
                 )
                 raise
             logger.exception(
-                "BUSINESS_NODE | index_existing_document_unhandled | document_id=%s | error=%s",
+                "BUSINESS_NODE | index_existing_document_unhandled | document_id=%s",
                 document.id,
-                str(exc),
             )
             self._mark_failed(document, str(exc))
             return 0
 
-    async def _index_document_content(self, document: Document) -> int:
-        pieces: list[SplitPiece] = self.text_splitter.split(document.content)
+    async def index_document_version(self, document: Document, *, index_version: str) -> int:
+        if not document.content.strip():
+            raise AppError(ErrorCode.DOCUMENT_CONTENT_EMPTY)
+        return await self._index_document_content(document, index_version=index_version)
+
+    async def _index_document_content(self, document: Document, *, index_version: str) -> int:
+        pieces: list[SplitPiece] = self.text_splitter.split(
+            document.content,
+            document_id=document.id,
+            index_version=index_version,
+        )
         if not pieces:
             raise AppError(ErrorCode.DOCUMENT_CONTENT_EMPTY)
 
@@ -275,31 +299,111 @@ class IndexingService:
             len(pieces),
         )
 
-        texts = [piece.text for piece in pieces]
-        embeddings = await self.embedding_provider.embed_texts(texts)
-        chunks = [
-            {
-                "chunk_id": generate_uuid(),
-                "tenant_id": document.tenant_id,
-                "kb_id": document.kb_id,
-                "document_id": document.id,
-                "title": document.title,
-                "content": piece.text,
-                "metadata": {
-                    "chunk_index": index,
-                    "source_type": document.source_type,
-                    **piece.metadata,
-                },
-                "embedding": embedding,
-            }
-            for index, (piece, embedding) in enumerate(zip(pieces, embeddings, strict=True))
+        is_contextual_index = index_version != "v1"
+        searchable_pieces: list[SplitPiece] = []
+        pointer_pieces: list[SplitPiece] = []
+        for piece in pieces:
+            if piece.metadata.get("chunk_type") == "reference_pointer":
+                pointer_pieces.append(piece)
+            else:
+                searchable_pieces.append(piece)
+
+        retrieval_texts = [
+            build_retrieval_text(
+                title=document.title,
+                heading_path=str(piece.metadata.get("heading_path") or ""),
+                content=piece.text,
+            )
+            for piece in searchable_pieces
         ]
+        texts = retrieval_texts if is_contextual_index else [piece.text for piece in searchable_pieces]
+        embeddings = (
+            await self.embedding_provider.embed_texts(texts) if searchable_pieces else []
+        )
 
-        await self.vector_store.add_chunks(chunks)
-        if self.keyword_search_provider is not None:
-            await self.keyword_search_provider.add_chunks(chunks)
+        searchable_chunks: list[dict] = []
+        for index, piece in enumerate(searchable_pieces):
+            retrieval_text = retrieval_texts[index] if is_contextual_index else None
+            embedding = embeddings[index]
+            piece_metadata = dict(piece.metadata)
+            raw_section_id = piece_metadata.pop("section_id", None)
+            raw_parent_section_id = piece_metadata.pop("parent_section_id", None)
+            raw_order_index = piece_metadata.pop("order_index", None)
+            section_id = raw_section_id if is_contextual_index else None
+            parent_section_id = raw_parent_section_id if is_contextual_index else None
+            order_index = raw_order_index if is_contextual_index else None
+            piece_metadata["parser"] = document.source_type
+            searchable_chunks.append(
+                {
+                    "chunk_id": generate_uuid(),
+                    "tenant_id": document.tenant_id,
+                    "kb_id": document.kb_id,
+                    "document_id": document.id,
+                    "title": document.title,
+                    "content": piece.text,
+                    "retrieval_text": retrieval_text,
+                    "index_version": index_version,
+                    "section_id": section_id,
+                    "parent_section_id": parent_section_id,
+                    "order_index": order_index,
+                    "metadata": {
+                        "chunk_index": index,
+                        "source_type": document.source_type,
+                        **piece_metadata,
+                    },
+                    "embedding": embedding,
+                }
+            )
 
-        return len(chunks)
+        pointer_db_chunks: list[Chunk] = []
+        zero_embedding = [0.0] * settings.embedding_dimensions
+        for index, piece in enumerate(pointer_pieces):
+            piece_metadata = dict(piece.metadata)
+            raw_section_id = piece_metadata.pop("section_id", None)
+            raw_parent_section_id = piece_metadata.pop("parent_section_id", None)
+            raw_order_index = piece_metadata.pop("order_index", None)
+            section_id = raw_section_id if is_contextual_index else None
+            parent_section_id = raw_parent_section_id if is_contextual_index else None
+            order_index = raw_order_index if is_contextual_index else None
+            piece_metadata["parser"] = document.source_type
+            pointer_db_chunks.append(
+                Chunk(
+                    id=generate_uuid(),
+                    tenant_id=document.tenant_id,
+                    kb_id=document.kb_id,
+                    document_id=document.id,
+                    title=document.title,
+                    content=piece.text,
+                    retrieval_text=None,
+                    index_version=index_version,
+                    section_id=section_id,
+                    parent_section_id=parent_section_id,
+                    order_index=order_index,
+                    metadata_={
+                        "chunk_index": len(searchable_pieces) + index,
+                        "source_type": document.source_type,
+                        **piece_metadata,
+                    },
+                    embedding=zero_embedding,
+                )
+            )
+
+        if searchable_chunks:
+            await self.vector_store.add_chunks(searchable_chunks)
+            if self.keyword_search_provider is not None:
+                await self.keyword_search_provider.add_chunks(searchable_chunks)
+        if pointer_db_chunks:
+            self.chunk_repository.add_many(pointer_db_chunks)
+
+        return len(searchable_chunks) + len(pointer_db_chunks)
+
+    def _ensure_not_building(self, tenant_id: str, kb_id: str) -> None:
+        if self.index_version_repository.get_building(tenant_id, kb_id) is not None:
+            raise AppError(
+                ErrorCode.SYSTEM_BUSY,
+                msg="知识库正在构建新索引，暂时不能修改文档",
+                context={"tenant_id": tenant_id, "kb_id": kb_id},
+            )
 
     def _mark_failed(self, document: Document, error_message: str) -> None:
         self.document_repository.update_status(

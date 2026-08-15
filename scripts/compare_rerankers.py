@@ -269,6 +269,31 @@ def _safe_hostname(url: str) -> str:
     return urlparse(url).hostname or ""
 
 
+def _provider_usage(provider: RerankProvider) -> dict[str, int]:
+    source = getattr(provider, "llm_provider", provider)
+    raw = getattr(source, "last_usage", {})
+    if not isinstance(raw, dict):
+        raw = {}
+
+    def token_value(*names: str) -> int:
+        for name in names:
+            value = raw.get(name)
+            if isinstance(value, (int, float)):
+                return int(value)
+        return 0
+
+    input_tokens = token_value("input_tokens", "prompt_tokens")
+    output_tokens = token_value("output_tokens", "completion_tokens")
+    total_tokens = token_value("total_tokens") or input_tokens + output_tokens
+    return {
+        "input_tokens": input_tokens,
+        "output_tokens": output_tokens,
+        "total_tokens": total_tokens,
+        "cache_hit_input_tokens": token_value("prompt_cache_hit_tokens"),
+        "cache_miss_input_tokens": token_value("prompt_cache_miss_tokens"),
+    }
+
+
 async def run_provider(
     *,
     dataset: dict[str, Any],
@@ -306,6 +331,7 @@ async def run_provider(
                         }
                         for chunk in chunks
                     ],
+                    "usage": _provider_usage(provider),
                     "error": None,
                 }
             except Exception as exc:  # noqa: BLE001 - each remote run must be recorded
@@ -315,6 +341,7 @@ async def run_provider(
                     "success": False,
                     "latency_ms": round(latency_ms, 3),
                     "rankings": [],
+                    "usage": None,
                     "error": f"{type(exc).__name__}: {exc}",
                 }
             if iteration < warmup:
@@ -347,57 +374,81 @@ async def run_ab(
     dataset: dict[str, Any],
     repeat: int,
     warmup: int,
+    concurrency: int = 4,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     providers = {
         "llm": _build_provider("llm"),
         "qwen3": _build_provider("qwen3"),
     }
-    collected: dict[str, list[dict[str, Any]]] = {"llm": [], "qwen3": []}
+    cases = list(dataset.get("cases", []))
+    collected: dict[str, list[dict[str, Any]]] = {
+        name: [
+            {"id": case["id"], "question": case["question"], "warmups": [], "runs": []}
+            for case in cases
+        ]
+        for name in providers
+    }
     top_n = int(dataset.get("result_top_n") or 5)
+    semaphore = asyncio.Semaphore(max(concurrency, 1))
+    completed = 0
+    total_jobs = len(cases) * (warmup + repeat) * len(providers)
 
-    for case_index, case in enumerate(dataset.get("cases", [])):
-        per_provider = {
-            name: {"id": case["id"], "question": case["question"], "warmups": [], "runs": []}
-            for name in providers
-        }
-        total_rounds = warmup + repeat
-        for round_index in range(total_rounds):
-            order = ["llm", "qwen3"] if (case_index + round_index) % 2 == 0 else ["qwen3", "llm"]
-            for name in order:
-                provider = providers[name][0]
-                started_at = time.perf_counter()
-                try:
-                    chunks = await provider.rerank(
-                        query=case["question"],
-                        chunks=list(case["candidates"]),
-                        top_n=top_n,
-                    )
-                    result = {
-                        "iteration": round_index + 1,
-                        "success": True,
-                        "latency_ms": round((time.perf_counter() - started_at) * 1000, 3),
-                        "rankings": [
-                            {
-                                "chunk_id": chunk["chunk_id"],
-                                "rerank_score": chunk.get("rerank_score"),
-                            }
-                            for chunk in chunks
-                        ],
-                        "error": None,
-                    }
-                except Exception as exc:  # noqa: BLE001 - each remote run must be recorded
-                    result = {
-                        "iteration": round_index + 1,
-                        "success": False,
-                        "latency_ms": round((time.perf_counter() - started_at) * 1000, 3),
-                        "rankings": [],
-                        "error": f"{type(exc).__name__}: {exc}",
-                    }
-                target = "warmups" if round_index < warmup else "runs"
-                per_provider[name][target].append(result)
-        for name in providers:
-            collected[name].append(per_provider[name])
-        print(f"ran ab {case_index + 1}/{len(dataset.get('cases', []))}: {case['id']}")
+    async def run_job(name: str, case_index: int, round_index: int) -> None:
+        nonlocal completed
+        case = cases[case_index]
+        async with semaphore:
+            provider = _build_provider(name)[0]
+            started_at = time.perf_counter()
+            try:
+                chunks = await provider.rerank(
+                    query=case["question"],
+                    chunks=list(case["candidates"]),
+                    top_n=top_n,
+                )
+                result = {
+                    "iteration": round_index + 1,
+                    "success": True,
+                    "latency_ms": round((time.perf_counter() - started_at) * 1000, 3),
+                    "rankings": [
+                        {
+                            "chunk_id": chunk["chunk_id"],
+                            "rerank_score": chunk.get("rerank_score"),
+                        }
+                        for chunk in chunks
+                    ],
+                    "usage": _provider_usage(provider),
+                    "error": None,
+                }
+            except Exception as exc:  # noqa: BLE001 - each remote run must be recorded
+                result = {
+                    "iteration": round_index + 1,
+                    "success": False,
+                    "latency_ms": round((time.perf_counter() - started_at) * 1000, 3),
+                    "rankings": [],
+                    "usage": None,
+                    "error": f"{type(exc).__name__}: {exc}",
+                }
+            target = "warmups" if round_index < warmup else "runs"
+            collected[name][case_index][target].append(result)
+            completed += 1
+            if completed % max(len(providers), 1) == 0 or completed == total_jobs:
+                print(f"ran ab {completed}/{total_jobs}: {case['id']} / {name}")
+
+    jobs = []
+    for round_index in range(warmup + repeat):
+        for case_index in range(len(cases)):
+            order = (
+                ["llm", "qwen3"]
+                if (case_index + round_index) % 2 == 0
+                else ["qwen3", "llm"]
+            )
+            jobs.extend(run_job(name, case_index, round_index) for name in order)
+    await asyncio.gather(*jobs)
+
+    for provider_cases in collected.values():
+        for case in provider_cases:
+            case["warmups"].sort(key=lambda item: item["iteration"])
+            case["runs"].sort(key=lambda item: item["iteration"])
 
     reports = {}
     for name, (_, model, host) in providers.items():
@@ -437,6 +488,20 @@ def _build_run_report(
             reference = rankings[0]
             consistencies.append(sum(value == reference for value in rankings) / len(rankings))
     total = len(formal_runs)
+    usage_totals = {
+        name: sum(int((run.get("usage") or {}).get(name) or 0) for run in successful)
+        for name in (
+            "input_tokens",
+            "output_tokens",
+            "total_tokens",
+            "cache_hit_input_tokens",
+            "cache_miss_input_tokens",
+        )
+    }
+    usage_averages = {
+        name: round(value / len(successful), 2) if successful else 0
+        for name, value in usage_totals.items()
+    }
     return {
         "status": "completed" if successful else "failed",
         "generated_at": datetime.now(UTC).isoformat(),
@@ -459,6 +524,8 @@ def _build_run_report(
             "max_latency_ms": max(latencies) if latencies else None,
             "mean_latency_ms": statistics.fmean(latencies) if latencies else None,
             "top5_consistency": statistics.fmean(consistencies) if consistencies else None,
+            "usage_totals": usage_totals,
+            "usage_per_successful_request": usage_averages,
         },
         "cases": case_results,
     }
@@ -473,6 +540,64 @@ def _first_successful_rankings(report: dict[str, Any]) -> dict[str, list[str]]:
                 str(item["chunk_id"]) for item in successful.get("rankings", [])
             ]
     return result
+
+
+def _metric_samples(
+    dataset: dict[str, Any],
+    report: dict[str, Any],
+) -> list[dict[str, float | None]]:
+    case_results = list(report.get("cases", []))
+    run_count = max((len(case.get("runs", [])) for case in case_results), default=0)
+    samples: list[dict[str, float | None]] = []
+    for run_index in range(run_count):
+        rankings: dict[str, list[str]] = {}
+        for case in case_results:
+            runs = case.get("runs", [])
+            if run_index >= len(runs) or not runs[run_index].get("success"):
+                continue
+            rankings[str(case["id"])] = [
+                str(item["chunk_id"]) for item in runs[run_index].get("rankings", [])
+            ]
+        samples.append(compute_ranking_metrics(dataset, rankings))
+    return samples
+
+
+def _average_metrics(samples: list[dict[str, float | None]]) -> dict[str, float | None]:
+    result: dict[str, float | None] = {}
+    for name in METRIC_NAMES:
+        values = [float(item[name]) for item in samples if item.get(name) is not None]
+        result[name] = statistics.fmean(values) if values else None
+    return result
+
+
+def _metric_ranges(samples: list[dict[str, float | None]]) -> dict[str, dict[str, float] | None]:
+    result: dict[str, dict[str, float] | None] = {}
+    for name in METRIC_NAMES:
+        values = [float(item[name]) for item in samples if item.get(name) is not None]
+        result[name] = (
+            {
+                "min": min(values),
+                "max": max(values),
+                "mean": statistics.fmean(values),
+            }
+            if values
+            else None
+        )
+    return result
+
+
+def _case_rankings(report: dict[str, Any], case_id: str) -> list[list[str]]:
+    case = next(
+        (item for item in report.get("cases", []) if str(item.get("id")) == case_id),
+        None,
+    )
+    if not case:
+        return []
+    return [
+        [str(item["chunk_id"]) for item in run.get("rankings", [])]
+        for run in case.get("runs", [])
+        if run.get("success")
+    ]
 
 
 def compute_ranking_metrics(
@@ -548,20 +673,24 @@ def compare_reports(
 
     baseline_rankings = _first_successful_rankings(baseline)
     candidate_rankings = _first_successful_rankings(candidate)
-    baseline_metrics = compute_ranking_metrics(dataset, baseline_rankings)
-    candidate_metrics = compute_ranking_metrics(dataset, candidate_rankings)
+    baseline_samples = _metric_samples(dataset, baseline)
+    candidate_samples = _metric_samples(dataset, candidate)
+    baseline_metrics = _average_metrics(baseline_samples)
+    candidate_metrics = _average_metrics(candidate_samples)
     cases = []
     counts = {"win": 0, "tie": 0, "loss": 0, "missing": 0}
     for case in dataset.get("cases", []):
         case_id = str(case["id"])
+        old_rankings = _case_rankings(baseline, case_id)
+        new_rankings = _case_rankings(candidate, case_id)
         old_ranking = baseline_rankings.get(case_id)
         new_ranking = candidate_rankings.get(case_id)
-        if not old_ranking or not new_ranking:
+        if not old_rankings or not new_rankings:
             outcome = "missing"
             old_ndcg = new_ndcg = delta = None
         else:
-            old_ndcg = case_ndcg(case, old_ranking)
-            new_ndcg = case_ndcg(case, new_ranking)
+            old_ndcg = statistics.fmean(case_ndcg(case, item) for item in old_rankings)
+            new_ndcg = statistics.fmean(case_ndcg(case, item) for item in new_rankings)
             delta = new_ndcg - old_ndcg
             outcome = "tie" if abs(delta) <= 1e-12 else ("win" if delta > 0 else "loss")
         counts[outcome] += 1
@@ -624,6 +753,34 @@ def compare_reports(
         for case in dataset.get("cases", [])
         if isinstance(case, dict)
     ]
+    acceptance = {
+        "hit_rate_not_lower": (
+            candidate_metrics["hit_rate@5"] is not None
+            and baseline_metrics["hit_rate@5"] is not None
+            and candidate_metrics["hit_rate@5"] >= baseline_metrics["hit_rate@5"]
+        ),
+        "ndcg_gap_within_5_percent": (
+            changes["ndcg@5"]["absolute_change"] is not None
+            and changes["ndcg@5"]["absolute_change"] >= -0.05
+        ),
+        "recall_gap_within_5_percent": (
+            changes["recall@5"]["absolute_change"] is not None
+            and changes["recall@5"]["absolute_change"] >= -0.05
+        ),
+        "qwen_p95_at_most_2_seconds": (
+            isinstance(candidate.get("summary", {}).get("p95_latency_ms"), (int, float))
+            and candidate["summary"]["p95_latency_ms"] <= 2000
+        ),
+        "qwen_success_rate_at_least_99_percent": (
+            candidate.get("summary", {}).get("success_rate", 0) >= 0.99
+        ),
+        "qwen_consistency_not_lower": (
+            isinstance(candidate.get("summary", {}).get("top5_consistency"), (int, float))
+            and isinstance(baseline.get("summary", {}).get("top5_consistency"), (int, float))
+            and candidate["summary"]["top5_consistency"]
+            >= baseline["summary"]["top5_consistency"]
+        ),
+    }
     return {
         "generated_at": datetime.now(UTC).isoformat(),
         "dataset": dataset.get("name"),
@@ -637,13 +794,91 @@ def compare_reports(
         "annotation": dataset.get("annotation"),
         "baseline": {"provider": baseline.get("provider"), "model": baseline.get("model")},
         "candidate": {"provider": candidate.get("provider"), "model": candidate.get("model")},
+        "metric_samples": {
+            "baseline": baseline_samples,
+            "candidate": candidate_samples,
+        },
+        "metric_ranges": {
+            "baseline": _metric_ranges(baseline_samples),
+            "candidate": _metric_ranges(candidate_samples),
+        },
         "changes": changes,
+        "acceptance": acceptance,
+        "passed": all(acceptance.values()),
         "outcomes": counts,
         "cases": cases,
     }
 
 
-def render_markdown(comparison: dict[str, Any]) -> str:
+def build_cost_summary(
+    baseline: dict[str, Any],
+    candidate: dict[str, Any],
+    pricing: dict[str, Any],
+) -> dict[str, Any]:
+    rates = pricing.get("rates") or {}
+
+    def llm_cost(report: dict[str, Any]) -> dict[str, Any]:
+        usage = report.get("summary", {}).get("usage_totals") or {}
+        success_count = int(report.get("summary", {}).get("successful_requests") or 0)
+        hit_tokens = int(usage.get("cache_hit_input_tokens") or 0)
+        miss_tokens = int(usage.get("cache_miss_input_tokens") or 0)
+        input_tokens = int(usage.get("input_tokens") or 0)
+        output_tokens = int(usage.get("output_tokens") or 0)
+        if hit_tokens + miss_tokens == 0:
+            miss_tokens = input_tokens
+        hit_rate = rates.get("llm_cache_hit_input_per_million")
+        miss_rate = rates.get("llm_cache_miss_input_per_million")
+        output_rate = rates.get("llm_output_per_million")
+        total_cost = None
+        if miss_rate is not None and output_rate is not None:
+            total_cost = miss_tokens / 1_000_000 * float(miss_rate)
+            total_cost += output_tokens / 1_000_000 * float(output_rate)
+            if hit_tokens:
+                total_cost += hit_tokens / 1_000_000 * float(hit_rate or miss_rate)
+        return {
+            "usage": usage,
+            "theoretical_cost_cny": total_cost,
+            "average_cost_per_request_cny": (
+                total_cost / success_count if total_cost is not None and success_count else None
+            ),
+            "estimated_cost_per_1000_requests_cny": (
+                total_cost / success_count * 1000
+                if total_cost is not None and success_count
+                else None
+            ),
+        }
+
+    def qwen_cost(report: dict[str, Any]) -> dict[str, Any]:
+        usage = report.get("summary", {}).get("usage_totals") or {}
+        success_count = int(report.get("summary", {}).get("successful_requests") or 0)
+        total_tokens = int(usage.get("total_tokens") or 0)
+        rate = rates.get("qwen_rerank_per_thousand_tokens")
+        total_cost = total_tokens / 1000 * float(rate) if rate is not None else None
+        return {
+            "usage": usage,
+            "theoretical_cost_cny": total_cost,
+            "average_cost_per_request_cny": (
+                total_cost / success_count if total_cost is not None and success_count else None
+            ),
+            "estimated_cost_per_1000_requests_cny": (
+                total_cost / success_count * 1000
+                if total_cost is not None and success_count
+                else None
+            ),
+        }
+
+    return {
+        "pricing_snapshot": pricing,
+        "llm": llm_cost(baseline),
+        "qwen3": qwen_cost(candidate),
+        "note": "理论成本按标准单价计算，不扣除免费额度、抵扣包或活动优惠。",
+    }
+
+
+def render_markdown(
+    comparison: dict[str, Any],
+    cost_summary: dict[str, Any] | None = None,
+) -> str:
     def fmt(value: Any, *, percent: bool = False) -> str:
         if value is None:
             return "N/A"
@@ -690,12 +925,35 @@ def render_markdown(comparison: dict[str, Any]) -> str:
             f"{fmt(item['relative_change'], percent=True)} |"
         )
     outcomes = comparison["outcomes"]
+    acceptance = comparison.get("acceptance") or {}
+    if comparison.get("passed"):
+        conclusion = (
+            "综上，在 v2 结构化索引的同一批冻结候选上，Qwen3-Rerank 的核心证据命中、"
+            "nDCG 与 Recall 均满足预设差距门槛，同时在时延和排序稳定性上优于 LLM 重排。"
+            "因此可以继续作为线上排序方案；v1/v2 索引选择不改变这一排序结论。"
+        )
+    else:
+        failed_names = "、".join(name for name, passed in acceptance.items() if not passed)
+        conclusion = (
+            "Qwen3-Rerank 的工程性能优势已经得到验证，但仍有排序回归门槛未通过："
+            f"{failed_names or '结果不完整'}。应保留当前精排实现并继续分析负向 Case，"
+            "完整 30 题发布回归前不把本轮结果解释为质量全面领先。"
+        )
     lines.extend(
         [
             "",
             "## 综合结论",
             "",
-            "综上，Qwen3-Rerank 相较 LLM 重排在调用时延、结果稳定性和工程可控性方面具有明显优势，且本轮测试的核心证据命中率没有下降，具备替换在线 LLM 重排的技术价值；但当前 nDCG、MRR 和 Recall 指标仍有下降，尚未达到质量无损替换的验收标准。负向案例分析表明，现有结构化切块中存在空分隔符、纯标题和上下文不完整等低信息片段，这些片段在拼接文档标题后仍可能获得较高相关度，从而干扰 Top5 内部排序。因此，本轮结果主要用于确认精排模型的性能优势和暴露当前数据质量问题；后续完成低信息片段过滤、层级索引与上下文化切块优化，并对标注数据进行人工复核后，将按照相同评测口径重新执行 LLM 重排与 Qwen3-Rerank 的对比测试，再决定是否完成全量替换。",
+            conclusion,
+            "",
+            "## 验收门槛",
+            "",
+            "| 门槛 | 结果 |",
+            "|---|---|",
+            *[
+                f"| {name} | {'通过' if passed else '未通过'} |"
+                for name, passed in acceptance.items()
+            ],
             "",
             "## 胜平负",
             "",
@@ -728,6 +986,46 @@ def render_markdown(comparison: dict[str, Any]) -> str:
                     f"{item.get('relevance')} | {item.get('relevance_note') or ''} |"
                     for item in case["annotations"]
                 ],
+                "",
+            ]
+        )
+    if cost_summary:
+        pricing = cost_summary.get("pricing_snapshot") or {}
+        llm_cost = cost_summary.get("llm") or {}
+        qwen_cost = cost_summary.get("qwen3") or {}
+
+        def cost_text(value: Any) -> str:
+            return "N/A" if value is None else f"¥{float(value):.6f}"
+
+        lines.extend(
+            [
+                "## Token 与理论成本",
+                "",
+                f"- 价格地区：{pricing.get('region') or '未记录'}",
+                f"- 查询日期：{pricing.get('queried_at') or '未记录'}",
+                f"- 单价来源：{pricing.get('source') or '未记录'}",
+                "- 免费额度、抵扣包和活动价未计入理论成本。",
+                "",
+                "| 项目 | LLM 重排 | Qwen3-Rerank |",
+                "|---|---:|---:|",
+                (
+                    f"| 总 Token | {llm_cost.get('usage', {}).get('total_tokens', 0)} | "
+                    f"{qwen_cost.get('usage', {}).get('total_tokens', 0)} |"
+                ),
+                (
+                    f"| 本轮理论成本 | {cost_text(llm_cost.get('theoretical_cost_cny'))} | "
+                    f"{cost_text(qwen_cost.get('theoretical_cost_cny'))} |"
+                ),
+                (
+                    f"| 单次平均成本 | "
+                    f"{cost_text(llm_cost.get('average_cost_per_request_cny'))} | "
+                    f"{cost_text(qwen_cost.get('average_cost_per_request_cny'))} |"
+                ),
+                (
+                    f"| 每 1000 次预计成本 | "
+                    f"{cost_text(llm_cost.get('estimated_cost_per_1000_requests_cny'))} | "
+                    f"{cost_text(qwen_cost.get('estimated_cost_per_1000_requests_cny'))} |"
+                ),
                 "",
             ]
         )
@@ -772,6 +1070,7 @@ def build_parser() -> argparse.ArgumentParser:
     ab.add_argument("--dataset", type=Path, required=True)
     ab.add_argument("--repeat", type=int, default=3)
     ab.add_argument("--warmup", type=int, default=1)
+    ab.add_argument("--concurrency", type=int, default=4)
     ab.add_argument("--baseline-output", type=Path, required=True)
     ab.add_argument("--candidate-output", type=Path, required=True)
 
@@ -781,6 +1080,27 @@ def build_parser() -> argparse.ArgumentParser:
     compare.add_argument("--candidate", type=Path, required=True)
     compare.add_argument("--output", type=Path, required=True)
     compare.add_argument("--json-output", type=Path)
+
+    evaluate = subparsers.add_parser(
+        "evaluate",
+        help="Run both providers and write one combined JSON and Markdown report.",
+    )
+    evaluate.add_argument("--dataset", type=Path, required=True)
+    evaluate.add_argument("--repeat", type=int, default=3)
+    evaluate.add_argument("--warmup", type=int, default=1)
+    evaluate.add_argument("--concurrency", type=int, default=4)
+    evaluate.add_argument("--output", type=Path, required=True)
+    evaluate.add_argument("--markdown-output", type=Path, required=True)
+    evaluate.add_argument("--pricing-source", required=True)
+    evaluate.add_argument("--pricing-region", default="中国大陆（北京）")
+    evaluate.add_argument(
+        "--pricing-date",
+        default=datetime.now(UTC).date().isoformat(),
+    )
+    evaluate.add_argument("--llm-cache-hit-input-price-per-million", type=float, required=True)
+    evaluate.add_argument("--llm-cache-miss-input-price-per-million", type=float, required=True)
+    evaluate.add_argument("--llm-output-price-per-million", type=float, required=True)
+    evaluate.add_argument("--qwen-price-per-thousand-tokens", type=float, required=True)
     return parser
 
 
@@ -834,6 +1154,7 @@ def main() -> int:
                     dataset=load_json(args.dataset),
                     repeat=args.repeat,
                     warmup=args.warmup,
+                    concurrency=args.concurrency,
                 )
             )
             save_json(args.baseline_output, baseline)
@@ -852,6 +1173,58 @@ def main() -> int:
             if args.json_output:
                 save_json(args.json_output, comparison)
             print(f"saved: {args.output}")
+            return 0
+        if args.command == "evaluate":
+            dataset = load_json(args.dataset)
+            validation = validate_dataset(dataset)
+            if not validation["valid"]:
+                raise ValueError(f"rerank dataset is invalid: {validation['errors']}")
+            baseline, candidate = asyncio.run(
+                run_ab(
+                    dataset=dataset,
+                    repeat=args.repeat,
+                    warmup=args.warmup,
+                    concurrency=args.concurrency,
+                )
+            )
+            comparison = compare_reports(dataset, baseline, candidate)
+            pricing = {
+                "currency": "CNY",
+                "region": args.pricing_region,
+                "queried_at": args.pricing_date,
+                "source": args.pricing_source,
+                "rates": {
+                    "llm_cache_hit_input_per_million": (
+                        args.llm_cache_hit_input_price_per_million
+                    ),
+                    "llm_cache_miss_input_per_million": (
+                        args.llm_cache_miss_input_price_per_million
+                    ),
+                    "llm_output_per_million": args.llm_output_price_per_million,
+                    "qwen_rerank_per_thousand_tokens": (
+                        args.qwen_price_per_thousand_tokens
+                    ),
+                },
+            }
+            costs = build_cost_summary(baseline, candidate, pricing)
+            combined = {
+                "name": "opt16_llm_vs_qwen3",
+                "generated_at": datetime.now(UTC).isoformat(),
+                "dataset": dataset.get("name"),
+                "source_index_version": dataset.get("source_index_version"),
+                "annotation": dataset.get("annotation"),
+                "runs": {"llm": baseline, "qwen3": candidate},
+                "comparison": comparison,
+                "costs": costs,
+            }
+            save_json(args.output, combined)
+            args.markdown_output.parent.mkdir(parents=True, exist_ok=True)
+            args.markdown_output.write_text(
+                render_markdown(comparison, costs),
+                encoding="utf-8",
+            )
+            print(f"saved: {args.output}")
+            print(f"saved: {args.markdown_output}")
             return 0
     except Exception as exc:  # noqa: BLE001 - CLI should return a concise failure
         print(f"error: {exc}", file=sys.stderr)

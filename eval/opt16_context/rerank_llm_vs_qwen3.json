@@ -1,0 +1,4852 @@
+{
+  "name": "opt16_llm_vs_qwen3",
+  "generated_at": "2026-08-18T05:12:23.865834+00:00",
+  "dataset": "opt16_v2_rerank_core",
+  "source_index_version": "v2",
+  "annotation": {
+    "method": "document_grounded_human_reviewed",
+    "status": "reviewed",
+    "rubric": "0=无关，1=主题相关，2=有效支撑，3=核心证据",
+    "reviewed_at": "2026-08-18T05:04:35.491224+00:00"
+  },
+  "runs": {
+    "llm": {
+      "status": "completed",
+      "generated_at": "2026-08-18T05:12:07.372741+00:00",
+      "dataset": "opt16_v2_rerank_core",
+      "dataset_created_at": "2026-08-18T05:04:21.936804+00:00",
+      "provider": "llm",
+      "model": "deepseek-v4-pro",
+      "base_url_host": "api.deepseek.com",
+      "repeat": 3,
+      "warmup": 1,
+      "summary": {
+        "case_count": 12,
+        "request_count": 36,
+        "successful_requests": 35,
+        "failed_requests": 1,
+        "success_rate": 0.9722222222222222,
+        "degraded_rate": 0.027777777777777776,
+        "p50_latency_ms": 32749.956,
+        "p95_latency_ms": 51493.87149999998,
+        "max_latency_ms": 58941.447,
+        "mean_latency_ms": 34037.33345714286,
+        "top5_consistency": 0.5277777777777778,
+        "usage_totals": {
+          "input_tokens": 85957,
+          "output_tokens": 97781,
+          "total_tokens": 183738,
+          "cache_hit_input_tokens": 83456,
+          "cache_miss_input_tokens": 2501
+        },
+        "usage_per_successful_request": {
+          "input_tokens": 2455.91,
+          "output_tokens": 2793.74,
+          "total_tokens": 5249.66,
+          "cache_hit_input_tokens": 2384.46,
+          "cache_miss_input_tokens": 71.46
+        }
+      },
+      "cases": [
+        {
+          "id": "live_category_qualification",
+          "question": "直播带货美妆或医疗器械需要哪些额外资质？",
+          "warmups": [
+            {
+              "iteration": 1,
+              "success": true,
+              "latency_ms": 39066.309,
+              "rankings": [
+                {
+                  "chunk_id": "6400b836-5cf1-43fc-89b8-a2f57e5629d2",
+                  "rerank_score": 0.95
+                },
+                {
+                  "chunk_id": "44159d28-676b-40c1-a84f-34b8e4ac6c18",
+                  "rerank_score": 0.8
+                },
+                {
+                  "chunk_id": "bfc4aae9-b04b-482a-a649-f53ca0496e39",
+                  "rerank_score": 0.75
+                },
+                {
+                  "chunk_id": "337710fc-63a7-4067-b301-851de1291994",
+                  "rerank_score": 0.4
+                },
+                {
+                  "chunk_id": "c1898591-8556-45fc-a8f5-14b24dc525ca",
+                  "rerank_score": 0.1
+                }
+              ],
+              "usage": {
+                "input_tokens": 2428,
+                "output_tokens": 3380,
+                "total_tokens": 5808,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 2428
+              },
+              "error": null
+            }
+          ],
+          "runs": [
+            {
+              "iteration": 2,
+              "success": true,
+              "latency_ms": 44905.137,
+              "rankings": [
+                {
+                  "chunk_id": "6400b836-5cf1-43fc-89b8-a2f57e5629d2",
+                  "rerank_score": 0.85
+                },
+                {
+                  "chunk_id": "44159d28-676b-40c1-a84f-34b8e4ac6c18",
+                  "rerank_score": 0.78
+                },
+                {
+                  "chunk_id": "bfc4aae9-b04b-482a-a649-f53ca0496e39",
+                  "rerank_score": 0.7
+                },
+                {
+                  "chunk_id": "337710fc-63a7-4067-b301-851de1291994",
+                  "rerank_score": 0.3
+                },
+                {
+                  "chunk_id": "c4c6be7a-ef36-4a1d-99e9-eff07b442873",
+                  "rerank_score": 0.1
+                }
+              ],
+              "usage": {
+                "input_tokens": 2428,
+                "output_tokens": 3951,
+                "total_tokens": 6379,
+                "cache_hit_input_tokens": 2304,
+                "cache_miss_input_tokens": 124
+              },
+              "error": null
+            },
+            {
+              "iteration": 3,
+              "success": true,
+              "latency_ms": 40529.628,
+              "rankings": [
+                {
+                  "chunk_id": "6400b836-5cf1-43fc-89b8-a2f57e5629d2",
+                  "rerank_score": 0.9
+                },
+                {
+                  "chunk_id": "44159d28-676b-40c1-a84f-34b8e4ac6c18",
+                  "rerank_score": 0.85
+                },
+                {
+                  "chunk_id": "bfc4aae9-b04b-482a-a649-f53ca0496e39",
+                  "rerank_score": 0.6
+                },
+                {
+                  "chunk_id": "337710fc-63a7-4067-b301-851de1291994",
+                  "rerank_score": 0.4
+                },
+                {
+                  "chunk_id": "15eedd26-ba03-4665-aa67-0768afece9d9",
+                  "rerank_score": 0.1
+                }
+              ],
+              "usage": {
+                "input_tokens": 2428,
+                "output_tokens": 3591,
+                "total_tokens": 6019,
+                "cache_hit_input_tokens": 2304,
+                "cache_miss_input_tokens": 124
+              },
+              "error": null
+            },
+            {
+              "iteration": 4,
+              "success": true,
+              "latency_ms": 26043.298,
+              "rankings": [
+                {
+                  "chunk_id": "6400b836-5cf1-43fc-89b8-a2f57e5629d2",
+                  "rerank_score": 0.9
+                },
+                {
+                  "chunk_id": "44159d28-676b-40c1-a84f-34b8e4ac6c18",
+                  "rerank_score": 0.85
+                },
+                {
+                  "chunk_id": "bfc4aae9-b04b-482a-a649-f53ca0496e39",
+                  "rerank_score": 0.6
+                },
+                {
+                  "chunk_id": "337710fc-63a7-4067-b301-851de1291994",
+                  "rerank_score": 0.2
+                },
+                {
+                  "chunk_id": "9feabcb9-b32f-4409-a23c-fc8ebde99408",
+                  "rerank_score": 0.0
+                }
+              ],
+              "usage": {
+                "input_tokens": 2428,
+                "output_tokens": 1987,
+                "total_tokens": 4415,
+                "cache_hit_input_tokens": 2304,
+                "cache_miss_input_tokens": 124
+              },
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "live_campaign_shipping",
+          "question": "大场直播产生的大促订单多久要发货，超时如何处理？",
+          "warmups": [
+            {
+              "iteration": 1,
+              "success": true,
+              "latency_ms": 35673.673,
+              "rankings": [
+                {
+                  "chunk_id": "be592533-2534-499a-ad02-ed0888908d52",
+                  "rerank_score": 0.97
+                },
+                {
+                  "chunk_id": "413ec4ca-4474-4c54-a97e-ee642182aa66",
+                  "rerank_score": 0.85
+                },
+                {
+                  "chunk_id": "c4c6be7a-ef36-4a1d-99e9-eff07b442873",
+                  "rerank_score": 0.75
+                },
+                {
+                  "chunk_id": "c44a8d38-d8ca-46c0-9522-f5813d672e17",
+                  "rerank_score": 0.25
+                },
+                {
+                  "chunk_id": "ee706ab5-427f-4b64-8305-fe44b1be564b",
+                  "rerank_score": 0.1
+                }
+              ],
+              "usage": {
+                "input_tokens": 2485,
+                "output_tokens": 2862,
+                "total_tokens": 5347,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 2485
+              },
+              "error": null
+            }
+          ],
+          "runs": [
+            {
+              "iteration": 2,
+              "success": true,
+              "latency_ms": 33180.921,
+              "rankings": [
+                {
+                  "chunk_id": "be592533-2534-499a-ad02-ed0888908d52",
+                  "rerank_score": 0.95
+                },
+                {
+                  "chunk_id": "413ec4ca-4474-4c54-a97e-ee642182aa66",
+                  "rerank_score": 0.8
+                },
+                {
+                  "chunk_id": "c4c6be7a-ef36-4a1d-99e9-eff07b442873",
+                  "rerank_score": 0.7
+                },
+                {
+                  "chunk_id": "c44a8d38-d8ca-46c0-9522-f5813d672e17",
+                  "rerank_score": 0.1
+                },
+                {
+                  "chunk_id": "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+                  "rerank_score": 0.0
+                }
+              ],
+              "usage": {
+                "input_tokens": 2485,
+                "output_tokens": 2870,
+                "total_tokens": 5355,
+                "cache_hit_input_tokens": 2432,
+                "cache_miss_input_tokens": 53
+              },
+              "error": null
+            },
+            {
+              "iteration": 3,
+              "success": true,
+              "latency_ms": 33362.804,
+              "rankings": [
+                {
+                  "chunk_id": "be592533-2534-499a-ad02-ed0888908d52",
+                  "rerank_score": 0.98
+                },
+                {
+                  "chunk_id": "413ec4ca-4474-4c54-a97e-ee642182aa66",
+                  "rerank_score": 0.95
+                },
+                {
+                  "chunk_id": "c4c6be7a-ef36-4a1d-99e9-eff07b442873",
+                  "rerank_score": 0.85
+                },
+                {
+                  "chunk_id": "ee706ab5-427f-4b64-8305-fe44b1be564b",
+                  "rerank_score": 0.3
+                },
+                {
+                  "chunk_id": "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+                  "rerank_score": 0.2
+                }
+              ],
+              "usage": {
+                "input_tokens": 2485,
+                "output_tokens": 2659,
+                "total_tokens": 5144,
+                "cache_hit_input_tokens": 2432,
+                "cache_miss_input_tokens": 53
+              },
+              "error": null
+            },
+            {
+              "iteration": 4,
+              "success": true,
+              "latency_ms": 40519.388,
+              "rankings": [
+                {
+                  "chunk_id": "be592533-2534-499a-ad02-ed0888908d52",
+                  "rerank_score": 1.0
+                },
+                {
+                  "chunk_id": "413ec4ca-4474-4c54-a97e-ee642182aa66",
+                  "rerank_score": 0.95
+                },
+                {
+                  "chunk_id": "c4c6be7a-ef36-4a1d-99e9-eff07b442873",
+                  "rerank_score": 0.9
+                },
+                {
+                  "chunk_id": "c44a8d38-d8ca-46c0-9522-f5813d672e17",
+                  "rerank_score": 0.2
+                },
+                {
+                  "chunk_id": "ee706ab5-427f-4b64-8305-fe44b1be564b",
+                  "rerank_score": 0.1
+                }
+              ],
+              "usage": {
+                "input_tokens": 2485,
+                "output_tokens": 3661,
+                "total_tokens": 6146,
+                "cache_hit_input_tokens": 2432,
+                "cache_miss_input_tokens": 53
+              },
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "live_order_responsibility",
+          "question": "直播间下单后由主播还是店铺商家承担售后和发票义务？",
+          "warmups": [
+            {
+              "iteration": 1,
+              "success": true,
+              "latency_ms": 19925.445,
+              "rankings": [
+                {
+                  "chunk_id": "c1898591-8556-45fc-a8f5-14b24dc525ca",
+                  "rerank_score": 0.99
+                },
+                {
+                  "chunk_id": "1ed0393c-580a-4a3f-b98c-ead0d0a9e010",
+                  "rerank_score": 0.85
+                },
+                {
+                  "chunk_id": "cb269192-7e36-4a31-9832-174fee8ad306",
+                  "rerank_score": 0.7
+                },
+                {
+                  "chunk_id": "c4c6be7a-ef36-4a1d-99e9-eff07b442873",
+                  "rerank_score": 0.5
+                },
+                {
+                  "chunk_id": "18f53718-2675-4ca4-b914-69a621d3c088",
+                  "rerank_score": 0.3
+                }
+              ],
+              "usage": {
+                "input_tokens": 2540,
+                "output_tokens": 1563,
+                "total_tokens": 4103,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 2540
+              },
+              "error": null
+            }
+          ],
+          "runs": [
+            {
+              "iteration": 2,
+              "success": true,
+              "latency_ms": 25762.682,
+              "rankings": [
+                {
+                  "chunk_id": "c1898591-8556-45fc-a8f5-14b24dc525ca",
+                  "rerank_score": 0.99
+                },
+                {
+                  "chunk_id": "1ed0393c-580a-4a3f-b98c-ead0d0a9e010",
+                  "rerank_score": 0.75
+                },
+                {
+                  "chunk_id": "cb269192-7e36-4a31-9832-174fee8ad306",
+                  "rerank_score": 0.65
+                },
+                {
+                  "chunk_id": "c4c6be7a-ef36-4a1d-99e9-eff07b442873",
+                  "rerank_score": 0.3
+                },
+                {
+                  "chunk_id": "008fc2ce-e5d7-4895-bbc3-c38d047745e2",
+                  "rerank_score": 0.05
+                }
+              ],
+              "usage": {
+                "input_tokens": 2540,
+                "output_tokens": 2044,
+                "total_tokens": 4584,
+                "cache_hit_input_tokens": 2432,
+                "cache_miss_input_tokens": 108
+              },
+              "error": null
+            },
+            {
+              "iteration": 3,
+              "success": true,
+              "latency_ms": 33535.899,
+              "rankings": [
+                {
+                  "chunk_id": "c1898591-8556-45fc-a8f5-14b24dc525ca",
+                  "rerank_score": 0.99
+                },
+                {
+                  "chunk_id": "1ed0393c-580a-4a3f-b98c-ead0d0a9e010",
+                  "rerank_score": 0.85
+                },
+                {
+                  "chunk_id": "cb269192-7e36-4a31-9832-174fee8ad306",
+                  "rerank_score": 0.8
+                },
+                {
+                  "chunk_id": "c4c6be7a-ef36-4a1d-99e9-eff07b442873",
+                  "rerank_score": 0.35
+                },
+                {
+                  "chunk_id": "008fc2ce-e5d7-4895-bbc3-c38d047745e2",
+                  "rerank_score": 0.1
+                }
+              ],
+              "usage": {
+                "input_tokens": 2540,
+                "output_tokens": 2658,
+                "total_tokens": 5198,
+                "cache_hit_input_tokens": 2432,
+                "cache_miss_input_tokens": 108
+              },
+              "error": null
+            },
+            {
+              "iteration": 4,
+              "success": true,
+              "latency_ms": 27522.9,
+              "rankings": [
+                {
+                  "chunk_id": "c1898591-8556-45fc-a8f5-14b24dc525ca",
+                  "rerank_score": 1.0
+                },
+                {
+                  "chunk_id": "cb269192-7e36-4a31-9832-174fee8ad306",
+                  "rerank_score": 0.95
+                },
+                {
+                  "chunk_id": "1ed0393c-580a-4a3f-b98c-ead0d0a9e010",
+                  "rerank_score": 0.9
+                },
+                {
+                  "chunk_id": "008fc2ce-e5d7-4895-bbc3-c38d047745e2",
+                  "rerank_score": 0.3
+                },
+                {
+                  "chunk_id": "18f53718-2675-4ca4-b914-69a621d3c088",
+                  "rerank_score": 0.2
+                }
+              ],
+              "usage": {
+                "input_tokens": 2540,
+                "output_tokens": 2361,
+                "total_tokens": 4901,
+                "cache_hit_input_tokens": 2432,
+                "cache_miss_input_tokens": 108
+              },
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "search_ad_invoice_reconciliation",
+          "question": "广告费账单有差异怎么申诉，广告费发票由谁开？",
+          "warmups": [
+            {
+              "iteration": 1,
+              "success": true,
+              "latency_ms": 54190.42,
+              "rankings": [
+                {
+                  "chunk_id": "cb269192-7e36-4a31-9832-174fee8ad306",
+                  "rerank_score": 0.95
+                },
+                {
+                  "chunk_id": "079529f9-bae4-48d6-8917-8d3582ed77da",
+                  "rerank_score": 0.85
+                },
+                {
+                  "chunk_id": "da6c6060-b3d8-4966-bc72-129292455044",
+                  "rerank_score": 0.7
+                },
+                {
+                  "chunk_id": "83be732f-48b4-44ca-aca9-5f592fa09b04",
+                  "rerank_score": 0.45
+                },
+                {
+                  "chunk_id": "008fc2ce-e5d7-4895-bbc3-c38d047745e2",
+                  "rerank_score": 0.4
+                }
+              ],
+              "usage": {
+                "input_tokens": 2321,
+                "output_tokens": 4899,
+                "total_tokens": 7220,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 2321
+              },
+              "error": null
+            }
+          ],
+          "runs": [
+            {
+              "iteration": 2,
+              "success": true,
+              "latency_ms": 42933.345,
+              "rankings": [
+                {
+                  "chunk_id": "079529f9-bae4-48d6-8917-8d3582ed77da",
+                  "rerank_score": 0.98
+                },
+                {
+                  "chunk_id": "cb269192-7e36-4a31-9832-174fee8ad306",
+                  "rerank_score": 0.85
+                },
+                {
+                  "chunk_id": "da6c6060-b3d8-4966-bc72-129292455044",
+                  "rerank_score": 0.6
+                },
+                {
+                  "chunk_id": "83be732f-48b4-44ca-aca9-5f592fa09b04",
+                  "rerank_score": 0.4
+                },
+                {
+                  "chunk_id": "5142e91c-eb33-4e8a-a88a-2e4a910ca807",
+                  "rerank_score": 0.3
+                }
+              ],
+              "usage": {
+                "input_tokens": 2321,
+                "output_tokens": 3708,
+                "total_tokens": 6029,
+                "cache_hit_input_tokens": 2304,
+                "cache_miss_input_tokens": 17
+              },
+              "error": null
+            },
+            {
+              "iteration": 3,
+              "success": true,
+              "latency_ms": 47511.821,
+              "rankings": [
+                {
+                  "chunk_id": "079529f9-bae4-48d6-8917-8d3582ed77da",
+                  "rerank_score": 0.95
+                },
+                {
+                  "chunk_id": "cb269192-7e36-4a31-9832-174fee8ad306",
+                  "rerank_score": 0.9
+                },
+                {
+                  "chunk_id": "da6c6060-b3d8-4966-bc72-129292455044",
+                  "rerank_score": 0.85
+                },
+                {
+                  "chunk_id": "83be732f-48b4-44ca-aca9-5f592fa09b04",
+                  "rerank_score": 0.6
+                },
+                {
+                  "chunk_id": "5142e91c-eb33-4e8a-a88a-2e4a910ca807",
+                  "rerank_score": 0.5
+                }
+              ],
+              "usage": {
+                "input_tokens": 2321,
+                "output_tokens": 4127,
+                "total_tokens": 6448,
+                "cache_hit_input_tokens": 2304,
+                "cache_miss_input_tokens": 17
+              },
+              "error": null
+            },
+            {
+              "iteration": 4,
+              "success": true,
+              "latency_ms": 39041.204,
+              "rankings": [
+                {
+                  "chunk_id": "079529f9-bae4-48d6-8917-8d3582ed77da",
+                  "rerank_score": 0.92
+                },
+                {
+                  "chunk_id": "cb269192-7e36-4a31-9832-174fee8ad306",
+                  "rerank_score": 0.88
+                },
+                {
+                  "chunk_id": "da6c6060-b3d8-4966-bc72-129292455044",
+                  "rerank_score": 0.82
+                },
+                {
+                  "chunk_id": "5142e91c-eb33-4e8a-a88a-2e4a910ca807",
+                  "rerank_score": 0.55
+                },
+                {
+                  "chunk_id": "008fc2ce-e5d7-4895-bbc3-c38d047745e2",
+                  "rerank_score": 0.5
+                }
+              ],
+              "usage": {
+                "input_tokens": 2321,
+                "output_tokens": 3342,
+                "total_tokens": 5663,
+                "cache_hit_input_tokens": 2304,
+                "cache_miss_input_tokens": 17
+              },
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "search_personalization_off",
+          "question": "关闭个性化推荐后是不是就完全看不到推荐和广告了？",
+          "warmups": [
+            {
+              "iteration": 1,
+              "success": true,
+              "latency_ms": 29466.461,
+              "rankings": [
+                {
+                  "chunk_id": "ab9b5fc7-dde5-4d38-a5c6-92d34d57d90c",
+                  "rerank_score": 0.98
+                },
+                {
+                  "chunk_id": "8e64a13d-b431-4e8a-81ee-a0018a91199c",
+                  "rerank_score": 0.2
+                },
+                {
+                  "chunk_id": "5b92e1de-d0dd-4b3d-bd07-1c2c61cd80bc",
+                  "rerank_score": 0.05
+                },
+                {
+                  "chunk_id": "5142e91c-eb33-4e8a-a88a-2e4a910ca807",
+                  "rerank_score": 0.0
+                },
+                {
+                  "chunk_id": "2f9a4281-d35d-471a-a18b-6654a62b1013",
+                  "rerank_score": 0.0
+                }
+              ],
+              "usage": {
+                "input_tokens": 2567,
+                "output_tokens": 2635,
+                "total_tokens": 5202,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 2567
+              },
+              "error": null
+            }
+          ],
+          "runs": [
+            {
+              "iteration": 2,
+              "success": false,
+              "latency_ms": 60809.37,
+              "rankings": [],
+              "usage": null,
+              "error": "LLMProviderError: llm request failed: "
+            },
+            {
+              "iteration": 3,
+              "success": true,
+              "latency_ms": 37937.365,
+              "rankings": [
+                {
+                  "chunk_id": "ab9b5fc7-dde5-4d38-a5c6-92d34d57d90c",
+                  "rerank_score": 1.0
+                },
+                {
+                  "chunk_id": "8e64a13d-b431-4e8a-81ee-a0018a91199c",
+                  "rerank_score": 0.5
+                },
+                {
+                  "chunk_id": "5b92e1de-d0dd-4b3d-bd07-1c2c61cd80bc",
+                  "rerank_score": 0.35
+                },
+                {
+                  "chunk_id": "458e0ad6-7256-432d-bb46-4bc7cf86f650",
+                  "rerank_score": 0.25
+                },
+                {
+                  "chunk_id": "5142e91c-eb33-4e8a-a88a-2e4a910ca807",
+                  "rerank_score": 0.1
+                }
+              ],
+              "usage": {
+                "input_tokens": 2567,
+                "output_tokens": 3120,
+                "total_tokens": 5687,
+                "cache_hit_input_tokens": 2560,
+                "cache_miss_input_tokens": 7
+              },
+              "error": null
+            },
+            {
+              "iteration": 4,
+              "success": true,
+              "latency_ms": 27271.181,
+              "rankings": [
+                {
+                  "chunk_id": "ab9b5fc7-dde5-4d38-a5c6-92d34d57d90c",
+                  "rerank_score": 0.95
+                },
+                {
+                  "chunk_id": "8e64a13d-b431-4e8a-81ee-a0018a91199c",
+                  "rerank_score": 0.3
+                },
+                {
+                  "chunk_id": "5b92e1de-d0dd-4b3d-bd07-1c2c61cd80bc",
+                  "rerank_score": 0.2
+                },
+                {
+                  "chunk_id": "458e0ad6-7256-432d-bb46-4bc7cf86f650",
+                  "rerank_score": 0.1
+                },
+                {
+                  "chunk_id": "5142e91c-eb33-4e8a-a88a-2e4a910ca807",
+                  "rerank_score": 0.0
+                }
+              ],
+              "usage": {
+                "input_tokens": 2567,
+                "output_tokens": 2349,
+                "total_tokens": 4916,
+                "cache_hit_input_tokens": 2560,
+                "cache_miss_input_tokens": 7
+              },
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "payment_combined_refund",
+          "question": "组合支付发生部分退款后，银行卡、优惠券和积分分别怎么退？",
+          "warmups": [
+            {
+              "iteration": 1,
+              "success": true,
+              "latency_ms": 31665.478,
+              "rankings": [
+                {
+                  "chunk_id": "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+                  "rerank_score": 0.95
+                },
+                {
+                  "chunk_id": "68a004e5-c525-4ae7-8613-759d0568d893",
+                  "rerank_score": 0.85
+                },
+                {
+                  "chunk_id": "3c6dfd3c-98f2-46cd-b4b1-639c6125f1c0",
+                  "rerank_score": 0.75
+                },
+                {
+                  "chunk_id": "16c97ec5-40e0-4b0e-8fc6-b7b526dfe4ff",
+                  "rerank_score": 0.6
+                },
+                {
+                  "chunk_id": "c52e750f-a15a-421b-a0fd-2b05b7519ea9",
+                  "rerank_score": 0.4
+                }
+              ],
+              "usage": {
+                "input_tokens": 2425,
+                "output_tokens": 2649,
+                "total_tokens": 5074,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 2425
+              },
+              "error": null
+            }
+          ],
+          "runs": [
+            {
+              "iteration": 2,
+              "success": true,
+              "latency_ms": 31324.195,
+              "rankings": [
+                {
+                  "chunk_id": "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+                  "rerank_score": 0.95
+                },
+                {
+                  "chunk_id": "68a004e5-c525-4ae7-8613-759d0568d893",
+                  "rerank_score": 0.9
+                },
+                {
+                  "chunk_id": "3c6dfd3c-98f2-46cd-b4b1-639c6125f1c0",
+                  "rerank_score": 0.8
+                },
+                {
+                  "chunk_id": "16c97ec5-40e0-4b0e-8fc6-b7b526dfe4ff",
+                  "rerank_score": 0.6
+                },
+                {
+                  "chunk_id": "c52e750f-a15a-421b-a0fd-2b05b7519ea9",
+                  "rerank_score": 0.2
+                }
+              ],
+              "usage": {
+                "input_tokens": 2425,
+                "output_tokens": 2500,
+                "total_tokens": 4925,
+                "cache_hit_input_tokens": 2304,
+                "cache_miss_input_tokens": 121
+              },
+              "error": null
+            },
+            {
+              "iteration": 3,
+              "success": true,
+              "latency_ms": 29497.809,
+              "rankings": [
+                {
+                  "chunk_id": "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+                  "rerank_score": 0.95
+                },
+                {
+                  "chunk_id": "68a004e5-c525-4ae7-8613-759d0568d893",
+                  "rerank_score": 0.85
+                },
+                {
+                  "chunk_id": "3c6dfd3c-98f2-46cd-b4b1-639c6125f1c0",
+                  "rerank_score": 0.8
+                },
+                {
+                  "chunk_id": "16c97ec5-40e0-4b0e-8fc6-b7b526dfe4ff",
+                  "rerank_score": 0.5
+                },
+                {
+                  "chunk_id": "edcd60d1-9fac-45f0-9d8b-1af3a50f7ac0",
+                  "rerank_score": 0.3
+                }
+              ],
+              "usage": {
+                "input_tokens": 2425,
+                "output_tokens": 2371,
+                "total_tokens": 4796,
+                "cache_hit_input_tokens": 2304,
+                "cache_miss_input_tokens": 121
+              },
+              "error": null
+            },
+            {
+              "iteration": 4,
+              "success": true,
+              "latency_ms": 36706.987,
+              "rankings": [
+                {
+                  "chunk_id": "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+                  "rerank_score": 0.9
+                },
+                {
+                  "chunk_id": "68a004e5-c525-4ae7-8613-759d0568d893",
+                  "rerank_score": 0.75
+                },
+                {
+                  "chunk_id": "3c6dfd3c-98f2-46cd-b4b1-639c6125f1c0",
+                  "rerank_score": 0.65
+                },
+                {
+                  "chunk_id": "16c97ec5-40e0-4b0e-8fc6-b7b526dfe4ff",
+                  "rerank_score": 0.35
+                },
+                {
+                  "chunk_id": "c52e750f-a15a-421b-a0fd-2b05b7519ea9",
+                  "rerank_score": 0.3
+                }
+              ],
+              "usage": {
+                "input_tokens": 2425,
+                "output_tokens": 3037,
+                "total_tokens": 5462,
+                "cache_hit_input_tokens": 2304,
+                "cache_miss_input_tokens": 121
+              },
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "payment_duplicate_charge",
+          "question": "同一个订单被重复扣款，多余的钱多久退回？",
+          "warmups": [
+            {
+              "iteration": 1,
+              "success": true,
+              "latency_ms": 24548.468,
+              "rankings": [
+                {
+                  "chunk_id": "e3bd1467-f992-48f9-9483-47f14ff49c4c",
+                  "rerank_score": 1.0
+                },
+                {
+                  "chunk_id": "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+                  "rerank_score": 0.9
+                },
+                {
+                  "chunk_id": "ff032376-059e-4150-8e75-3ea6d7f60851",
+                  "rerank_score": 0.7
+                },
+                {
+                  "chunk_id": "61f394fc-ceb2-44b6-b1e6-ae4c7bc1527e",
+                  "rerank_score": 0.6
+                },
+                {
+                  "chunk_id": "3644b62a-f3ef-41f6-a05e-22e028582565",
+                  "rerank_score": 0.5
+                }
+              ],
+              "usage": {
+                "input_tokens": 2604,
+                "output_tokens": 2052,
+                "total_tokens": 4656,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 2604
+              },
+              "error": null
+            }
+          ],
+          "runs": [
+            {
+              "iteration": 2,
+              "success": true,
+              "latency_ms": 21438.727,
+              "rankings": [
+                {
+                  "chunk_id": "e3bd1467-f992-48f9-9483-47f14ff49c4c",
+                  "rerank_score": 0.99
+                },
+                {
+                  "chunk_id": "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+                  "rerank_score": 0.92
+                },
+                {
+                  "chunk_id": "3644b62a-f3ef-41f6-a05e-22e028582565",
+                  "rerank_score": 0.75
+                },
+                {
+                  "chunk_id": "ff032376-059e-4150-8e75-3ea6d7f60851",
+                  "rerank_score": 0.7
+                },
+                {
+                  "chunk_id": "61f394fc-ceb2-44b6-b1e6-ae4c7bc1527e",
+                  "rerank_score": 0.68
+                }
+              ],
+              "usage": {
+                "input_tokens": 2604,
+                "output_tokens": 1861,
+                "total_tokens": 4465,
+                "cache_hit_input_tokens": 2560,
+                "cache_miss_input_tokens": 44
+              },
+              "error": null
+            },
+            {
+              "iteration": 3,
+              "success": true,
+              "latency_ms": 26855.927,
+              "rankings": [
+                {
+                  "chunk_id": "e3bd1467-f992-48f9-9483-47f14ff49c4c",
+                  "rerank_score": 0.98
+                },
+                {
+                  "chunk_id": "61f394fc-ceb2-44b6-b1e6-ae4c7bc1527e",
+                  "rerank_score": 0.8
+                },
+                {
+                  "chunk_id": "3644b62a-f3ef-41f6-a05e-22e028582565",
+                  "rerank_score": 0.7
+                },
+                {
+                  "chunk_id": "ff032376-059e-4150-8e75-3ea6d7f60851",
+                  "rerank_score": 0.65
+                },
+                {
+                  "chunk_id": "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+                  "rerank_score": 0.6
+                }
+              ],
+              "usage": {
+                "input_tokens": 2604,
+                "output_tokens": 2132,
+                "total_tokens": 4736,
+                "cache_hit_input_tokens": 2560,
+                "cache_miss_input_tokens": 44
+              },
+              "error": null
+            },
+            {
+              "iteration": 4,
+              "success": true,
+              "latency_ms": 32449.508,
+              "rankings": [
+                {
+                  "chunk_id": "e3bd1467-f992-48f9-9483-47f14ff49c4c",
+                  "rerank_score": 0.99
+                },
+                {
+                  "chunk_id": "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+                  "rerank_score": 0.85
+                },
+                {
+                  "chunk_id": "61f394fc-ceb2-44b6-b1e6-ae4c7bc1527e",
+                  "rerank_score": 0.65
+                },
+                {
+                  "chunk_id": "3644b62a-f3ef-41f6-a05e-22e028582565",
+                  "rerank_score": 0.5
+                },
+                {
+                  "chunk_id": "ff032376-059e-4150-8e75-3ea6d7f60851",
+                  "rerank_score": 0.45
+                }
+              ],
+              "usage": {
+                "input_tokens": 2604,
+                "output_tokens": 2634,
+                "total_tokens": 5238,
+                "cache_hit_input_tokens": 2560,
+                "cache_miss_input_tokens": 44
+              },
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "payment_risk_appeal",
+          "question": "异地登录后大额支付被风控拦截，怎么申诉，多久复核？",
+          "warmups": [
+            {
+              "iteration": 1,
+              "success": true,
+              "latency_ms": 25824.046,
+              "rankings": [
+                {
+                  "chunk_id": "aa81a2e2-a349-4946-8cbd-d3bdd40f078f",
+                  "rerank_score": 0.99
+                },
+                {
+                  "chunk_id": "61f394fc-ceb2-44b6-b1e6-ae4c7bc1527e",
+                  "rerank_score": 0.35
+                },
+                {
+                  "chunk_id": "83be732f-48b4-44ca-aca9-5f592fa09b04",
+                  "rerank_score": 0.0
+                },
+                {
+                  "chunk_id": "73703d96-4fda-4cab-a2da-7be08461020b",
+                  "rerank_score": 0.0
+                },
+                {
+                  "chunk_id": "da6c6060-b3d8-4966-bc72-129292455044",
+                  "rerank_score": 0.0
+                }
+              ],
+              "usage": {
+                "input_tokens": 2413,
+                "output_tokens": 2202,
+                "total_tokens": 4615,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 2413
+              },
+              "error": null
+            }
+          ],
+          "runs": [
+            {
+              "iteration": 2,
+              "success": true,
+              "latency_ms": 21269.922,
+              "rankings": [
+                {
+                  "chunk_id": "aa81a2e2-a349-4946-8cbd-d3bdd40f078f",
+                  "rerank_score": 0.98
+                },
+                {
+                  "chunk_id": "61f394fc-ceb2-44b6-b1e6-ae4c7bc1527e",
+                  "rerank_score": 0.45
+                },
+                {
+                  "chunk_id": "83be732f-48b4-44ca-aca9-5f592fa09b04",
+                  "rerank_score": 0.05
+                },
+                {
+                  "chunk_id": "e3bd1467-f992-48f9-9483-47f14ff49c4c",
+                  "rerank_score": 0.03
+                },
+                {
+                  "chunk_id": "73703d96-4fda-4cab-a2da-7be08461020b",
+                  "rerank_score": 0.02
+                }
+              ],
+              "usage": {
+                "input_tokens": 2413,
+                "output_tokens": 1837,
+                "total_tokens": 4250,
+                "cache_hit_input_tokens": 2304,
+                "cache_miss_input_tokens": 109
+              },
+              "error": null
+            },
+            {
+              "iteration": 3,
+              "success": true,
+              "latency_ms": 30716.091,
+              "rankings": [
+                {
+                  "chunk_id": "aa81a2e2-a349-4946-8cbd-d3bdd40f078f",
+                  "rerank_score": 0.99
+                },
+                {
+                  "chunk_id": "61f394fc-ceb2-44b6-b1e6-ae4c7bc1527e",
+                  "rerank_score": 0.4
+                },
+                {
+                  "chunk_id": "83be732f-48b4-44ca-aca9-5f592fa09b04",
+                  "rerank_score": 0.01
+                },
+                {
+                  "chunk_id": "73703d96-4fda-4cab-a2da-7be08461020b",
+                  "rerank_score": 0.0
+                },
+                {
+                  "chunk_id": "da6c6060-b3d8-4966-bc72-129292455044",
+                  "rerank_score": 0.0
+                }
+              ],
+              "usage": {
+                "input_tokens": 2413,
+                "output_tokens": 2422,
+                "total_tokens": 4835,
+                "cache_hit_input_tokens": 2304,
+                "cache_miss_input_tokens": 109
+              },
+              "error": null
+            },
+            {
+              "iteration": 4,
+              "success": true,
+              "latency_ms": 34021.636,
+              "rankings": [
+                {
+                  "chunk_id": "aa81a2e2-a349-4946-8cbd-d3bdd40f078f",
+                  "rerank_score": 0.98
+                },
+                {
+                  "chunk_id": "61f394fc-ceb2-44b6-b1e6-ae4c7bc1527e",
+                  "rerank_score": 0.55
+                },
+                {
+                  "chunk_id": "e3bd1467-f992-48f9-9483-47f14ff49c4c",
+                  "rerank_score": 0.1
+                },
+                {
+                  "chunk_id": "83be732f-48b4-44ca-aca9-5f592fa09b04",
+                  "rerank_score": 0.03
+                },
+                {
+                  "chunk_id": "da6c6060-b3d8-4966-bc72-129292455044",
+                  "rerank_score": 0.02
+                }
+              ],
+              "usage": {
+                "input_tokens": 2413,
+                "output_tokens": 2618,
+                "total_tokens": 5031,
+                "cache_hit_input_tokens": 2304,
+                "cache_miss_input_tokens": 109
+              },
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "member_points_refund",
+          "question": "积分抵扣订单退款后，积分和现金分别怎么退？",
+          "warmups": [
+            {
+              "iteration": 1,
+              "success": true,
+              "latency_ms": 30748.052,
+              "rankings": [
+                {
+                  "chunk_id": "779b77ca-dcb0-4de1-9eaf-d2279a876f34",
+                  "rerank_score": 0.95
+                },
+                {
+                  "chunk_id": "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+                  "rerank_score": 0.9
+                },
+                {
+                  "chunk_id": "61f394fc-ceb2-44b6-b1e6-ae4c7bc1527e",
+                  "rerank_score": 0.75
+                },
+                {
+                  "chunk_id": "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+                  "rerank_score": 0.5
+                },
+                {
+                  "chunk_id": "176c98b8-a7f5-4c86-a2f0-96752afbf776",
+                  "rerank_score": 0.45
+                }
+              ],
+              "usage": {
+                "input_tokens": 2656,
+                "output_tokens": 2679,
+                "total_tokens": 5335,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 2656
+              },
+              "error": null
+            }
+          ],
+          "runs": [
+            {
+              "iteration": 2,
+              "success": true,
+              "latency_ms": 58941.447,
+              "rankings": [
+                {
+                  "chunk_id": "779b77ca-dcb0-4de1-9eaf-d2279a876f34",
+                  "rerank_score": 0.95
+                },
+                {
+                  "chunk_id": "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+                  "rerank_score": 0.9
+                },
+                {
+                  "chunk_id": "61f394fc-ceb2-44b6-b1e6-ae4c7bc1527e",
+                  "rerank_score": 0.5
+                },
+                {
+                  "chunk_id": "eb5fa64f-3266-489d-8bc6-a6741fddcfe5",
+                  "rerank_score": 0.4
+                },
+                {
+                  "chunk_id": "176c98b8-a7f5-4c86-a2f0-96752afbf776",
+                  "rerank_score": 0.35
+                }
+              ],
+              "usage": {
+                "input_tokens": 2656,
+                "output_tokens": 4327,
+                "total_tokens": 6983,
+                "cache_hit_input_tokens": 2560,
+                "cache_miss_input_tokens": 96
+              },
+              "error": null
+            },
+            {
+              "iteration": 3,
+              "success": true,
+              "latency_ms": 32749.956,
+              "rankings": [
+                {
+                  "chunk_id": "779b77ca-dcb0-4de1-9eaf-d2279a876f34",
+                  "rerank_score": 0.95
+                },
+                {
+                  "chunk_id": "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+                  "rerank_score": 0.9
+                },
+                {
+                  "chunk_id": "61f394fc-ceb2-44b6-b1e6-ae4c7bc1527e",
+                  "rerank_score": 0.65
+                },
+                {
+                  "chunk_id": "176c98b8-a7f5-4c86-a2f0-96752afbf776",
+                  "rerank_score": 0.5
+                },
+                {
+                  "chunk_id": "3644b62a-f3ef-41f6-a05e-22e028582565",
+                  "rerank_score": 0.4
+                }
+              ],
+              "usage": {
+                "input_tokens": 2656,
+                "output_tokens": 3021,
+                "total_tokens": 5677,
+                "cache_hit_input_tokens": 2560,
+                "cache_miss_input_tokens": 96
+              },
+              "error": null
+            },
+            {
+              "iteration": 4,
+              "success": true,
+              "latency_ms": 22079.064,
+              "rankings": [
+                {
+                  "chunk_id": "779b77ca-dcb0-4de1-9eaf-d2279a876f34",
+                  "rerank_score": 0.95
+                },
+                {
+                  "chunk_id": "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+                  "rerank_score": 0.92
+                },
+                {
+                  "chunk_id": "61f394fc-ceb2-44b6-b1e6-ae4c7bc1527e",
+                  "rerank_score": 0.85
+                },
+                {
+                  "chunk_id": "176c98b8-a7f5-4c86-a2f0-96752afbf776",
+                  "rerank_score": 0.7
+                },
+                {
+                  "chunk_id": "eb5fa64f-3266-489d-8bc6-a6741fddcfe5",
+                  "rerank_score": 0.6
+                }
+              ],
+              "usage": {
+                "input_tokens": 2656,
+                "output_tokens": 1696,
+                "total_tokens": 4352,
+                "cache_hit_input_tokens": 2560,
+                "cache_miss_input_tokens": 96
+              },
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "member_plus_cancel",
+          "question": "Plus年卡买后7天内可以全额退款吗？",
+          "warmups": [
+            {
+              "iteration": 1,
+              "success": true,
+              "latency_ms": 46803.719,
+              "rankings": [
+                {
+                  "chunk_id": "d143f7a0-889b-448c-b446-6314cf970dc7",
+                  "rerank_score": 0.99
+                },
+                {
+                  "chunk_id": "eb5fa64f-3266-489d-8bc6-a6741fddcfe5",
+                  "rerank_score": 0.6
+                },
+                {
+                  "chunk_id": "8e274390-4b66-4695-a946-f86570388c01",
+                  "rerank_score": 0.1
+                },
+                {
+                  "chunk_id": "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+                  "rerank_score": 0.05
+                },
+                {
+                  "chunk_id": "3644b62a-f3ef-41f6-a05e-22e028582565",
+                  "rerank_score": 0.03
+                }
+              ],
+              "usage": {
+                "input_tokens": 2381,
+                "output_tokens": 3568,
+                "total_tokens": 5949,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 2381
+              },
+              "error": null
+            }
+          ],
+          "runs": [
+            {
+              "iteration": 2,
+              "success": true,
+              "latency_ms": 49779.346,
+              "rankings": [
+                {
+                  "chunk_id": "d143f7a0-889b-448c-b446-6314cf970dc7",
+                  "rerank_score": 0.98
+                },
+                {
+                  "chunk_id": "eb5fa64f-3266-489d-8bc6-a6741fddcfe5",
+                  "rerank_score": 0.55
+                },
+                {
+                  "chunk_id": "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+                  "rerank_score": 0.0
+                },
+                {
+                  "chunk_id": "8e274390-4b66-4695-a946-f86570388c01",
+                  "rerank_score": 0.0
+                },
+                {
+                  "chunk_id": "ff032376-059e-4150-8e75-3ea6d7f60851",
+                  "rerank_score": 0.0
+                }
+              ],
+              "usage": {
+                "input_tokens": 2381,
+                "output_tokens": 3770,
+                "total_tokens": 6151,
+                "cache_hit_input_tokens": 2304,
+                "cache_miss_input_tokens": 77
+              },
+              "error": null
+            },
+            {
+              "iteration": 3,
+              "success": true,
+              "latency_ms": 55494.431,
+              "rankings": [
+                {
+                  "chunk_id": "d143f7a0-889b-448c-b446-6314cf970dc7",
+                  "rerank_score": 0.99
+                },
+                {
+                  "chunk_id": "eb5fa64f-3266-489d-8bc6-a6741fddcfe5",
+                  "rerank_score": 0.7
+                },
+                {
+                  "chunk_id": "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+                  "rerank_score": 0.15
+                },
+                {
+                  "chunk_id": "3644b62a-f3ef-41f6-a05e-22e028582565",
+                  "rerank_score": 0.1
+                },
+                {
+                  "chunk_id": "61f394fc-ceb2-44b6-b1e6-ae4c7bc1527e",
+                  "rerank_score": 0.08
+                }
+              ],
+              "usage": {
+                "input_tokens": 2381,
+                "output_tokens": 4113,
+                "total_tokens": 6494,
+                "cache_hit_input_tokens": 2304,
+                "cache_miss_input_tokens": 77
+              },
+              "error": null
+            },
+            {
+              "iteration": 4,
+              "success": true,
+              "latency_ms": 37980.971,
+              "rankings": [
+                {
+                  "chunk_id": "d143f7a0-889b-448c-b446-6314cf970dc7",
+                  "rerank_score": 0.98
+                },
+                {
+                  "chunk_id": "eb5fa64f-3266-489d-8bc6-a6741fddcfe5",
+                  "rerank_score": 0.68
+                },
+                {
+                  "chunk_id": "61f394fc-ceb2-44b6-b1e6-ae4c7bc1527e",
+                  "rerank_score": 0.15
+                },
+                {
+                  "chunk_id": "8e274390-4b66-4695-a946-f86570388c01",
+                  "rerank_score": 0.12
+                },
+                {
+                  "chunk_id": "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+                  "rerank_score": 0.1
+                }
+              ],
+              "usage": {
+                "input_tokens": 2381,
+                "output_tokens": 2817,
+                "total_tokens": 5198,
+                "cache_hit_input_tokens": 2304,
+                "cache_miss_input_tokens": 77
+              },
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "aftersales_intercept_refund",
+          "question": "商品已经发货但未签收，拦截成功后怎么退款，失败怎么办？",
+          "warmups": [
+            {
+              "iteration": 1,
+              "success": true,
+              "latency_ms": 58031.918,
+              "rankings": [
+                {
+                  "chunk_id": "73703d96-4fda-4cab-a2da-7be08461020b",
+                  "rerank_score": 0.95
+                },
+                {
+                  "chunk_id": "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+                  "rerank_score": 0.9
+                },
+                {
+                  "chunk_id": "44d9f1c9-99b3-47b0-8a89-927da0bbb9c0",
+                  "rerank_score": 0.55
+                },
+                {
+                  "chunk_id": "3644b62a-f3ef-41f6-a05e-22e028582565",
+                  "rerank_score": 0.5
+                },
+                {
+                  "chunk_id": "0fb81e95-1221-40af-b4b7-8c6ec4d4919a",
+                  "rerank_score": 0.3
+                }
+              ],
+              "usage": {
+                "input_tokens": 2445,
+                "output_tokens": 5720,
+                "total_tokens": 8165,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 2445
+              },
+              "error": null
+            }
+          ],
+          "runs": [
+            {
+              "iteration": 2,
+              "success": true,
+              "latency_ms": 21847.89,
+              "rankings": [
+                {
+                  "chunk_id": "73703d96-4fda-4cab-a2da-7be08461020b",
+                  "rerank_score": 0.98
+                },
+                {
+                  "chunk_id": "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+                  "rerank_score": 0.95
+                },
+                {
+                  "chunk_id": "3644b62a-f3ef-41f6-a05e-22e028582565",
+                  "rerank_score": 0.75
+                },
+                {
+                  "chunk_id": "44d9f1c9-99b3-47b0-8a89-927da0bbb9c0",
+                  "rerank_score": 0.7
+                },
+                {
+                  "chunk_id": "0fb81e95-1221-40af-b4b7-8c6ec4d4919a",
+                  "rerank_score": 0.3
+                }
+              ],
+              "usage": {
+                "input_tokens": 2445,
+                "output_tokens": 1934,
+                "total_tokens": 4379,
+                "cache_hit_input_tokens": 2432,
+                "cache_miss_input_tokens": 13
+              },
+              "error": null
+            },
+            {
+              "iteration": 3,
+              "success": true,
+              "latency_ms": 23383.807,
+              "rankings": [
+                {
+                  "chunk_id": "73703d96-4fda-4cab-a2da-7be08461020b",
+                  "rerank_score": 0.97
+                },
+                {
+                  "chunk_id": "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+                  "rerank_score": 0.92
+                },
+                {
+                  "chunk_id": "3644b62a-f3ef-41f6-a05e-22e028582565",
+                  "rerank_score": 0.65
+                },
+                {
+                  "chunk_id": "44d9f1c9-99b3-47b0-8a89-927da0bbb9c0",
+                  "rerank_score": 0.55
+                },
+                {
+                  "chunk_id": "0fb81e95-1221-40af-b4b7-8c6ec4d4919a",
+                  "rerank_score": 0.45
+                }
+              ],
+              "usage": {
+                "input_tokens": 2445,
+                "output_tokens": 1812,
+                "total_tokens": 4257,
+                "cache_hit_input_tokens": 2432,
+                "cache_miss_input_tokens": 13
+              },
+              "error": null
+            },
+            {
+              "iteration": 4,
+              "success": true,
+              "latency_ms": 24332.898,
+              "rankings": [
+                {
+                  "chunk_id": "73703d96-4fda-4cab-a2da-7be08461020b",
+                  "rerank_score": 0.98
+                },
+                {
+                  "chunk_id": "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+                  "rerank_score": 0.92
+                },
+                {
+                  "chunk_id": "3644b62a-f3ef-41f6-a05e-22e028582565",
+                  "rerank_score": 0.65
+                },
+                {
+                  "chunk_id": "44d9f1c9-99b3-47b0-8a89-927da0bbb9c0",
+                  "rerank_score": 0.55
+                },
+                {
+                  "chunk_id": "0fb81e95-1221-40af-b4b7-8c6ec4d4919a",
+                  "rerank_score": 0.3
+                }
+              ],
+              "usage": {
+                "input_tokens": 2445,
+                "output_tokens": 2182,
+                "total_tokens": 4627,
+                "cache_hit_input_tokens": 2432,
+                "cache_miss_input_tokens": 13
+              },
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "aftersales_seven_day_freight",
+          "question": "七天无理由退货要满足哪些条件，退货运费由谁出？",
+          "warmups": [
+            {
+              "iteration": 1,
+              "success": true,
+              "latency_ms": 38390.033,
+              "rankings": [
+                {
+                  "chunk_id": "dd35b70f-2716-4b45-907d-e9b93562f0fa",
+                  "rerank_score": 0.95
+                },
+                {
+                  "chunk_id": "8e274390-4b66-4695-a946-f86570388c01",
+                  "rerank_score": 0.95
+                },
+                {
+                  "chunk_id": "6c454b32-af30-4937-9087-9e924de60f13",
+                  "rerank_score": 0.85
+                },
+                {
+                  "chunk_id": "e10d97a9-4bbb-4f4a-8ae3-aa925dfb3500",
+                  "rerank_score": 0.8
+                },
+                {
+                  "chunk_id": "ff032376-059e-4150-8e75-3ea6d7f60851",
+                  "rerank_score": 0.5
+                }
+              ],
+              "usage": {
+                "input_tokens": 2243,
+                "output_tokens": 3082,
+                "total_tokens": 5325,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 2243
+              },
+              "error": null
+            }
+          ],
+          "runs": [
+            {
+              "iteration": 2,
+              "success": true,
+              "latency_ms": 30239.595,
+              "rankings": [
+                {
+                  "chunk_id": "dd35b70f-2716-4b45-907d-e9b93562f0fa",
+                  "rerank_score": 0.95
+                },
+                {
+                  "chunk_id": "8e274390-4b66-4695-a946-f86570388c01",
+                  "rerank_score": 0.95
+                },
+                {
+                  "chunk_id": "e10d97a9-4bbb-4f4a-8ae3-aa925dfb3500",
+                  "rerank_score": 0.8
+                },
+                {
+                  "chunk_id": "6c454b32-af30-4937-9087-9e924de60f13",
+                  "rerank_score": 0.7
+                },
+                {
+                  "chunk_id": "a4102a62-a707-4857-bd54-c2fe257e917b",
+                  "rerank_score": 0.6
+                }
+              ],
+              "usage": {
+                "input_tokens": 2243,
+                "output_tokens": 2597,
+                "total_tokens": 4840,
+                "cache_hit_input_tokens": 2176,
+                "cache_miss_input_tokens": 67
+              },
+              "error": null
+            },
+            {
+              "iteration": 3,
+              "success": true,
+              "latency_ms": 43716.948,
+              "rankings": [
+                {
+                  "chunk_id": "dd35b70f-2716-4b45-907d-e9b93562f0fa",
+                  "rerank_score": 0.95
+                },
+                {
+                  "chunk_id": "8e274390-4b66-4695-a946-f86570388c01",
+                  "rerank_score": 0.95
+                },
+                {
+                  "chunk_id": "e10d97a9-4bbb-4f4a-8ae3-aa925dfb3500",
+                  "rerank_score": 0.9
+                },
+                {
+                  "chunk_id": "6c454b32-af30-4937-9087-9e924de60f13",
+                  "rerank_score": 0.8
+                },
+                {
+                  "chunk_id": "ff032376-059e-4150-8e75-3ea6d7f60851",
+                  "rerank_score": 0.6
+                }
+              ],
+              "usage": {
+                "input_tokens": 2243,
+                "output_tokens": 3533,
+                "total_tokens": 5776,
+                "cache_hit_input_tokens": 2176,
+                "cache_miss_input_tokens": 67
+              },
+              "error": null
+            },
+            {
+              "iteration": 4,
+              "success": true,
+              "latency_ms": 26421.943,
+              "rankings": [
+                {
+                  "chunk_id": "dd35b70f-2716-4b45-907d-e9b93562f0fa",
+                  "rerank_score": 0.95
+                },
+                {
+                  "chunk_id": "8e274390-4b66-4695-a946-f86570388c01",
+                  "rerank_score": 0.95
+                },
+                {
+                  "chunk_id": "e10d97a9-4bbb-4f4a-8ae3-aa925dfb3500",
+                  "rerank_score": 0.9
+                },
+                {
+                  "chunk_id": "6c454b32-af30-4937-9087-9e924de60f13",
+                  "rerank_score": 0.85
+                },
+                {
+                  "chunk_id": "ff032376-059e-4150-8e75-3ea6d7f60851",
+                  "rerank_score": 0.7
+                }
+              ],
+              "usage": {
+                "input_tokens": 2243,
+                "output_tokens": 2139,
+                "total_tokens": 4382,
+                "cache_hit_input_tokens": 2176,
+                "cache_miss_input_tokens": 67
+              },
+              "error": null
+            }
+          ]
+        }
+      ]
+    },
+    "qwen3": {
+      "status": "completed",
+      "generated_at": "2026-08-18T05:12:07.373388+00:00",
+      "dataset": "opt16_v2_rerank_core",
+      "dataset_created_at": "2026-08-18T05:04:21.936804+00:00",
+      "provider": "qwen3",
+      "model": "qwen3-rerank",
+      "base_url_host": "llm-mxaxvlhne02nkjyd.cn-beijing.maas.aliyuncs.com",
+      "repeat": 3,
+      "warmup": 1,
+      "summary": {
+        "case_count": 12,
+        "request_count": 36,
+        "successful_requests": 36,
+        "failed_requests": 0,
+        "success_rate": 1.0,
+        "degraded_rate": 0.0,
+        "p50_latency_ms": 777.078,
+        "p95_latency_ms": 1276.76875,
+        "max_latency_ms": 1330.209,
+        "mean_latency_ms": 855.2284166666666,
+        "top5_consistency": 1.0,
+        "usage_totals": {
+          "input_tokens": 0,
+          "output_tokens": 0,
+          "total_tokens": 69756,
+          "cache_hit_input_tokens": 0,
+          "cache_miss_input_tokens": 0
+        },
+        "usage_per_successful_request": {
+          "input_tokens": 0.0,
+          "output_tokens": 0.0,
+          "total_tokens": 1937.67,
+          "cache_hit_input_tokens": 0.0,
+          "cache_miss_input_tokens": 0.0
+        }
+      },
+      "cases": [
+        {
+          "id": "live_category_qualification",
+          "question": "直播带货美妆或医疗器械需要哪些额外资质？",
+          "warmups": [
+            {
+              "iteration": 1,
+              "success": true,
+              "latency_ms": 2350.388,
+              "rankings": [
+                {
+                  "chunk_id": "6400b836-5cf1-43fc-89b8-a2f57e5629d2",
+                  "rerank_score": 0.9379566812183999
+                },
+                {
+                  "chunk_id": "337710fc-63a7-4067-b301-851de1291994",
+                  "rerank_score": 0.5947874651906334
+                },
+                {
+                  "chunk_id": "9feabcb9-b32f-4409-a23c-fc8ebde99408",
+                  "rerank_score": 0.5666535652482867
+                },
+                {
+                  "chunk_id": "15eedd26-ba03-4665-aa67-0768afece9d9",
+                  "rerank_score": 0.5349526337564122
+                },
+                {
+                  "chunk_id": "bfc4aae9-b04b-482a-a649-f53ca0496e39",
+                  "rerank_score": 0.49978768444862315
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 1895,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            }
+          ],
+          "runs": [
+            {
+              "iteration": 2,
+              "success": true,
+              "latency_ms": 926.005,
+              "rankings": [
+                {
+                  "chunk_id": "6400b836-5cf1-43fc-89b8-a2f57e5629d2",
+                  "rerank_score": 0.9379566812183999
+                },
+                {
+                  "chunk_id": "337710fc-63a7-4067-b301-851de1291994",
+                  "rerank_score": 0.5947874651906334
+                },
+                {
+                  "chunk_id": "9feabcb9-b32f-4409-a23c-fc8ebde99408",
+                  "rerank_score": 0.5666535652482867
+                },
+                {
+                  "chunk_id": "15eedd26-ba03-4665-aa67-0768afece9d9",
+                  "rerank_score": 0.5349526337564122
+                },
+                {
+                  "chunk_id": "bfc4aae9-b04b-482a-a649-f53ca0496e39",
+                  "rerank_score": 0.49978768444862315
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 1895,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            },
+            {
+              "iteration": 3,
+              "success": true,
+              "latency_ms": 646.091,
+              "rankings": [
+                {
+                  "chunk_id": "6400b836-5cf1-43fc-89b8-a2f57e5629d2",
+                  "rerank_score": 0.9379566812183999
+                },
+                {
+                  "chunk_id": "337710fc-63a7-4067-b301-851de1291994",
+                  "rerank_score": 0.5947874651906334
+                },
+                {
+                  "chunk_id": "9feabcb9-b32f-4409-a23c-fc8ebde99408",
+                  "rerank_score": 0.5666535652482867
+                },
+                {
+                  "chunk_id": "15eedd26-ba03-4665-aa67-0768afece9d9",
+                  "rerank_score": 0.5349526337564122
+                },
+                {
+                  "chunk_id": "bfc4aae9-b04b-482a-a649-f53ca0496e39",
+                  "rerank_score": 0.49978768444862315
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 1895,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            },
+            {
+              "iteration": 4,
+              "success": true,
+              "latency_ms": 606.031,
+              "rankings": [
+                {
+                  "chunk_id": "6400b836-5cf1-43fc-89b8-a2f57e5629d2",
+                  "rerank_score": 0.9379566812183999
+                },
+                {
+                  "chunk_id": "337710fc-63a7-4067-b301-851de1291994",
+                  "rerank_score": 0.5947874651906334
+                },
+                {
+                  "chunk_id": "9feabcb9-b32f-4409-a23c-fc8ebde99408",
+                  "rerank_score": 0.5666535652482867
+                },
+                {
+                  "chunk_id": "15eedd26-ba03-4665-aa67-0768afece9d9",
+                  "rerank_score": 0.5349526337564122
+                },
+                {
+                  "chunk_id": "bfc4aae9-b04b-482a-a649-f53ca0496e39",
+                  "rerank_score": 0.49978768444862315
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 1895,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "live_campaign_shipping",
+          "question": "大场直播产生的大促订单多久要发货，超时如何处理？",
+          "warmups": [
+            {
+              "iteration": 1,
+              "success": true,
+              "latency_ms": 1316.799,
+              "rankings": [
+                {
+                  "chunk_id": "c4c6be7a-ef36-4a1d-99e9-eff07b442873",
+                  "rerank_score": 0.9287011799827529
+                },
+                {
+                  "chunk_id": "413ec4ca-4474-4c54-a97e-ee642182aa66",
+                  "rerank_score": 0.8918885907100096
+                },
+                {
+                  "chunk_id": "be592533-2534-499a-ad02-ed0888908d52",
+                  "rerank_score": 0.811636761653445
+                },
+                {
+                  "chunk_id": "c44a8d38-d8ca-46c0-9522-f5813d672e17",
+                  "rerank_score": 0.7909097579636545
+                },
+                {
+                  "chunk_id": "0fb81e95-1221-40af-b4b7-8c6ec4d4919a",
+                  "rerank_score": 0.6973516440863395
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 2005,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            }
+          ],
+          "runs": [
+            {
+              "iteration": 2,
+              "success": true,
+              "latency_ms": 1330.209,
+              "rankings": [
+                {
+                  "chunk_id": "c4c6be7a-ef36-4a1d-99e9-eff07b442873",
+                  "rerank_score": 0.9287011799827529
+                },
+                {
+                  "chunk_id": "413ec4ca-4474-4c54-a97e-ee642182aa66",
+                  "rerank_score": 0.8918885907100096
+                },
+                {
+                  "chunk_id": "be592533-2534-499a-ad02-ed0888908d52",
+                  "rerank_score": 0.811636761653445
+                },
+                {
+                  "chunk_id": "c44a8d38-d8ca-46c0-9522-f5813d672e17",
+                  "rerank_score": 0.7909097579636545
+                },
+                {
+                  "chunk_id": "0fb81e95-1221-40af-b4b7-8c6ec4d4919a",
+                  "rerank_score": 0.6973516440863395
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 2005,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            },
+            {
+              "iteration": 3,
+              "success": true,
+              "latency_ms": 669.339,
+              "rankings": [
+                {
+                  "chunk_id": "c4c6be7a-ef36-4a1d-99e9-eff07b442873",
+                  "rerank_score": 0.9287011799827529
+                },
+                {
+                  "chunk_id": "413ec4ca-4474-4c54-a97e-ee642182aa66",
+                  "rerank_score": 0.8918885907100096
+                },
+                {
+                  "chunk_id": "be592533-2534-499a-ad02-ed0888908d52",
+                  "rerank_score": 0.811636761653445
+                },
+                {
+                  "chunk_id": "c44a8d38-d8ca-46c0-9522-f5813d672e17",
+                  "rerank_score": 0.7909097579636545
+                },
+                {
+                  "chunk_id": "0fb81e95-1221-40af-b4b7-8c6ec4d4919a",
+                  "rerank_score": 0.6973516440863395
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 2005,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            },
+            {
+              "iteration": 4,
+              "success": true,
+              "latency_ms": 963.409,
+              "rankings": [
+                {
+                  "chunk_id": "c4c6be7a-ef36-4a1d-99e9-eff07b442873",
+                  "rerank_score": 0.9287011799827529
+                },
+                {
+                  "chunk_id": "413ec4ca-4474-4c54-a97e-ee642182aa66",
+                  "rerank_score": 0.8918885907100096
+                },
+                {
+                  "chunk_id": "be592533-2534-499a-ad02-ed0888908d52",
+                  "rerank_score": 0.811636761653445
+                },
+                {
+                  "chunk_id": "c44a8d38-d8ca-46c0-9522-f5813d672e17",
+                  "rerank_score": 0.7909097579636545
+                },
+                {
+                  "chunk_id": "0fb81e95-1221-40af-b4b7-8c6ec4d4919a",
+                  "rerank_score": 0.6973516440863395
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 2005,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "live_order_responsibility",
+          "question": "直播间下单后由主播还是店铺商家承担售后和发票义务？",
+          "warmups": [
+            {
+              "iteration": 1,
+              "success": true,
+              "latency_ms": 741.014,
+              "rankings": [
+                {
+                  "chunk_id": "c1898591-8556-45fc-a8f5-14b24dc525ca",
+                  "rerank_score": 0.959638275008526
+                },
+                {
+                  "chunk_id": "1ed0393c-580a-4a3f-b98c-ead0d0a9e010",
+                  "rerank_score": 0.6282413371541294
+                },
+                {
+                  "chunk_id": "cb269192-7e36-4a31-9832-174fee8ad306",
+                  "rerank_score": 0.4986105790485194
+                },
+                {
+                  "chunk_id": "008fc2ce-e5d7-4895-bbc3-c38d047745e2",
+                  "rerank_score": 0.4737050923797998
+                },
+                {
+                  "chunk_id": "18f53718-2675-4ca4-b914-69a621d3c088",
+                  "rerank_score": 0.41902640117142254
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 1986,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            }
+          ],
+          "runs": [
+            {
+              "iteration": 2,
+              "success": true,
+              "latency_ms": 697.769,
+              "rankings": [
+                {
+                  "chunk_id": "c1898591-8556-45fc-a8f5-14b24dc525ca",
+                  "rerank_score": 0.959638275008526
+                },
+                {
+                  "chunk_id": "1ed0393c-580a-4a3f-b98c-ead0d0a9e010",
+                  "rerank_score": 0.6282413371541294
+                },
+                {
+                  "chunk_id": "cb269192-7e36-4a31-9832-174fee8ad306",
+                  "rerank_score": 0.4986105790485194
+                },
+                {
+                  "chunk_id": "008fc2ce-e5d7-4895-bbc3-c38d047745e2",
+                  "rerank_score": 0.4737050923797998
+                },
+                {
+                  "chunk_id": "18f53718-2675-4ca4-b914-69a621d3c088",
+                  "rerank_score": 0.41902640117142254
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 1986,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            },
+            {
+              "iteration": 3,
+              "success": true,
+              "latency_ms": 1306.186,
+              "rankings": [
+                {
+                  "chunk_id": "c1898591-8556-45fc-a8f5-14b24dc525ca",
+                  "rerank_score": 0.959638275008526
+                },
+                {
+                  "chunk_id": "1ed0393c-580a-4a3f-b98c-ead0d0a9e010",
+                  "rerank_score": 0.6282413371541294
+                },
+                {
+                  "chunk_id": "cb269192-7e36-4a31-9832-174fee8ad306",
+                  "rerank_score": 0.4986105790485194
+                },
+                {
+                  "chunk_id": "008fc2ce-e5d7-4895-bbc3-c38d047745e2",
+                  "rerank_score": 0.4737050923797998
+                },
+                {
+                  "chunk_id": "18f53718-2675-4ca4-b914-69a621d3c088",
+                  "rerank_score": 0.41902640117142254
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 1986,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            },
+            {
+              "iteration": 4,
+              "success": true,
+              "latency_ms": 915.211,
+              "rankings": [
+                {
+                  "chunk_id": "c1898591-8556-45fc-a8f5-14b24dc525ca",
+                  "rerank_score": 0.959638275008526
+                },
+                {
+                  "chunk_id": "1ed0393c-580a-4a3f-b98c-ead0d0a9e010",
+                  "rerank_score": 0.6282413371541294
+                },
+                {
+                  "chunk_id": "cb269192-7e36-4a31-9832-174fee8ad306",
+                  "rerank_score": 0.4986105790485194
+                },
+                {
+                  "chunk_id": "008fc2ce-e5d7-4895-bbc3-c38d047745e2",
+                  "rerank_score": 0.4737050923797998
+                },
+                {
+                  "chunk_id": "18f53718-2675-4ca4-b914-69a621d3c088",
+                  "rerank_score": 0.41902640117142254
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 1986,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "search_ad_invoice_reconciliation",
+          "question": "广告费账单有差异怎么申诉，广告费发票由谁开？",
+          "warmups": [
+            {
+              "iteration": 1,
+              "success": true,
+              "latency_ms": 947.232,
+              "rankings": [
+                {
+                  "chunk_id": "079529f9-bae4-48d6-8917-8d3582ed77da",
+                  "rerank_score": 0.8684561927208492
+                },
+                {
+                  "chunk_id": "5142e91c-eb33-4e8a-a88a-2e4a910ca807",
+                  "rerank_score": 0.6154942065173055
+                },
+                {
+                  "chunk_id": "cb269192-7e36-4a31-9832-174fee8ad306",
+                  "rerank_score": 0.559690824325397
+                },
+                {
+                  "chunk_id": "008fc2ce-e5d7-4895-bbc3-c38d047745e2",
+                  "rerank_score": 0.48904641921068615
+                },
+                {
+                  "chunk_id": "da6c6060-b3d8-4966-bc72-129292455044",
+                  "rerank_score": 0.48869095891526637
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 1790,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            }
+          ],
+          "runs": [
+            {
+              "iteration": 2,
+              "success": true,
+              "latency_ms": 825.449,
+              "rankings": [
+                {
+                  "chunk_id": "079529f9-bae4-48d6-8917-8d3582ed77da",
+                  "rerank_score": 0.8684561927208492
+                },
+                {
+                  "chunk_id": "5142e91c-eb33-4e8a-a88a-2e4a910ca807",
+                  "rerank_score": 0.6154942065173055
+                },
+                {
+                  "chunk_id": "cb269192-7e36-4a31-9832-174fee8ad306",
+                  "rerank_score": 0.559690824325397
+                },
+                {
+                  "chunk_id": "008fc2ce-e5d7-4895-bbc3-c38d047745e2",
+                  "rerank_score": 0.48904641921068615
+                },
+                {
+                  "chunk_id": "da6c6060-b3d8-4966-bc72-129292455044",
+                  "rerank_score": 0.48869095891526637
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 1790,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            },
+            {
+              "iteration": 3,
+              "success": true,
+              "latency_ms": 684.362,
+              "rankings": [
+                {
+                  "chunk_id": "079529f9-bae4-48d6-8917-8d3582ed77da",
+                  "rerank_score": 0.8684561927208492
+                },
+                {
+                  "chunk_id": "5142e91c-eb33-4e8a-a88a-2e4a910ca807",
+                  "rerank_score": 0.6154942065173055
+                },
+                {
+                  "chunk_id": "cb269192-7e36-4a31-9832-174fee8ad306",
+                  "rerank_score": 0.559690824325397
+                },
+                {
+                  "chunk_id": "008fc2ce-e5d7-4895-bbc3-c38d047745e2",
+                  "rerank_score": 0.48904641921068615
+                },
+                {
+                  "chunk_id": "da6c6060-b3d8-4966-bc72-129292455044",
+                  "rerank_score": 0.48869095891526637
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 1790,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            },
+            {
+              "iteration": 4,
+              "success": true,
+              "latency_ms": 835.042,
+              "rankings": [
+                {
+                  "chunk_id": "079529f9-bae4-48d6-8917-8d3582ed77da",
+                  "rerank_score": 0.8684561927208492
+                },
+                {
+                  "chunk_id": "5142e91c-eb33-4e8a-a88a-2e4a910ca807",
+                  "rerank_score": 0.6154942065173055
+                },
+                {
+                  "chunk_id": "cb269192-7e36-4a31-9832-174fee8ad306",
+                  "rerank_score": 0.559690824325397
+                },
+                {
+                  "chunk_id": "008fc2ce-e5d7-4895-bbc3-c38d047745e2",
+                  "rerank_score": 0.48904641921068615
+                },
+                {
+                  "chunk_id": "da6c6060-b3d8-4966-bc72-129292455044",
+                  "rerank_score": 0.48869095891526637
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 1790,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "search_personalization_off",
+          "question": "关闭个性化推荐后是不是就完全看不到推荐和广告了？",
+          "warmups": [
+            {
+              "iteration": 1,
+              "success": true,
+              "latency_ms": 854.653,
+              "rankings": [
+                {
+                  "chunk_id": "ab9b5fc7-dde5-4d38-a5c6-92d34d57d90c",
+                  "rerank_score": 0.9036190458474371
+                },
+                {
+                  "chunk_id": "8e64a13d-b431-4e8a-81ee-a0018a91199c",
+                  "rerank_score": 0.707978332022499
+                },
+                {
+                  "chunk_id": "57acaa1c-5141-4126-932e-33f2fbccfb75",
+                  "rerank_score": 0.5938478412291894
+                },
+                {
+                  "chunk_id": "5142e91c-eb33-4e8a-a88a-2e4a910ca807",
+                  "rerank_score": 0.5877990459424232
+                },
+                {
+                  "chunk_id": "2f9a4281-d35d-471a-a18b-6654a62b1013",
+                  "rerank_score": 0.5548243215613665
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 2012,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            }
+          ],
+          "runs": [
+            {
+              "iteration": 2,
+              "success": true,
+              "latency_ms": 752.685,
+              "rankings": [
+                {
+                  "chunk_id": "ab9b5fc7-dde5-4d38-a5c6-92d34d57d90c",
+                  "rerank_score": 0.9036190458474371
+                },
+                {
+                  "chunk_id": "8e64a13d-b431-4e8a-81ee-a0018a91199c",
+                  "rerank_score": 0.707978332022499
+                },
+                {
+                  "chunk_id": "57acaa1c-5141-4126-932e-33f2fbccfb75",
+                  "rerank_score": 0.5938478412291894
+                },
+                {
+                  "chunk_id": "5142e91c-eb33-4e8a-a88a-2e4a910ca807",
+                  "rerank_score": 0.5877990459424232
+                },
+                {
+                  "chunk_id": "2f9a4281-d35d-471a-a18b-6654a62b1013",
+                  "rerank_score": 0.5548243215613665
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 2012,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            },
+            {
+              "iteration": 3,
+              "success": true,
+              "latency_ms": 823.953,
+              "rankings": [
+                {
+                  "chunk_id": "ab9b5fc7-dde5-4d38-a5c6-92d34d57d90c",
+                  "rerank_score": 0.9036190458474371
+                },
+                {
+                  "chunk_id": "8e64a13d-b431-4e8a-81ee-a0018a91199c",
+                  "rerank_score": 0.707978332022499
+                },
+                {
+                  "chunk_id": "57acaa1c-5141-4126-932e-33f2fbccfb75",
+                  "rerank_score": 0.5938478412291894
+                },
+                {
+                  "chunk_id": "5142e91c-eb33-4e8a-a88a-2e4a910ca807",
+                  "rerank_score": 0.5877990459424232
+                },
+                {
+                  "chunk_id": "2f9a4281-d35d-471a-a18b-6654a62b1013",
+                  "rerank_score": 0.5548243215613665
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 2012,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            },
+            {
+              "iteration": 4,
+              "success": true,
+              "latency_ms": 1266.963,
+              "rankings": [
+                {
+                  "chunk_id": "ab9b5fc7-dde5-4d38-a5c6-92d34d57d90c",
+                  "rerank_score": 0.9036190458474371
+                },
+                {
+                  "chunk_id": "8e64a13d-b431-4e8a-81ee-a0018a91199c",
+                  "rerank_score": 0.707978332022499
+                },
+                {
+                  "chunk_id": "57acaa1c-5141-4126-932e-33f2fbccfb75",
+                  "rerank_score": 0.5938478412291894
+                },
+                {
+                  "chunk_id": "5142e91c-eb33-4e8a-a88a-2e4a910ca807",
+                  "rerank_score": 0.5877990459424232
+                },
+                {
+                  "chunk_id": "2f9a4281-d35d-471a-a18b-6654a62b1013",
+                  "rerank_score": 0.5548243215613665
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 2012,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "payment_combined_refund",
+          "question": "组合支付发生部分退款后，银行卡、优惠券和积分分别怎么退？",
+          "warmups": [
+            {
+              "iteration": 1,
+              "success": true,
+              "latency_ms": 863.324,
+              "rankings": [
+                {
+                  "chunk_id": "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+                  "rerank_score": 0.9338854565355235
+                },
+                {
+                  "chunk_id": "16c97ec5-40e0-4b0e-8fc6-b7b526dfe4ff",
+                  "rerank_score": 0.6789701820170966
+                },
+                {
+                  "chunk_id": "68a004e5-c525-4ae7-8613-759d0568d893",
+                  "rerank_score": 0.628595738618454
+                },
+                {
+                  "chunk_id": "3c6dfd3c-98f2-46cd-b4b1-639c6125f1c0",
+                  "rerank_score": 0.5443052120986066
+                },
+                {
+                  "chunk_id": "94ee9080-0188-4591-a7f2-79ad4d3a0d6a",
+                  "rerank_score": 0.500306500040903
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 1945,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            }
+          ],
+          "runs": [
+            {
+              "iteration": 2,
+              "success": true,
+              "latency_ms": 770.965,
+              "rankings": [
+                {
+                  "chunk_id": "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+                  "rerank_score": 0.9338854565355235
+                },
+                {
+                  "chunk_id": "16c97ec5-40e0-4b0e-8fc6-b7b526dfe4ff",
+                  "rerank_score": 0.6789701820170966
+                },
+                {
+                  "chunk_id": "68a004e5-c525-4ae7-8613-759d0568d893",
+                  "rerank_score": 0.628595738618454
+                },
+                {
+                  "chunk_id": "3c6dfd3c-98f2-46cd-b4b1-639c6125f1c0",
+                  "rerank_score": 0.5443052120986066
+                },
+                {
+                  "chunk_id": "94ee9080-0188-4591-a7f2-79ad4d3a0d6a",
+                  "rerank_score": 0.500306500040903
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 1945,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            },
+            {
+              "iteration": 3,
+              "success": true,
+              "latency_ms": 619.099,
+              "rankings": [
+                {
+                  "chunk_id": "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+                  "rerank_score": 0.9338854565355235
+                },
+                {
+                  "chunk_id": "16c97ec5-40e0-4b0e-8fc6-b7b526dfe4ff",
+                  "rerank_score": 0.6789701820170966
+                },
+                {
+                  "chunk_id": "68a004e5-c525-4ae7-8613-759d0568d893",
+                  "rerank_score": 0.628595738618454
+                },
+                {
+                  "chunk_id": "3c6dfd3c-98f2-46cd-b4b1-639c6125f1c0",
+                  "rerank_score": 0.5443052120986066
+                },
+                {
+                  "chunk_id": "94ee9080-0188-4591-a7f2-79ad4d3a0d6a",
+                  "rerank_score": 0.500306500040903
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 1945,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            },
+            {
+              "iteration": 4,
+              "success": true,
+              "latency_ms": 1195.468,
+              "rankings": [
+                {
+                  "chunk_id": "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+                  "rerank_score": 0.9338854565355235
+                },
+                {
+                  "chunk_id": "16c97ec5-40e0-4b0e-8fc6-b7b526dfe4ff",
+                  "rerank_score": 0.6789701820170966
+                },
+                {
+                  "chunk_id": "68a004e5-c525-4ae7-8613-759d0568d893",
+                  "rerank_score": 0.628595738618454
+                },
+                {
+                  "chunk_id": "3c6dfd3c-98f2-46cd-b4b1-639c6125f1c0",
+                  "rerank_score": 0.5443052120986066
+                },
+                {
+                  "chunk_id": "94ee9080-0188-4591-a7f2-79ad4d3a0d6a",
+                  "rerank_score": 0.500306500040903
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 1945,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "payment_duplicate_charge",
+          "question": "同一个订单被重复扣款，多余的钱多久退回？",
+          "warmups": [
+            {
+              "iteration": 1,
+              "success": true,
+              "latency_ms": 654.993,
+              "rankings": [
+                {
+                  "chunk_id": "e3bd1467-f992-48f9-9483-47f14ff49c4c",
+                  "rerank_score": 0.9423477837506163
+                },
+                {
+                  "chunk_id": "61f394fc-ceb2-44b6-b1e6-ae4c7bc1527e",
+                  "rerank_score": 0.6595218642813779
+                },
+                {
+                  "chunk_id": "ff032376-059e-4150-8e75-3ea6d7f60851",
+                  "rerank_score": 0.6571830278571116
+                },
+                {
+                  "chunk_id": "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+                  "rerank_score": 0.6164383730760556
+                },
+                {
+                  "chunk_id": "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+                  "rerank_score": 0.5481548635765423
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 2061,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            }
+          ],
+          "runs": [
+            {
+              "iteration": 2,
+              "success": true,
+              "latency_ms": 713.764,
+              "rankings": [
+                {
+                  "chunk_id": "e3bd1467-f992-48f9-9483-47f14ff49c4c",
+                  "rerank_score": 0.9423477837506163
+                },
+                {
+                  "chunk_id": "61f394fc-ceb2-44b6-b1e6-ae4c7bc1527e",
+                  "rerank_score": 0.6595218642813779
+                },
+                {
+                  "chunk_id": "ff032376-059e-4150-8e75-3ea6d7f60851",
+                  "rerank_score": 0.6571830278571116
+                },
+                {
+                  "chunk_id": "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+                  "rerank_score": 0.6164383730760556
+                },
+                {
+                  "chunk_id": "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+                  "rerank_score": 0.5481548635765423
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 2061,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            },
+            {
+              "iteration": 3,
+              "success": true,
+              "latency_ms": 768.75,
+              "rankings": [
+                {
+                  "chunk_id": "e3bd1467-f992-48f9-9483-47f14ff49c4c",
+                  "rerank_score": 0.9423477837506163
+                },
+                {
+                  "chunk_id": "61f394fc-ceb2-44b6-b1e6-ae4c7bc1527e",
+                  "rerank_score": 0.6595218642813779
+                },
+                {
+                  "chunk_id": "ff032376-059e-4150-8e75-3ea6d7f60851",
+                  "rerank_score": 0.6571830278571116
+                },
+                {
+                  "chunk_id": "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+                  "rerank_score": 0.6164383730760556
+                },
+                {
+                  "chunk_id": "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+                  "rerank_score": 0.5481548635765423
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 2061,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            },
+            {
+              "iteration": 4,
+              "success": true,
+              "latency_ms": 732.667,
+              "rankings": [
+                {
+                  "chunk_id": "e3bd1467-f992-48f9-9483-47f14ff49c4c",
+                  "rerank_score": 0.9423477837506163
+                },
+                {
+                  "chunk_id": "61f394fc-ceb2-44b6-b1e6-ae4c7bc1527e",
+                  "rerank_score": 0.6595218642813779
+                },
+                {
+                  "chunk_id": "ff032376-059e-4150-8e75-3ea6d7f60851",
+                  "rerank_score": 0.6571830278571116
+                },
+                {
+                  "chunk_id": "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+                  "rerank_score": 0.6164383730760556
+                },
+                {
+                  "chunk_id": "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+                  "rerank_score": 0.5481548635765423
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 2061,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "payment_risk_appeal",
+          "question": "异地登录后大额支付被风控拦截，怎么申诉，多久复核？",
+          "warmups": [
+            {
+              "iteration": 1,
+              "success": true,
+              "latency_ms": 640.473,
+              "rankings": [
+                {
+                  "chunk_id": "aa81a2e2-a349-4946-8cbd-d3bdd40f078f",
+                  "rerank_score": 0.9314790544826008
+                },
+                {
+                  "chunk_id": "c5bbdec9-bfdb-4cb7-ac6f-e7eddcabce4d",
+                  "rerank_score": 0.5776277188118695
+                },
+                {
+                  "chunk_id": "61f394fc-ceb2-44b6-b1e6-ae4c7bc1527e",
+                  "rerank_score": 0.5490326002521684
+                },
+                {
+                  "chunk_id": "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+                  "rerank_score": 0.43930975812807627
+                },
+                {
+                  "chunk_id": "83be732f-48b4-44ca-aca9-5f592fa09b04",
+                  "rerank_score": 0.4262427551390475
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 1878,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            }
+          ],
+          "runs": [
+            {
+              "iteration": 2,
+              "success": true,
+              "latency_ms": 783.191,
+              "rankings": [
+                {
+                  "chunk_id": "aa81a2e2-a349-4946-8cbd-d3bdd40f078f",
+                  "rerank_score": 0.9314790544826008
+                },
+                {
+                  "chunk_id": "c5bbdec9-bfdb-4cb7-ac6f-e7eddcabce4d",
+                  "rerank_score": 0.5776277188118695
+                },
+                {
+                  "chunk_id": "61f394fc-ceb2-44b6-b1e6-ae4c7bc1527e",
+                  "rerank_score": 0.5490326002521684
+                },
+                {
+                  "chunk_id": "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+                  "rerank_score": 0.43930975812807627
+                },
+                {
+                  "chunk_id": "83be732f-48b4-44ca-aca9-5f592fa09b04",
+                  "rerank_score": 0.4262427551390475
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 1878,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            },
+            {
+              "iteration": 3,
+              "success": true,
+              "latency_ms": 666.721,
+              "rankings": [
+                {
+                  "chunk_id": "aa81a2e2-a349-4946-8cbd-d3bdd40f078f",
+                  "rerank_score": 0.9314790544826008
+                },
+                {
+                  "chunk_id": "c5bbdec9-bfdb-4cb7-ac6f-e7eddcabce4d",
+                  "rerank_score": 0.5776277188118695
+                },
+                {
+                  "chunk_id": "61f394fc-ceb2-44b6-b1e6-ae4c7bc1527e",
+                  "rerank_score": 0.5490326002521684
+                },
+                {
+                  "chunk_id": "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+                  "rerank_score": 0.43930975812807627
+                },
+                {
+                  "chunk_id": "83be732f-48b4-44ca-aca9-5f592fa09b04",
+                  "rerank_score": 0.4262427551390475
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 1878,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            },
+            {
+              "iteration": 4,
+              "success": true,
+              "latency_ms": 931.497,
+              "rankings": [
+                {
+                  "chunk_id": "aa81a2e2-a349-4946-8cbd-d3bdd40f078f",
+                  "rerank_score": 0.9314790544826008
+                },
+                {
+                  "chunk_id": "c5bbdec9-bfdb-4cb7-ac6f-e7eddcabce4d",
+                  "rerank_score": 0.5776277188118695
+                },
+                {
+                  "chunk_id": "61f394fc-ceb2-44b6-b1e6-ae4c7bc1527e",
+                  "rerank_score": 0.5490326002521684
+                },
+                {
+                  "chunk_id": "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+                  "rerank_score": 0.43930975812807627
+                },
+                {
+                  "chunk_id": "83be732f-48b4-44ca-aca9-5f592fa09b04",
+                  "rerank_score": 0.4262427551390475
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 1878,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "member_points_refund",
+          "question": "积分抵扣订单退款后，积分和现金分别怎么退？",
+          "warmups": [
+            {
+              "iteration": 1,
+              "success": true,
+              "latency_ms": 685.036,
+              "rankings": [
+                {
+                  "chunk_id": "779b77ca-dcb0-4de1-9eaf-d2279a876f34",
+                  "rerank_score": 0.8484207637965271
+                },
+                {
+                  "chunk_id": "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+                  "rerank_score": 0.6863234421349506
+                },
+                {
+                  "chunk_id": "176c98b8-a7f5-4c86-a2f0-96752afbf776",
+                  "rerank_score": 0.5965573083937964
+                },
+                {
+                  "chunk_id": "3c6dfd3c-98f2-46cd-b4b1-639c6125f1c0",
+                  "rerank_score": 0.5504076122390145
+                },
+                {
+                  "chunk_id": "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+                  "rerank_score": 0.5445206513343224
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 2134,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            }
+          ],
+          "runs": [
+            {
+              "iteration": 2,
+              "success": true,
+              "latency_ms": 645.4,
+              "rankings": [
+                {
+                  "chunk_id": "779b77ca-dcb0-4de1-9eaf-d2279a876f34",
+                  "rerank_score": 0.8484207637965271
+                },
+                {
+                  "chunk_id": "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+                  "rerank_score": 0.6863234421349506
+                },
+                {
+                  "chunk_id": "176c98b8-a7f5-4c86-a2f0-96752afbf776",
+                  "rerank_score": 0.5965573083937964
+                },
+                {
+                  "chunk_id": "3c6dfd3c-98f2-46cd-b4b1-639c6125f1c0",
+                  "rerank_score": 0.5504076122390145
+                },
+                {
+                  "chunk_id": "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+                  "rerank_score": 0.5445206513343224
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 2134,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            },
+            {
+              "iteration": 3,
+              "success": true,
+              "latency_ms": 823.312,
+              "rankings": [
+                {
+                  "chunk_id": "779b77ca-dcb0-4de1-9eaf-d2279a876f34",
+                  "rerank_score": 0.8484207637965271
+                },
+                {
+                  "chunk_id": "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+                  "rerank_score": 0.6863234421349506
+                },
+                {
+                  "chunk_id": "176c98b8-a7f5-4c86-a2f0-96752afbf776",
+                  "rerank_score": 0.5965573083937964
+                },
+                {
+                  "chunk_id": "3c6dfd3c-98f2-46cd-b4b1-639c6125f1c0",
+                  "rerank_score": 0.5504076122390145
+                },
+                {
+                  "chunk_id": "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+                  "rerank_score": 0.5445206513343224
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 2134,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            },
+            {
+              "iteration": 4,
+              "success": true,
+              "latency_ms": 903.03,
+              "rankings": [
+                {
+                  "chunk_id": "779b77ca-dcb0-4de1-9eaf-d2279a876f34",
+                  "rerank_score": 0.8484207637965271
+                },
+                {
+                  "chunk_id": "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+                  "rerank_score": 0.6863234421349506
+                },
+                {
+                  "chunk_id": "176c98b8-a7f5-4c86-a2f0-96752afbf776",
+                  "rerank_score": 0.5965573083937964
+                },
+                {
+                  "chunk_id": "3c6dfd3c-98f2-46cd-b4b1-639c6125f1c0",
+                  "rerank_score": 0.5504076122390145
+                },
+                {
+                  "chunk_id": "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+                  "rerank_score": 0.5445206513343224
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 2134,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "member_plus_cancel",
+          "question": "Plus年卡买后7天内可以全额退款吗？",
+          "warmups": [
+            {
+              "iteration": 1,
+              "success": true,
+              "latency_ms": 691.15,
+              "rankings": [
+                {
+                  "chunk_id": "d143f7a0-889b-448c-b446-6314cf970dc7",
+                  "rerank_score": 0.9126967748140367
+                },
+                {
+                  "chunk_id": "eb5fa64f-3266-489d-8bc6-a6741fddcfe5",
+                  "rerank_score": 0.6715096006756768
+                },
+                {
+                  "chunk_id": "8e274390-4b66-4695-a946-f86570388c01",
+                  "rerank_score": 0.6356872801096562
+                },
+                {
+                  "chunk_id": "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+                  "rerank_score": 0.6200875257858273
+                },
+                {
+                  "chunk_id": "3644b62a-f3ef-41f6-a05e-22e028582565",
+                  "rerank_score": 0.6113395533751311
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 1835,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            }
+          ],
+          "runs": [
+            {
+              "iteration": 2,
+              "success": true,
+              "latency_ms": 666.86,
+              "rankings": [
+                {
+                  "chunk_id": "d143f7a0-889b-448c-b446-6314cf970dc7",
+                  "rerank_score": 0.9126967748140367
+                },
+                {
+                  "chunk_id": "eb5fa64f-3266-489d-8bc6-a6741fddcfe5",
+                  "rerank_score": 0.6715096006756768
+                },
+                {
+                  "chunk_id": "8e274390-4b66-4695-a946-f86570388c01",
+                  "rerank_score": 0.6356872801096562
+                },
+                {
+                  "chunk_id": "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+                  "rerank_score": 0.6200875347312179
+                },
+                {
+                  "chunk_id": "3644b62a-f3ef-41f6-a05e-22e028582565",
+                  "rerank_score": 0.6113395533751311
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 1835,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            },
+            {
+              "iteration": 3,
+              "success": true,
+              "latency_ms": 667.233,
+              "rankings": [
+                {
+                  "chunk_id": "d143f7a0-889b-448c-b446-6314cf970dc7",
+                  "rerank_score": 0.9126967748140367
+                },
+                {
+                  "chunk_id": "eb5fa64f-3266-489d-8bc6-a6741fddcfe5",
+                  "rerank_score": 0.6715096006756768
+                },
+                {
+                  "chunk_id": "8e274390-4b66-4695-a946-f86570388c01",
+                  "rerank_score": 0.6356872801096562
+                },
+                {
+                  "chunk_id": "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+                  "rerank_score": 0.6200875257858273
+                },
+                {
+                  "chunk_id": "3644b62a-f3ef-41f6-a05e-22e028582565",
+                  "rerank_score": 0.6113395533751311
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 1835,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            },
+            {
+              "iteration": 4,
+              "success": true,
+              "latency_ms": 1216.783,
+              "rankings": [
+                {
+                  "chunk_id": "d143f7a0-889b-448c-b446-6314cf970dc7",
+                  "rerank_score": 0.9126967748140367
+                },
+                {
+                  "chunk_id": "eb5fa64f-3266-489d-8bc6-a6741fddcfe5",
+                  "rerank_score": 0.6715096006756768
+                },
+                {
+                  "chunk_id": "8e274390-4b66-4695-a946-f86570388c01",
+                  "rerank_score": 0.6356872801096562
+                },
+                {
+                  "chunk_id": "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+                  "rerank_score": 0.6200875257858273
+                },
+                {
+                  "chunk_id": "3644b62a-f3ef-41f6-a05e-22e028582565",
+                  "rerank_score": 0.6113395533751311
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 1835,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "aftersales_intercept_refund",
+          "question": "商品已经发货但未签收，拦截成功后怎么退款，失败怎么办？",
+          "warmups": [
+            {
+              "iteration": 1,
+              "success": true,
+              "latency_ms": 1172.196,
+              "rankings": [
+                {
+                  "chunk_id": "73703d96-4fda-4cab-a2da-7be08461020b",
+                  "rerank_score": 0.9020326288351161
+                },
+                {
+                  "chunk_id": "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+                  "rerank_score": 0.8947903554069
+                },
+                {
+                  "chunk_id": "44d9f1c9-99b3-47b0-8a89-927da0bbb9c0",
+                  "rerank_score": 0.4994026571839755
+                },
+                {
+                  "chunk_id": "d02e1d0e-e54c-4ec5-8a1a-082c7e68432d",
+                  "rerank_score": 0.490490517186128
+                },
+                {
+                  "chunk_id": "3644b62a-f3ef-41f6-a05e-22e028582565",
+                  "rerank_score": 0.4823429415348322
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 1947,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            }
+          ],
+          "runs": [
+            {
+              "iteration": 2,
+              "success": true,
+              "latency_ms": 627.323,
+              "rankings": [
+                {
+                  "chunk_id": "73703d96-4fda-4cab-a2da-7be08461020b",
+                  "rerank_score": 0.9020326288351161
+                },
+                {
+                  "chunk_id": "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+                  "rerank_score": 0.8947903554069
+                },
+                {
+                  "chunk_id": "44d9f1c9-99b3-47b0-8a89-927da0bbb9c0",
+                  "rerank_score": 0.4994026571839755
+                },
+                {
+                  "chunk_id": "d02e1d0e-e54c-4ec5-8a1a-082c7e68432d",
+                  "rerank_score": 0.490490517186128
+                },
+                {
+                  "chunk_id": "3644b62a-f3ef-41f6-a05e-22e028582565",
+                  "rerank_score": 0.4823429415348322
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 1947,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            },
+            {
+              "iteration": 3,
+              "success": true,
+              "latency_ms": 862.769,
+              "rankings": [
+                {
+                  "chunk_id": "73703d96-4fda-4cab-a2da-7be08461020b",
+                  "rerank_score": 0.9020326288351161
+                },
+                {
+                  "chunk_id": "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+                  "rerank_score": 0.8947903554069
+                },
+                {
+                  "chunk_id": "44d9f1c9-99b3-47b0-8a89-927da0bbb9c0",
+                  "rerank_score": 0.4994026571839755
+                },
+                {
+                  "chunk_id": "d02e1d0e-e54c-4ec5-8a1a-082c7e68432d",
+                  "rerank_score": 0.490490517186128
+                },
+                {
+                  "chunk_id": "3644b62a-f3ef-41f6-a05e-22e028582565",
+                  "rerank_score": 0.4823429415348322
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 1947,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            },
+            {
+              "iteration": 4,
+              "success": true,
+              "latency_ms": 1214.719,
+              "rankings": [
+                {
+                  "chunk_id": "73703d96-4fda-4cab-a2da-7be08461020b",
+                  "rerank_score": 0.9020326288351161
+                },
+                {
+                  "chunk_id": "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+                  "rerank_score": 0.8947903554069
+                },
+                {
+                  "chunk_id": "44d9f1c9-99b3-47b0-8a89-927da0bbb9c0",
+                  "rerank_score": 0.4994026571839755
+                },
+                {
+                  "chunk_id": "d02e1d0e-e54c-4ec5-8a1a-082c7e68432d",
+                  "rerank_score": 0.490490517186128
+                },
+                {
+                  "chunk_id": "3644b62a-f3ef-41f6-a05e-22e028582565",
+                  "rerank_score": 0.4823429415348322
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 1947,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            }
+          ]
+        },
+        {
+          "id": "aftersales_seven_day_freight",
+          "question": "七天无理由退货要满足哪些条件，退货运费由谁出？",
+          "warmups": [
+            {
+              "iteration": 1,
+              "success": true,
+              "latency_ms": 714.834,
+              "rankings": [
+                {
+                  "chunk_id": "8e274390-4b66-4695-a946-f86570388c01",
+                  "rerank_score": 0.8519544993932479
+                },
+                {
+                  "chunk_id": "dd35b70f-2716-4b45-907d-e9b93562f0fa",
+                  "rerank_score": 0.8098444347319815
+                },
+                {
+                  "chunk_id": "6c454b32-af30-4937-9087-9e924de60f13",
+                  "rerank_score": 0.685486763161488
+                },
+                {
+                  "chunk_id": "a4102a62-a707-4857-bd54-c2fe257e917b",
+                  "rerank_score": 0.6095803015672321
+                },
+                {
+                  "chunk_id": "44d9f1c9-99b3-47b0-8a89-927da0bbb9c0",
+                  "rerank_score": 0.5685764781476443
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 1764,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            }
+          ],
+          "runs": [
+            {
+              "iteration": 2,
+              "success": true,
+              "latency_ms": 1260.196,
+              "rankings": [
+                {
+                  "chunk_id": "8e274390-4b66-4695-a946-f86570388c01",
+                  "rerank_score": 0.8519544993932479
+                },
+                {
+                  "chunk_id": "dd35b70f-2716-4b45-907d-e9b93562f0fa",
+                  "rerank_score": 0.8098444347319815
+                },
+                {
+                  "chunk_id": "6c454b32-af30-4937-9087-9e924de60f13",
+                  "rerank_score": 0.685486763161488
+                },
+                {
+                  "chunk_id": "a4102a62-a707-4857-bd54-c2fe257e917b",
+                  "rerank_score": 0.6095803015672321
+                },
+                {
+                  "chunk_id": "44d9f1c9-99b3-47b0-8a89-927da0bbb9c0",
+                  "rerank_score": 0.5685764781476443
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 1764,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            },
+            {
+              "iteration": 3,
+              "success": true,
+              "latency_ms": 740.527,
+              "rankings": [
+                {
+                  "chunk_id": "8e274390-4b66-4695-a946-f86570388c01",
+                  "rerank_score": 0.8519544993932479
+                },
+                {
+                  "chunk_id": "dd35b70f-2716-4b45-907d-e9b93562f0fa",
+                  "rerank_score": 0.8098444347319815
+                },
+                {
+                  "chunk_id": "6c454b32-af30-4937-9087-9e924de60f13",
+                  "rerank_score": 0.685486763161488
+                },
+                {
+                  "chunk_id": "a4102a62-a707-4857-bd54-c2fe257e917b",
+                  "rerank_score": 0.6095803015672321
+                },
+                {
+                  "chunk_id": "44d9f1c9-99b3-47b0-8a89-927da0bbb9c0",
+                  "rerank_score": 0.5685764781476443
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 1764,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            },
+            {
+              "iteration": 4,
+              "success": true,
+              "latency_ms": 729.245,
+              "rankings": [
+                {
+                  "chunk_id": "8e274390-4b66-4695-a946-f86570388c01",
+                  "rerank_score": 0.8519544993932479
+                },
+                {
+                  "chunk_id": "dd35b70f-2716-4b45-907d-e9b93562f0fa",
+                  "rerank_score": 0.8098444347319815
+                },
+                {
+                  "chunk_id": "6c454b32-af30-4937-9087-9e924de60f13",
+                  "rerank_score": 0.685486763161488
+                },
+                {
+                  "chunk_id": "a4102a62-a707-4857-bd54-c2fe257e917b",
+                  "rerank_score": 0.6095803015672321
+                },
+                {
+                  "chunk_id": "44d9f1c9-99b3-47b0-8a89-927da0bbb9c0",
+                  "rerank_score": 0.5685764781476443
+                }
+              ],
+              "usage": {
+                "input_tokens": 0,
+                "output_tokens": 0,
+                "total_tokens": 1764,
+                "cache_hit_input_tokens": 0,
+                "cache_miss_input_tokens": 0
+              },
+              "error": null
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "comparison": {
+    "generated_at": "2026-08-18T05:12:23.865780+00:00",
+    "dataset": "opt16_v2_rerank_core",
+    "case_count": 12,
+    "candidate_top_k": 10,
+    "actual_candidates_per_case": {
+      "min": 10,
+      "max": 10
+    },
+    "result_top_n": 5,
+    "annotation": {
+      "method": "document_grounded_human_reviewed",
+      "status": "reviewed",
+      "rubric": "0=无关，1=主题相关，2=有效支撑，3=核心证据",
+      "reviewed_at": "2026-08-18T05:04:35.491224+00:00"
+    },
+    "baseline": {
+      "provider": "llm",
+      "model": "deepseek-v4-pro"
+    },
+    "candidate": {
+      "provider": "qwen3",
+      "model": "qwen3-rerank"
+    },
+    "metric_samples": {
+      "baseline": [
+        {
+          "ndcg@5": 0.9275258782961188,
+          "mrr@5": 1.0,
+          "hit_rate@5": 1.0,
+          "recall@5": 0.8928571428571428
+        },
+        {
+          "ndcg@5": 0.9228101027562422,
+          "mrr@5": 1.0,
+          "hit_rate@5": 1.0,
+          "recall@5": 0.905952380952381
+        },
+        {
+          "ndcg@5": 0.9453795283176945,
+          "mrr@5": 1.0,
+          "hit_rate@5": 1.0,
+          "recall@5": 0.9434523809523809
+        }
+      ],
+      "candidate": [
+        {
+          "ndcg@5": 0.9055094055563814,
+          "mrr@5": 1.0,
+          "hit_rate@5": 1.0,
+          "recall@5": 0.8476190476190476
+        },
+        {
+          "ndcg@5": 0.9055094055563814,
+          "mrr@5": 1.0,
+          "hit_rate@5": 1.0,
+          "recall@5": 0.8476190476190476
+        },
+        {
+          "ndcg@5": 0.9055094055563814,
+          "mrr@5": 1.0,
+          "hit_rate@5": 1.0,
+          "recall@5": 0.8476190476190476
+        }
+      ]
+    },
+    "metric_ranges": {
+      "baseline": {
+        "ndcg@5": {
+          "min": 0.9228101027562422,
+          "max": 0.9453795283176945,
+          "mean": 0.9319051697900185
+        },
+        "mrr@5": {
+          "min": 1.0,
+          "max": 1.0,
+          "mean": 1.0
+        },
+        "hit_rate@5": {
+          "min": 1.0,
+          "max": 1.0,
+          "mean": 1.0
+        },
+        "recall@5": {
+          "min": 0.8928571428571428,
+          "max": 0.9434523809523809,
+          "mean": 0.9140873015873016
+        }
+      },
+      "candidate": {
+        "ndcg@5": {
+          "min": 0.9055094055563814,
+          "max": 0.9055094055563814,
+          "mean": 0.9055094055563814
+        },
+        "mrr@5": {
+          "min": 1.0,
+          "max": 1.0,
+          "mean": 1.0
+        },
+        "hit_rate@5": {
+          "min": 1.0,
+          "max": 1.0,
+          "mean": 1.0
+        },
+        "recall@5": {
+          "min": 0.8476190476190476,
+          "max": 0.8476190476190476,
+          "mean": 0.8476190476190476
+        }
+      }
+    },
+    "changes": {
+      "ndcg@5": {
+        "baseline": 0.9319051697900185,
+        "candidate": 0.9055094055563814,
+        "absolute_change": -0.026395764233637098,
+        "relative_change": -0.02832451743945655
+      },
+      "mrr@5": {
+        "baseline": 1.0,
+        "candidate": 1.0,
+        "absolute_change": 0.0,
+        "relative_change": 0.0
+      },
+      "hit_rate@5": {
+        "baseline": 1.0,
+        "candidate": 1.0,
+        "absolute_change": 0.0,
+        "relative_change": 0.0
+      },
+      "recall@5": {
+        "baseline": 0.9140873015873016,
+        "candidate": 0.8476190476190476,
+        "absolute_change": -0.06646825396825395,
+        "relative_change": -0.07271543303668329
+      },
+      "p50_latency_ms": {
+        "baseline": 32749.956,
+        "candidate": 777.078,
+        "absolute_change": -31972.877999999997,
+        "relative_change": -0.9762723956026078
+      },
+      "p95_latency_ms": {
+        "baseline": 51493.87149999998,
+        "candidate": 1276.76875,
+        "absolute_change": -50217.10274999998,
+        "relative_change": -0.9752054232317723
+      },
+      "success_rate": {
+        "baseline": 0.9722222222222222,
+        "candidate": 1.0,
+        "absolute_change": 0.02777777777777779,
+        "relative_change": 0.028571428571428584
+      },
+      "degraded_rate": {
+        "baseline": 0.027777777777777776,
+        "candidate": 0.0,
+        "absolute_change": -0.027777777777777776,
+        "relative_change": -1.0
+      },
+      "top5_consistency": {
+        "baseline": 0.5277777777777778,
+        "candidate": 1.0,
+        "absolute_change": 0.4722222222222222,
+        "relative_change": 0.8947368421052632
+      }
+    },
+    "acceptance": {
+      "hit_rate_not_lower": true,
+      "ndcg_gap_within_5_percent": true,
+      "recall_gap_within_5_percent": false,
+      "qwen_p95_at_most_2_seconds": true,
+      "qwen_success_rate_at_least_99_percent": true,
+      "qwen_consistency_not_lower": true
+    },
+    "passed": false,
+    "outcomes": {
+      "win": 4,
+      "tie": 2,
+      "loss": 6,
+      "missing": 0
+    },
+    "cases": [
+      {
+        "id": "live_category_qualification",
+        "question": "直播带货美妆或医疗器械需要哪些额外资质？",
+        "outcome": "loss",
+        "baseline_ndcg@5": 1.0,
+        "candidate_ndcg@5": 0.8764133076193229,
+        "delta": -0.1235866923806771,
+        "baseline_top5": [
+          "6400b836-5cf1-43fc-89b8-a2f57e5629d2",
+          "44159d28-676b-40c1-a84f-34b8e4ac6c18",
+          "bfc4aae9-b04b-482a-a649-f53ca0496e39",
+          "337710fc-63a7-4067-b301-851de1291994",
+          "c4c6be7a-ef36-4a1d-99e9-eff07b442873"
+        ],
+        "candidate_top5": [
+          "6400b836-5cf1-43fc-89b8-a2f57e5629d2",
+          "337710fc-63a7-4067-b301-851de1291994",
+          "9feabcb9-b32f-4409-a23c-fc8ebde99408",
+          "15eedd26-ba03-4665-aa67-0768afece9d9",
+          "bfc4aae9-b04b-482a-a649-f53ca0496e39"
+        ],
+        "annotations": [
+          {
+            "chunk_id": "6400b836-5cf1-43fc-89b8-a2f57e5629d2",
+            "title": "直播带货与内容营销合规.md",
+            "relevance": 3,
+            "relevance_note": "直接回答问题的核心证据"
+          },
+          {
+            "chunk_id": "337710fc-63a7-4067-b301-851de1291994",
+            "title": "直播带货与内容营销合规.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          },
+          {
+            "chunk_id": "9feabcb9-b32f-4409-a23c-fc8ebde99408",
+            "title": "直播带货与内容营销合规.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          },
+          {
+            "chunk_id": "15eedd26-ba03-4665-aa67-0768afece9d9",
+            "title": "直播带货与内容营销合规.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          },
+          {
+            "chunk_id": "c1898591-8556-45fc-a8f5-14b24dc525ca",
+            "title": "直播带货与内容营销合规.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          },
+          {
+            "chunk_id": "c4c6be7a-ef36-4a1d-99e9-eff07b442873",
+            "title": "直播带货与内容营销合规.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          },
+          {
+            "chunk_id": "44159d28-676b-40c1-a84f-34b8e4ac6c18",
+            "title": "商品上架与类目合规规范.md",
+            "relevance": 2,
+            "relevance_note": "能够支撑答案的有效证据或明确引用路径"
+          },
+          {
+            "chunk_id": "3fee85dd-ace3-43da-abf2-4ae9e1a2b4dc",
+            "title": "直播带货与内容营销合规.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          },
+          {
+            "chunk_id": "ed03f32b-c86e-44de-ad34-38aaeb6908c1",
+            "title": "直播带货与内容营销合规.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          },
+          {
+            "chunk_id": "bfc4aae9-b04b-482a-a649-f53ca0496e39",
+            "title": "商品上架与类目合规规范.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          }
+        ]
+      },
+      {
+        "id": "live_campaign_shipping",
+        "question": "大场直播产生的大促订单多久要发货，超时如何处理？",
+        "outcome": "loss",
+        "baseline_ndcg@5": 0.9653978975733866,
+        "candidate_ndcg@5": 0.9247859877661616,
+        "delta": -0.040611909807224955,
+        "baseline_top5": [
+          "be592533-2534-499a-ad02-ed0888908d52",
+          "413ec4ca-4474-4c54-a97e-ee642182aa66",
+          "c4c6be7a-ef36-4a1d-99e9-eff07b442873",
+          "c44a8d38-d8ca-46c0-9522-f5813d672e17",
+          "95d5e2be-30c0-48da-ae16-df407fbb53d7"
+        ],
+        "candidate_top5": [
+          "c4c6be7a-ef36-4a1d-99e9-eff07b442873",
+          "413ec4ca-4474-4c54-a97e-ee642182aa66",
+          "be592533-2534-499a-ad02-ed0888908d52",
+          "c44a8d38-d8ca-46c0-9522-f5813d672e17",
+          "0fb81e95-1221-40af-b4b7-8c6ec4d4919a"
+        ],
+        "annotations": [
+          {
+            "chunk_id": "c4c6be7a-ef36-4a1d-99e9-eff07b442873",
+            "title": "直播带货与内容营销合规.md",
+            "relevance": 3,
+            "relevance_note": "直接回答问题的核心证据"
+          },
+          {
+            "chunk_id": "413ec4ca-4474-4c54-a97e-ee642182aa66",
+            "title": "仓储物流与发货履约SLA.md",
+            "relevance": 3,
+            "relevance_note": "直接回答问题的核心证据"
+          },
+          {
+            "chunk_id": "be592533-2534-499a-ad02-ed0888908d52",
+            "title": "促销活动与优惠券使用规则.md",
+            "relevance": 3,
+            "relevance_note": "直接回答问题的核心证据"
+          },
+          {
+            "chunk_id": "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+            "title": "平台交易规则与买家保障.md",
+            "relevance": 0,
+            "relevance_note": "与当前问题无关"
+          },
+          {
+            "chunk_id": "c44a8d38-d8ca-46c0-9522-f5813d672e17",
+            "title": "仓储物流与发货履约SLA.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          },
+          {
+            "chunk_id": "c52e750f-a15a-421b-a0fd-2b05b7519ea9",
+            "title": "促销活动与优惠券使用规则.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          },
+          {
+            "chunk_id": "ee706ab5-427f-4b64-8305-fe44b1be564b",
+            "title": "仓储物流与发货履约SLA.md",
+            "relevance": 2,
+            "relevance_note": "能够支撑答案的有效证据或明确引用路径"
+          },
+          {
+            "chunk_id": "e3bd1467-f992-48f9-9483-47f14ff49c4c",
+            "title": "支付方式与资金安全规范.md",
+            "relevance": 0,
+            "relevance_note": "与当前问题无关"
+          },
+          {
+            "chunk_id": "3644b62a-f3ef-41f6-a05e-22e028582565",
+            "title": "售后服务与退换货政策.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          },
+          {
+            "chunk_id": "0fb81e95-1221-40af-b4b7-8c6ec4d4919a",
+            "title": "平台交易规则与买家保障.md",
+            "relevance": 0,
+            "relevance_note": "与当前问题无关"
+          }
+        ]
+      },
+      {
+        "id": "live_order_responsibility",
+        "question": "直播间下单后由主播还是店铺商家承担售后和发票义务？",
+        "outcome": "win",
+        "baseline_ndcg@5": 0.9914511480416967,
+        "candidate_ndcg@5": 1.0,
+        "delta": 0.00854885195830335,
+        "baseline_top5": [
+          "c1898591-8556-45fc-a8f5-14b24dc525ca",
+          "1ed0393c-580a-4a3f-b98c-ead0d0a9e010",
+          "cb269192-7e36-4a31-9832-174fee8ad306",
+          "c4c6be7a-ef36-4a1d-99e9-eff07b442873",
+          "008fc2ce-e5d7-4895-bbc3-c38d047745e2"
+        ],
+        "candidate_top5": [
+          "c1898591-8556-45fc-a8f5-14b24dc525ca",
+          "1ed0393c-580a-4a3f-b98c-ead0d0a9e010",
+          "cb269192-7e36-4a31-9832-174fee8ad306",
+          "008fc2ce-e5d7-4895-bbc3-c38d047745e2",
+          "18f53718-2675-4ca4-b914-69a621d3c088"
+        ],
+        "annotations": [
+          {
+            "chunk_id": "c1898591-8556-45fc-a8f5-14b24dc525ca",
+            "title": "直播带货与内容营销合规.md",
+            "relevance": 3,
+            "relevance_note": "直接回答问题的核心证据"
+          },
+          {
+            "chunk_id": "008fc2ce-e5d7-4895-bbc3-c38d047745e2",
+            "title": "商家入驻结算与对账流程.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          },
+          {
+            "chunk_id": "518b4d5f-9bcf-4c09-b84c-6276ad6e5925",
+            "title": "商家入驻结算与对账流程.md",
+            "relevance": 0,
+            "relevance_note": "与当前问题无关"
+          },
+          {
+            "chunk_id": "cb269192-7e36-4a31-9832-174fee8ad306",
+            "title": "商家入驻结算与对账流程.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          },
+          {
+            "chunk_id": "18f53718-2675-4ca4-b914-69a621d3c088",
+            "title": "商家入驻结算与对账流程.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          },
+          {
+            "chunk_id": "a86fcbaf-bbe0-4133-bc85-1b50f7b4878b",
+            "title": "商家入驻结算与对账流程.md",
+            "relevance": 0,
+            "relevance_note": "与当前问题无关"
+          },
+          {
+            "chunk_id": "1ed0393c-580a-4a3f-b98c-ead0d0a9e010",
+            "title": "直播带货与内容营销合规.md",
+            "relevance": 2,
+            "relevance_note": "能够支撑答案的有效证据或明确引用路径"
+          },
+          {
+            "chunk_id": "da6c6060-b3d8-4966-bc72-129292455044",
+            "title": "商家入驻结算与对账流程.md",
+            "relevance": 0,
+            "relevance_note": "与当前问题无关"
+          },
+          {
+            "chunk_id": "c4c6be7a-ef36-4a1d-99e9-eff07b442873",
+            "title": "直播带货与内容营销合规.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          },
+          {
+            "chunk_id": "83be732f-48b4-44ca-aca9-5f592fa09b04",
+            "title": "支付方式与资金安全规范.md",
+            "relevance": 0,
+            "relevance_note": "与当前问题无关"
+          }
+        ]
+      },
+      {
+        "id": "search_ad_invoice_reconciliation",
+        "question": "广告费账单有差异怎么申诉，广告费发票由谁开？",
+        "outcome": "loss",
+        "baseline_ndcg@5": 0.9636374187560257,
+        "candidate_ndcg@5": 0.9117549143907997,
+        "delta": -0.05188250436522601,
+        "baseline_top5": [
+          "079529f9-bae4-48d6-8917-8d3582ed77da",
+          "cb269192-7e36-4a31-9832-174fee8ad306",
+          "da6c6060-b3d8-4966-bc72-129292455044",
+          "83be732f-48b4-44ca-aca9-5f592fa09b04",
+          "5142e91c-eb33-4e8a-a88a-2e4a910ca807"
+        ],
+        "candidate_top5": [
+          "079529f9-bae4-48d6-8917-8d3582ed77da",
+          "5142e91c-eb33-4e8a-a88a-2e4a910ca807",
+          "cb269192-7e36-4a31-9832-174fee8ad306",
+          "008fc2ce-e5d7-4895-bbc3-c38d047745e2",
+          "da6c6060-b3d8-4966-bc72-129292455044"
+        ],
+        "annotations": [
+          {
+            "chunk_id": "079529f9-bae4-48d6-8917-8d3582ed77da",
+            "title": "搜索推荐与广告投放规则.md",
+            "relevance": 3,
+            "relevance_note": "直接回答问题的核心证据"
+          },
+          {
+            "chunk_id": "cb269192-7e36-4a31-9832-174fee8ad306",
+            "title": "商家入驻结算与对账流程.md",
+            "relevance": 3,
+            "relevance_note": "直接回答问题的核心证据"
+          },
+          {
+            "chunk_id": "5142e91c-eb33-4e8a-a88a-2e4a910ca807",
+            "title": "搜索推荐与广告投放规则.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          },
+          {
+            "chunk_id": "83be732f-48b4-44ca-aca9-5f592fa09b04",
+            "title": "支付方式与资金安全规范.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          },
+          {
+            "chunk_id": "008fc2ce-e5d7-4895-bbc3-c38d047745e2",
+            "title": "商家入驻结算与对账流程.md",
+            "relevance": 2,
+            "relevance_note": "能够支撑答案的有效证据或明确引用路径"
+          },
+          {
+            "chunk_id": "2f9a4281-d35d-471a-a18b-6654a62b1013",
+            "title": "搜索推荐与广告投放规则.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          },
+          {
+            "chunk_id": "61f394fc-ceb2-44b6-b1e6-ae4c7bc1527e",
+            "title": "支付方式与资金安全规范.md",
+            "relevance": 0,
+            "relevance_note": "与当前问题无关"
+          },
+          {
+            "chunk_id": "da6c6060-b3d8-4966-bc72-129292455044",
+            "title": "商家入驻结算与对账流程.md",
+            "relevance": 3,
+            "relevance_note": "直接回答问题的核心证据"
+          },
+          {
+            "chunk_id": "eb5fa64f-3266-489d-8bc6-a6741fddcfe5",
+            "title": "会员体系与积分权益说明.md",
+            "relevance": 0,
+            "relevance_note": "与当前问题无关"
+          },
+          {
+            "chunk_id": "6f6f5f85-e455-4d92-adb5-52b6a15d60ec",
+            "title": "会员体系与积分权益说明.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          }
+        ]
+      },
+      {
+        "id": "search_personalization_off",
+        "question": "关闭个性化推荐后是不是就完全看不到推荐和广告了？",
+        "outcome": "tie",
+        "baseline_ndcg@5": 1.0,
+        "candidate_ndcg@5": 1.0,
+        "delta": 0.0,
+        "baseline_top5": [
+          "ab9b5fc7-dde5-4d38-a5c6-92d34d57d90c",
+          "8e64a13d-b431-4e8a-81ee-a0018a91199c",
+          "5b92e1de-d0dd-4b3d-bd07-1c2c61cd80bc",
+          "458e0ad6-7256-432d-bb46-4bc7cf86f650",
+          "5142e91c-eb33-4e8a-a88a-2e4a910ca807"
+        ],
+        "candidate_top5": [
+          "ab9b5fc7-dde5-4d38-a5c6-92d34d57d90c",
+          "8e64a13d-b431-4e8a-81ee-a0018a91199c",
+          "57acaa1c-5141-4126-932e-33f2fbccfb75",
+          "5142e91c-eb33-4e8a-a88a-2e4a910ca807",
+          "2f9a4281-d35d-471a-a18b-6654a62b1013"
+        ],
+        "annotations": [
+          {
+            "chunk_id": "ab9b5fc7-dde5-4d38-a5c6-92d34d57d90c",
+            "title": "搜索推荐与广告投放规则.md",
+            "relevance": 3,
+            "relevance_note": "直接回答问题的核心证据"
+          },
+          {
+            "chunk_id": "8e64a13d-b431-4e8a-81ee-a0018a91199c",
+            "title": "搜索推荐与广告投放规则.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          },
+          {
+            "chunk_id": "5142e91c-eb33-4e8a-a88a-2e4a910ca807",
+            "title": "搜索推荐与广告投放规则.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          },
+          {
+            "chunk_id": "2f9a4281-d35d-471a-a18b-6654a62b1013",
+            "title": "搜索推荐与广告投放规则.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          },
+          {
+            "chunk_id": "5b92e1de-d0dd-4b3d-bd07-1c2c61cd80bc",
+            "title": "搜索推荐与广告投放规则.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          },
+          {
+            "chunk_id": "57acaa1c-5141-4126-932e-33f2fbccfb75",
+            "title": "搜索推荐与广告投放规则.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          },
+          {
+            "chunk_id": "079529f9-bae4-48d6-8917-8d3582ed77da",
+            "title": "搜索推荐与广告投放规则.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          },
+          {
+            "chunk_id": "fe50235c-8850-469a-9cfd-301dcc4b5c71",
+            "title": "搜索推荐与广告投放规则.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          },
+          {
+            "chunk_id": "458e0ad6-7256-432d-bb46-4bc7cf86f650",
+            "title": "搜索推荐与广告投放规则.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          },
+          {
+            "chunk_id": "3644b62a-f3ef-41f6-a05e-22e028582565",
+            "title": "售后服务与退换货政策.md",
+            "relevance": 0,
+            "relevance_note": "与当前问题无关"
+          }
+        ]
+      },
+      {
+        "id": "payment_combined_refund",
+        "question": "组合支付发生部分退款后，银行卡、优惠券和积分分别怎么退？",
+        "outcome": "win",
+        "baseline_ndcg@5": 0.9221509830162192,
+        "candidate_ndcg@5": 0.9329445066320563,
+        "delta": 0.010793523615837075,
+        "baseline_top5": [
+          "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+          "68a004e5-c525-4ae7-8613-759d0568d893",
+          "3c6dfd3c-98f2-46cd-b4b1-639c6125f1c0",
+          "16c97ec5-40e0-4b0e-8fc6-b7b526dfe4ff",
+          "c52e750f-a15a-421b-a0fd-2b05b7519ea9"
+        ],
+        "candidate_top5": [
+          "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+          "16c97ec5-40e0-4b0e-8fc6-b7b526dfe4ff",
+          "68a004e5-c525-4ae7-8613-759d0568d893",
+          "3c6dfd3c-98f2-46cd-b4b1-639c6125f1c0",
+          "94ee9080-0188-4591-a7f2-79ad4d3a0d6a"
+        ],
+        "annotations": [
+          {
+            "chunk_id": "c52e750f-a15a-421b-a0fd-2b05b7519ea9",
+            "title": "促销活动与优惠券使用规则.md",
+            "relevance": 2,
+            "relevance_note": "能够支撑答案的有效证据或明确引用路径"
+          },
+          {
+            "chunk_id": "edcd60d1-9fac-45f0-9d8b-1af3a50f7ac0",
+            "title": "促销活动与优惠券使用规则.md",
+            "relevance": 2,
+            "relevance_note": "能够支撑答案的有效证据或明确引用路径"
+          },
+          {
+            "chunk_id": "3c6dfd3c-98f2-46cd-b4b1-639c6125f1c0",
+            "title": "促销活动与优惠券使用规则.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          },
+          {
+            "chunk_id": "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+            "title": "支付方式与资金安全规范.md",
+            "relevance": 3,
+            "relevance_note": "直接回答问题的核心证据"
+          },
+          {
+            "chunk_id": "94ee9080-0188-4591-a7f2-79ad4d3a0d6a",
+            "title": "促销活动与优惠券使用规则.md",
+            "relevance": 2,
+            "relevance_note": "能够支撑答案的有效证据或明确引用路径"
+          },
+          {
+            "chunk_id": "16c97ec5-40e0-4b0e-8fc6-b7b526dfe4ff",
+            "title": "支付方式与资金安全规范.md",
+            "relevance": 2,
+            "relevance_note": "能够支撑答案的有效证据或明确引用路径"
+          },
+          {
+            "chunk_id": "68a004e5-c525-4ae7-8613-759d0568d893",
+            "title": "促销活动与优惠券使用规则.md",
+            "relevance": 2,
+            "relevance_note": "能够支撑答案的有效证据或明确引用路径"
+          },
+          {
+            "chunk_id": "c7ed159f-1ea9-4567-b2ae-e4a543aebd8a",
+            "title": "促销活动与优惠券使用规则.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          },
+          {
+            "chunk_id": "be592533-2534-499a-ad02-ed0888908d52",
+            "title": "促销活动与优惠券使用规则.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          },
+          {
+            "chunk_id": "f0145698-8135-422b-a500-7fa9c106f0de",
+            "title": "促销活动与优惠券使用规则.md",
+            "relevance": 2,
+            "relevance_note": "能够支撑答案的有效证据或明确引用路径"
+          }
+        ]
+      },
+      {
+        "id": "payment_duplicate_charge",
+        "question": "同一个订单被重复扣款，多余的钱多久退回？",
+        "outcome": "loss",
+        "baseline_ndcg@5": 0.9742700440275239,
+        "candidate_ndcg@5": 0.9592296244131938,
+        "delta": -0.015040419614330114,
+        "baseline_top5": [
+          "e3bd1467-f992-48f9-9483-47f14ff49c4c",
+          "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+          "3644b62a-f3ef-41f6-a05e-22e028582565",
+          "ff032376-059e-4150-8e75-3ea6d7f60851",
+          "61f394fc-ceb2-44b6-b1e6-ae4c7bc1527e"
+        ],
+        "candidate_top5": [
+          "e3bd1467-f992-48f9-9483-47f14ff49c4c",
+          "61f394fc-ceb2-44b6-b1e6-ae4c7bc1527e",
+          "ff032376-059e-4150-8e75-3ea6d7f60851",
+          "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+          "95d5e2be-30c0-48da-ae16-df407fbb53d7"
+        ],
+        "annotations": [
+          {
+            "chunk_id": "e3bd1467-f992-48f9-9483-47f14ff49c4c",
+            "title": "支付方式与资金安全规范.md",
+            "relevance": 3,
+            "relevance_note": "直接回答问题的核心证据"
+          },
+          {
+            "chunk_id": "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+            "title": "平台交易规则与买家保障.md",
+            "relevance": 0,
+            "relevance_note": "与当前问题无关"
+          },
+          {
+            "chunk_id": "61f394fc-ceb2-44b6-b1e6-ae4c7bc1527e",
+            "title": "支付方式与资金安全规范.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          },
+          {
+            "chunk_id": "0fb81e95-1221-40af-b4b7-8c6ec4d4919a",
+            "title": "平台交易规则与买家保障.md",
+            "relevance": 0,
+            "relevance_note": "与当前问题无关"
+          },
+          {
+            "chunk_id": "73703d96-4fda-4cab-a2da-7be08461020b",
+            "title": "售后服务与退换货政策.md",
+            "relevance": 0,
+            "relevance_note": "与当前问题无关"
+          },
+          {
+            "chunk_id": "3644b62a-f3ef-41f6-a05e-22e028582565",
+            "title": "售后服务与退换货政策.md",
+            "relevance": 0,
+            "relevance_note": "与当前问题无关"
+          },
+          {
+            "chunk_id": "518b4d5f-9bcf-4c09-b84c-6276ad6e5925",
+            "title": "商家入驻结算与对账流程.md",
+            "relevance": 0,
+            "relevance_note": "与当前问题无关"
+          },
+          {
+            "chunk_id": "ff032376-059e-4150-8e75-3ea6d7f60851",
+            "title": "售后服务与退换货政策.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          },
+          {
+            "chunk_id": "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+            "title": "支付方式与资金安全规范.md",
+            "relevance": 2,
+            "relevance_note": "能够支撑答案的有效证据或明确引用路径"
+          },
+          {
+            "chunk_id": "8e274390-4b66-4695-a946-f86570388c01",
+            "title": "售后服务与退换货政策.md",
+            "relevance": 0,
+            "relevance_note": "与当前问题无关"
+          }
+        ]
+      },
+      {
+        "id": "payment_risk_appeal",
+        "question": "异地登录后大额支付被风控拦截，怎么申诉，多久复核？",
+        "outcome": "loss",
+        "baseline_ndcg@5": 0.9407259224320962,
+        "candidate_ndcg@5": 0.8813643446830882,
+        "delta": -0.059361577749007965,
+        "baseline_top5": [
+          "aa81a2e2-a349-4946-8cbd-d3bdd40f078f",
+          "61f394fc-ceb2-44b6-b1e6-ae4c7bc1527e",
+          "83be732f-48b4-44ca-aca9-5f592fa09b04",
+          "e3bd1467-f992-48f9-9483-47f14ff49c4c",
+          "73703d96-4fda-4cab-a2da-7be08461020b"
+        ],
+        "candidate_top5": [
+          "aa81a2e2-a349-4946-8cbd-d3bdd40f078f",
+          "c5bbdec9-bfdb-4cb7-ac6f-e7eddcabce4d",
+          "61f394fc-ceb2-44b6-b1e6-ae4c7bc1527e",
+          "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+          "83be732f-48b4-44ca-aca9-5f592fa09b04"
+        ],
+        "annotations": [
+          {
+            "chunk_id": "aa81a2e2-a349-4946-8cbd-d3bdd40f078f",
+            "title": "支付方式与资金安全规范.md",
+            "relevance": 3,
+            "relevance_note": "直接回答问题的核心证据"
+          },
+          {
+            "chunk_id": "61f394fc-ceb2-44b6-b1e6-ae4c7bc1527e",
+            "title": "支付方式与资金安全规范.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          },
+          {
+            "chunk_id": "83be732f-48b4-44ca-aca9-5f592fa09b04",
+            "title": "支付方式与资金安全规范.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          },
+          {
+            "chunk_id": "73703d96-4fda-4cab-a2da-7be08461020b",
+            "title": "售后服务与退换货政策.md",
+            "relevance": 0,
+            "relevance_note": "与当前问题无关"
+          },
+          {
+            "chunk_id": "da6c6060-b3d8-4966-bc72-129292455044",
+            "title": "商家入驻结算与对账流程.md",
+            "relevance": 0,
+            "relevance_note": "与当前问题无关"
+          },
+          {
+            "chunk_id": "e3bd1467-f992-48f9-9483-47f14ff49c4c",
+            "title": "支付方式与资金安全规范.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          },
+          {
+            "chunk_id": "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+            "title": "平台交易规则与买家保障.md",
+            "relevance": 0,
+            "relevance_note": "与当前问题无关"
+          },
+          {
+            "chunk_id": "c5bbdec9-bfdb-4cb7-ac6f-e7eddcabce4d",
+            "title": "平台交易规则与买家保障.md",
+            "relevance": 0,
+            "relevance_note": "与当前问题无关"
+          },
+          {
+            "chunk_id": "3644b62a-f3ef-41f6-a05e-22e028582565",
+            "title": "售后服务与退换货政策.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          },
+          {
+            "chunk_id": "ff032376-059e-4150-8e75-3ea6d7f60851",
+            "title": "售后服务与退换货政策.md",
+            "relevance": 0,
+            "relevance_note": "与当前问题无关"
+          }
+        ]
+      },
+      {
+        "id": "member_points_refund",
+        "question": "积分抵扣订单退款后，积分和现金分别怎么退？",
+        "outcome": "loss",
+        "baseline_ndcg@5": 0.9832194512113538,
+        "candidate_ndcg@5": 0.8684430438164498,
+        "delta": -0.11477640739490402,
+        "baseline_top5": [
+          "779b77ca-dcb0-4de1-9eaf-d2279a876f34",
+          "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+          "61f394fc-ceb2-44b6-b1e6-ae4c7bc1527e",
+          "eb5fa64f-3266-489d-8bc6-a6741fddcfe5",
+          "176c98b8-a7f5-4c86-a2f0-96752afbf776"
+        ],
+        "candidate_top5": [
+          "779b77ca-dcb0-4de1-9eaf-d2279a876f34",
+          "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+          "176c98b8-a7f5-4c86-a2f0-96752afbf776",
+          "3c6dfd3c-98f2-46cd-b4b1-639c6125f1c0",
+          "95d5e2be-30c0-48da-ae16-df407fbb53d7"
+        ],
+        "annotations": [
+          {
+            "chunk_id": "779b77ca-dcb0-4de1-9eaf-d2279a876f34",
+            "title": "会员体系与积分权益说明.md",
+            "relevance": 3,
+            "relevance_note": "直接回答问题的核心证据"
+          },
+          {
+            "chunk_id": "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+            "title": "平台交易规则与买家保障.md",
+            "relevance": 0,
+            "relevance_note": "与当前问题无关"
+          },
+          {
+            "chunk_id": "eb5fa64f-3266-489d-8bc6-a6741fddcfe5",
+            "title": "会员体系与积分权益说明.md",
+            "relevance": 2,
+            "relevance_note": "能够支撑答案的有效证据或明确引用路径"
+          },
+          {
+            "chunk_id": "73703d96-4fda-4cab-a2da-7be08461020b",
+            "title": "售后服务与退换货政策.md",
+            "relevance": 0,
+            "relevance_note": "与当前问题无关"
+          },
+          {
+            "chunk_id": "176c98b8-a7f5-4c86-a2f0-96752afbf776",
+            "title": "会员体系与积分权益说明.md",
+            "relevance": 2,
+            "relevance_note": "能够支撑答案的有效证据或明确引用路径"
+          },
+          {
+            "chunk_id": "61f394fc-ceb2-44b6-b1e6-ae4c7bc1527e",
+            "title": "支付方式与资金安全规范.md",
+            "relevance": 2,
+            "relevance_note": "能够支撑答案的有效证据或明确引用路径"
+          },
+          {
+            "chunk_id": "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+            "title": "支付方式与资金安全规范.md",
+            "relevance": 3,
+            "relevance_note": "直接回答问题的核心证据"
+          },
+          {
+            "chunk_id": "3c6dfd3c-98f2-46cd-b4b1-639c6125f1c0",
+            "title": "促销活动与优惠券使用规则.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          },
+          {
+            "chunk_id": "3644b62a-f3ef-41f6-a05e-22e028582565",
+            "title": "售后服务与退换货政策.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          },
+          {
+            "chunk_id": "518b4d5f-9bcf-4c09-b84c-6276ad6e5925",
+            "title": "商家入驻结算与对账流程.md",
+            "relevance": 0,
+            "relevance_note": "与当前问题无关"
+          }
+        ]
+      },
+      {
+        "id": "member_plus_cancel",
+        "question": "Plus年卡买后7天内可以全额退款吗？",
+        "outcome": "tie",
+        "baseline_ndcg@5": 0.8912965015913477,
+        "candidate_ndcg@5": 0.8912965015913477,
+        "delta": 0.0,
+        "baseline_top5": [
+          "d143f7a0-889b-448c-b446-6314cf970dc7",
+          "eb5fa64f-3266-489d-8bc6-a6741fddcfe5",
+          "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+          "8e274390-4b66-4695-a946-f86570388c01",
+          "ff032376-059e-4150-8e75-3ea6d7f60851"
+        ],
+        "candidate_top5": [
+          "d143f7a0-889b-448c-b446-6314cf970dc7",
+          "eb5fa64f-3266-489d-8bc6-a6741fddcfe5",
+          "8e274390-4b66-4695-a946-f86570388c01",
+          "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+          "3644b62a-f3ef-41f6-a05e-22e028582565"
+        ],
+        "annotations": [
+          {
+            "chunk_id": "d143f7a0-889b-448c-b446-6314cf970dc7",
+            "title": "会员体系与积分权益说明.md",
+            "relevance": 3,
+            "relevance_note": "直接回答问题的核心证据"
+          },
+          {
+            "chunk_id": "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+            "title": "平台交易规则与买家保障.md",
+            "relevance": 0,
+            "relevance_note": "与当前问题无关"
+          },
+          {
+            "chunk_id": "8e274390-4b66-4695-a946-f86570388c01",
+            "title": "售后服务与退换货政策.md",
+            "relevance": 0,
+            "relevance_note": "与当前问题无关"
+          },
+          {
+            "chunk_id": "ff032376-059e-4150-8e75-3ea6d7f60851",
+            "title": "售后服务与退换货政策.md",
+            "relevance": 0,
+            "relevance_note": "与当前问题无关"
+          },
+          {
+            "chunk_id": "eb5fa64f-3266-489d-8bc6-a6741fddcfe5",
+            "title": "会员体系与积分权益说明.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          },
+          {
+            "chunk_id": "518b4d5f-9bcf-4c09-b84c-6276ad6e5925",
+            "title": "商家入驻结算与对账流程.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          },
+          {
+            "chunk_id": "3644b62a-f3ef-41f6-a05e-22e028582565",
+            "title": "售后服务与退换货政策.md",
+            "relevance": 0,
+            "relevance_note": "与当前问题无关"
+          },
+          {
+            "chunk_id": "c5bbdec9-bfdb-4cb7-ac6f-e7eddcabce4d",
+            "title": "平台交易规则与买家保障.md",
+            "relevance": 0,
+            "relevance_note": "与当前问题无关"
+          },
+          {
+            "chunk_id": "61f394fc-ceb2-44b6-b1e6-ae4c7bc1527e",
+            "title": "支付方式与资金安全规范.md",
+            "relevance": 0,
+            "relevance_note": "与当前问题无关"
+          },
+          {
+            "chunk_id": "3c6dfd3c-98f2-46cd-b4b1-639c6125f1c0",
+            "title": "促销活动与优惠券使用规则.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          }
+        ]
+      },
+      {
+        "id": "aftersales_intercept_refund",
+        "question": "商品已经发货但未签收，拦截成功后怎么退款，失败怎么办？",
+        "outcome": "win",
+        "baseline_ndcg@5": 0.884347777265354,
+        "candidate_ndcg@5": 0.9263237124099684,
+        "delta": 0.041975935144614396,
+        "baseline_top5": [
+          "73703d96-4fda-4cab-a2da-7be08461020b",
+          "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+          "3644b62a-f3ef-41f6-a05e-22e028582565",
+          "44d9f1c9-99b3-47b0-8a89-927da0bbb9c0",
+          "0fb81e95-1221-40af-b4b7-8c6ec4d4919a"
+        ],
+        "candidate_top5": [
+          "73703d96-4fda-4cab-a2da-7be08461020b",
+          "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+          "44d9f1c9-99b3-47b0-8a89-927da0bbb9c0",
+          "d02e1d0e-e54c-4ec5-8a1a-082c7e68432d",
+          "3644b62a-f3ef-41f6-a05e-22e028582565"
+        ],
+        "annotations": [
+          {
+            "chunk_id": "73703d96-4fda-4cab-a2da-7be08461020b",
+            "title": "售后服务与退换货政策.md",
+            "relevance": 3,
+            "relevance_note": "直接回答问题的核心证据"
+          },
+          {
+            "chunk_id": "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+            "title": "平台交易规则与买家保障.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          },
+          {
+            "chunk_id": "44d9f1c9-99b3-47b0-8a89-927da0bbb9c0",
+            "title": "仓储物流与发货履约SLA.md",
+            "relevance": 3,
+            "relevance_note": "直接回答问题的核心证据"
+          },
+          {
+            "chunk_id": "0fb81e95-1221-40af-b4b7-8c6ec4d4919a",
+            "title": "平台交易规则与买家保障.md",
+            "relevance": 0,
+            "relevance_note": "与当前问题无关"
+          },
+          {
+            "chunk_id": "413ec4ca-4474-4c54-a97e-ee642182aa66",
+            "title": "仓储物流与发货履约SLA.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          },
+          {
+            "chunk_id": "3644b62a-f3ef-41f6-a05e-22e028582565",
+            "title": "售后服务与退换货政策.md",
+            "relevance": 2,
+            "relevance_note": "能够支撑答案的有效证据或明确引用路径"
+          },
+          {
+            "chunk_id": "e3bd1467-f992-48f9-9483-47f14ff49c4c",
+            "title": "支付方式与资金安全规范.md",
+            "relevance": 0,
+            "relevance_note": "与当前问题无关"
+          },
+          {
+            "chunk_id": "83be732f-48b4-44ca-aca9-5f592fa09b04",
+            "title": "支付方式与资金安全规范.md",
+            "relevance": 0,
+            "relevance_note": "与当前问题无关"
+          },
+          {
+            "chunk_id": "d02e1d0e-e54c-4ec5-8a1a-082c7e68432d",
+            "title": "仓储物流与发货履约SLA.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          },
+          {
+            "chunk_id": "c4c6be7a-ef36-4a1d-99e9-eff07b442873",
+            "title": "直播带货与内容营销合规.md",
+            "relevance": 0,
+            "relevance_note": "与当前问题无关"
+          }
+        ]
+      },
+      {
+        "id": "aftersales_seven_day_freight",
+        "question": "七天无理由退货要满足哪些条件，退货运费由谁出？",
+        "outcome": "win",
+        "baseline_ndcg@5": 0.8972278286323637,
+        "candidate_ndcg@5": 0.9144794446267704,
+        "delta": 0.01725161599440672,
+        "baseline_top5": [
+          "dd35b70f-2716-4b45-907d-e9b93562f0fa",
+          "8e274390-4b66-4695-a946-f86570388c01",
+          "e10d97a9-4bbb-4f4a-8ae3-aa925dfb3500",
+          "6c454b32-af30-4937-9087-9e924de60f13",
+          "a4102a62-a707-4857-bd54-c2fe257e917b"
+        ],
+        "candidate_top5": [
+          "8e274390-4b66-4695-a946-f86570388c01",
+          "dd35b70f-2716-4b45-907d-e9b93562f0fa",
+          "6c454b32-af30-4937-9087-9e924de60f13",
+          "a4102a62-a707-4857-bd54-c2fe257e917b",
+          "44d9f1c9-99b3-47b0-8a89-927da0bbb9c0"
+        ],
+        "annotations": [
+          {
+            "chunk_id": "dd35b70f-2716-4b45-907d-e9b93562f0fa",
+            "title": "售后服务与退换货政策.md",
+            "relevance": 3,
+            "relevance_note": "直接回答问题的核心证据"
+          },
+          {
+            "chunk_id": "8e274390-4b66-4695-a946-f86570388c01",
+            "title": "售后服务与退换货政策.md",
+            "relevance": 3,
+            "relevance_note": "直接回答问题的核心证据"
+          },
+          {
+            "chunk_id": "6c454b32-af30-4937-9087-9e924de60f13",
+            "title": "售后服务与退换货政策.md",
+            "relevance": 2,
+            "relevance_note": "能够支撑答案的有效证据或明确引用路径"
+          },
+          {
+            "chunk_id": "ff032376-059e-4150-8e75-3ea6d7f60851",
+            "title": "售后服务与退换货政策.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          },
+          {
+            "chunk_id": "73703d96-4fda-4cab-a2da-7be08461020b",
+            "title": "售后服务与退换货政策.md",
+            "relevance": 2,
+            "relevance_note": "能够支撑答案的有效证据或明确引用路径"
+          },
+          {
+            "chunk_id": "44d9f1c9-99b3-47b0-8a89-927da0bbb9c0",
+            "title": "仓储物流与发货履约SLA.md",
+            "relevance": 0,
+            "relevance_note": "与当前问题无关"
+          },
+          {
+            "chunk_id": "a4102a62-a707-4857-bd54-c2fe257e917b",
+            "title": "售后服务与退换货政策.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          },
+          {
+            "chunk_id": "3644b62a-f3ef-41f6-a05e-22e028582565",
+            "title": "售后服务与退换货政策.md",
+            "relevance": 1,
+            "relevance_note": "主题相关，但不能直接支撑答案"
+          },
+          {
+            "chunk_id": "e10d97a9-4bbb-4f4a-8ae3-aa925dfb3500",
+            "title": "平台交易规则与买家保障.md",
+            "relevance": 0,
+            "relevance_note": "与当前问题无关"
+          },
+          {
+            "chunk_id": "e9e6d7a8-cc63-4f92-80cd-90b42cafc5bd",
+            "title": "仓储物流与发货履约SLA.md",
+            "relevance": 0,
+            "relevance_note": "与当前问题无关"
+          }
+        ]
+      }
+    ]
+  },
+  "costs": {
+    "pricing_snapshot": {
+      "currency": "CNY",
+      "region": "DeepSeek中国区与百炼北京地域",
+      "queried_at": "2026-08-18",
+      "source": "DeepSeek官方价格页 https://api-docs.deepseek.com/zh-cn/quick_start/pricing；阿里云百炼知识库计费说明 https://help.aliyun.com/zh/model-studio/billing-for-knowledge-base",
+      "rates": {
+        "llm_cache_hit_input_per_million": 0.025,
+        "llm_cache_miss_input_per_million": 3.0,
+        "llm_output_per_million": 6.0,
+        "qwen_rerank_per_thousand_tokens": 0.0005
+      }
+    },
+    "llm": {
+      "usage": {
+        "input_tokens": 85957,
+        "output_tokens": 97781,
+        "total_tokens": 183738,
+        "cache_hit_input_tokens": 83456,
+        "cache_miss_input_tokens": 2501
+      },
+      "theoretical_cost_cny": 0.5962754000000001,
+      "average_cost_per_request_cny": 0.017036440000000003,
+      "estimated_cost_per_1000_requests_cny": 17.036440000000002
+    },
+    "qwen3": {
+      "usage": {
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 69756,
+        "cache_hit_input_tokens": 0,
+        "cache_miss_input_tokens": 0
+      },
+      "theoretical_cost_cny": 0.034878,
+      "average_cost_per_request_cny": 0.0009688333333333333,
+      "estimated_cost_per_1000_requests_cny": 0.9688333333333332
+    },
+    "note": "理论成本按标准单价计算，不扣除免费额度、抵扣包或活动优惠。"
+  }
+}

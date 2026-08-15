@@ -19,26 +19,33 @@ from app.providers.rerank.noop import NoopRerankProvider
 from app.providers.rerank.qwen3 import Qwen3RerankProvider
 from app.providers.vectorstores.pgvector import PgVectorStore
 from app.repositories.chunk_repository import ChunkRepository
+from app.repositories.index_version_repository import IndexVersionRepository
 from app.repositories.knowledge_base_repository import KnowledgeBaseRepository
 from app.repositories.retrieval_log_repository import RetrievalLogRepository
 from app.repositories.tenant_repository import TenantRepository
 from app.schemas.rag import (
     QueryProcessingMetadata,
+    RetrieveContextMetadata,
     RetrieveData,
     RetrievedChunkData,
+    RetrieveGraphInjectionMetadata,
     RetrieveMetadata,
     RetrieveRequest,
     RetrieveRerankMetadata,
 )
+from app.services.context_expansion_service import ContextExpansionService
+from app.services.graph_candidate_expansion_service import GraphCandidateExpansionService
 from app.services.hybrid_search_service import HybridSearchService
 from app.services.multi_kb_fusion_service import MultiKbFusionService
 from app.services.rate_limit_service import get_rate_limit_service
+from app.services.retrieval_candidate_filter import filter_retrieval_candidates
 from app.tenant.plan_resolver import PlanResolver
 from app.tenant.retrieve_policy import resolve_retrieve_request
 from app.utils.id_generator import generate_uuid
 
 logger = get_logger(__name__)
 DEFAULT_RERANK_TOP_N = 5
+DEFAULT_RETRIEVAL_CANDIDATE_K = 20
 
 
 class RagService:
@@ -47,13 +54,24 @@ class RagService:
         self.knowledge_base_repository = KnowledgeBaseRepository(db)
         self.chunk_repository = ChunkRepository(db)
         self.retrieval_log_repository = RetrievalLogRepository(db)
+        self.index_version_repository = IndexVersionRepository(db)
         self.embedding_provider = OpenAICompatibleEmbeddingProvider()
         self.vector_store = PgVectorStore(db)
         self.hybrid_search_service = HybridSearchService()
         self.multi_kb_fusion_service = MultiKbFusionService()
         self.query_processor = QueryProcessorPipeline()
+        self.context_expansion_service = ContextExpansionService(db)
+        self.graph_candidate_expansion_service = GraphCandidateExpansionService(db)
 
-    async def retrieve(self, tenant_id: str, request: RetrieveRequest) -> RetrieveData:
+    async def retrieve(
+        self,
+        tenant_id: str,
+        request: RetrieveRequest,
+        *,
+        index_version_overrides: dict[str, str] | None = None,
+        expand_context: bool | None = None,
+        graph_injection: bool | None = None,
+    ) -> RetrieveData:
         tenant = TenantRepository(self.db).get_by_id(tenant_id)
         if tenant is None:
             raise AppError(
@@ -66,6 +84,12 @@ class RagService:
         resolved_request, tenant_policy = resolve_retrieve_request(request, plan_context)
         kb_ids = resolved_request.kb_ids or []
         knowledge_bases = self._load_knowledge_bases(tenant_id, kb_ids)
+        index_versions = self._resolve_index_versions(
+            tenant_id,
+            knowledge_bases,
+            requested_version=resolved_request.index_version,
+            index_version_overrides=index_version_overrides,
+        )
 
         get_rate_limit_service().check_retrieve(
             tenant_id,
@@ -75,10 +99,11 @@ class RagService:
 
         retrieval_mode = self._get_retrieval_mode(resolved_request)
         top_k = resolved_request.top_k or settings.top_k
+        retrieval_candidate_k = self._get_retrieval_candidate_k(resolved_request, top_k)
         logger.info(
             "BUSINESS_NODE | rag_retrieve_start | tenant_id=%s | kb_ids=%s | user_id=%s | "
             "plan=%s | profile=%s | mode=%s | top_k=%s | retrieval_options=%s | "
-            "rerank_options=%s | query_options=%s",
+            "rerank_options=%s | query_options=%s | index_versions=%s",
             tenant_id,
             kb_ids,
             resolved_request.user_id,
@@ -93,6 +118,7 @@ class RagService:
             if resolved_request.rerank_options
             else None,
             resolved_request.query_options.model_dump() if resolved_request.query_options else None,
+            index_versions,
         )
 
         log_id = generate_uuid()
@@ -120,7 +146,7 @@ class RagService:
         )
 
         retrieval_started_at = perf_counter()
-        per_kb_top_k = self._get_per_kb_top_k(resolved_request, top_k)
+        per_kb_top_k = self._get_per_kb_top_k(resolved_request, retrieval_candidate_k)
 
         try:
             chunks, retrieval_metadata = await self._retrieve_multi_kb(
@@ -129,10 +155,16 @@ class RagService:
                 knowledge_bases=knowledge_bases,
                 search_query=search_query,
                 mode=retrieval_mode,
-                top_k=top_k,
+                top_k=retrieval_candidate_k,
                 per_kb_top_k=per_kb_top_k,
+                index_versions=index_versions,
             )
-            empty_reason = self._resolve_empty_reason(tenant_id, kb_ids, chunks)
+            empty_reason = self._resolve_empty_reason(
+                tenant_id,
+                kb_ids,
+                chunks,
+                index_versions=index_versions,
+            )
             if empty_reason:
                 retrieval_metadata = {**retrieval_metadata, "empty_reason": empty_reason}
         except AppError:
@@ -144,11 +176,44 @@ class RagService:
                 context={"tenant_id": tenant_id, "kb_ids": kb_ids},
             ) from exc
 
+        chunks, candidate_filter_metadata = filter_retrieval_candidates(chunks)
+
+        should_inject_graph = graph_injection
+        if should_inject_graph is None:
+            should_inject_graph = any(version != "v1" for version in index_versions.values())
+        if should_inject_graph:
+            graph_expansion = await self.graph_candidate_expansion_service.expand_candidates(
+                tenant_id=tenant_id,
+                kb_ids=kb_ids,
+                seeds=chunks,
+            )
+            chunks = graph_expansion.candidates
+            graph_injection_metadata = graph_expansion.metadata
+        else:
+            graph_injection_metadata = RetrieveGraphInjectionMetadata(
+                executed=False,
+                candidate_count=len(chunks),
+            )
+
         chunks, rerank_metadata = await self._maybe_rerank(
             request=resolved_request,
             chunks=chunks,
             top_k=min(top_k, len(chunks)) if chunks else top_k,
         )
+
+        if expand_context is False:
+            context_metadata = RetrieveContextMetadata(
+                executed=False,
+                anchor_count=len(chunks),
+            )
+        else:
+            expansion = await self.context_expansion_service.expand(
+                tenant_id=tenant_id,
+                kb_ids=kb_ids,
+                anchors=chunks,
+            )
+            chunks = expansion.anchors
+            context_metadata = expansion.metadata
 
         latency_ms = int((perf_counter() - retrieval_started_at) * 1000)
         observability.record_retrieval(retrieval_metadata, latency_ms=latency_ms)
@@ -201,6 +266,9 @@ class RagService:
                 vector_store=self.vector_store.name,
                 latency_ms=latency_ms,
                 retrieval=retrieval_metadata,
+                candidate_filter=candidate_filter_metadata,
+                graph_injection=graph_injection_metadata,
+                context=context_metadata,
                 rerank=rerank_metadata,
                 query_processing=query_processing,
                 tenant_policy=tenant_policy,
@@ -222,6 +290,38 @@ class RagService:
                 )
             knowledge_bases.append(knowledge_base)
         return knowledge_bases
+
+    def _resolve_index_versions(
+        self,
+        tenant_id: str,
+        knowledge_bases: list[KnowledgeBase],
+        *,
+        requested_version: str | None,
+        index_version_overrides: dict[str, str] | None,
+    ) -> dict[str, str]:
+        resolved: dict[str, str] = {}
+        for knowledge_base in knowledge_bases:
+            if index_version_overrides and knowledge_base.id in index_version_overrides:
+                version = index_version_overrides[knowledge_base.id]
+            elif requested_version:
+                version = requested_version
+            else:
+                version = knowledge_base.active_index_version
+            item = self.index_version_repository.get(tenant_id, knowledge_base.id, version)
+            allowed_statuses = {"active", "ready", "archived"}
+            if item is None or item.status not in allowed_statuses:
+                raise AppError(
+                    ErrorCode.NOT_FOUND,
+                    msg="索引版本不存在或不可查询",
+                    context={
+                        "tenant_id": tenant_id,
+                        "kb_id": knowledge_base.id,
+                        "index_version": version,
+                        "status": item.status if item else None,
+                    },
+                )
+            resolved[knowledge_base.id] = version
+        return resolved
 
     @staticmethod
     def _build_query_context(knowledge_bases: list[KnowledgeBase]) -> KnowledgeBaseQueryContext:
@@ -252,7 +352,11 @@ class RagService:
         mode: str,
         top_k: int,
         per_kb_top_k: int,
+        index_versions: dict[str, str] | None = None,
     ) -> tuple[list[dict], dict]:
+        effective_versions = index_versions or {
+            kb.id: getattr(kb, "active_index_version", "v1") for kb in knowledge_bases
+        }
         tasks = [
             self._retrieve_candidates_for_kb(
                 tenant_id=tenant_id,
@@ -261,6 +365,7 @@ class RagService:
                 search_query=search_query,
                 mode=mode,
                 per_kb_top_k=per_kb_top_k,
+                index_version=effective_versions[kb.id],
             )
             for kb in knowledge_bases
         ]
@@ -372,13 +477,20 @@ class RagService:
             "failed_kb_ids": failed_kb_ids or None,
             "partial_kb_success": partial_kb_success,
             "empty_reason": None,
+            "index_versions": effective_versions,
         }
 
     @staticmethod
-    def _get_per_kb_top_k(request: RetrieveRequest, top_k: int) -> int:
+    def _get_retrieval_candidate_k(request: RetrieveRequest, top_k: int) -> int:
+        if request.retrieval_options and request.retrieval_options.vector_top_k:
+            return max(request.retrieval_options.vector_top_k, top_k, DEFAULT_RETRIEVAL_CANDIDATE_K)
+        return max(top_k, DEFAULT_RETRIEVAL_CANDIDATE_K)
+
+    @staticmethod
+    def _get_per_kb_top_k(request: RetrieveRequest, candidate_k: int) -> int:
         if request.retrieval_options and request.retrieval_options.vector_top_k:
             return request.retrieval_options.vector_top_k
-        return max(top_k, 10)
+        return max(candidate_k, 10)
 
     @staticmethod
     def _build_query_processing_metadata(
@@ -409,6 +521,7 @@ class RagService:
         search_query: str,
         mode: str,
         per_kb_top_k: int,
+        index_version: str = "v1",
     ) -> tuple[list[dict], dict]:
         if mode == "vector":
             vector_chunks = await self._vector_search(
@@ -416,6 +529,7 @@ class RagService:
                 kb_id=kb_id,
                 search_query=search_query,
                 top_k=per_kb_top_k,
+                index_version=index_version,
             )
             return self._mark_vector_chunks(vector_chunks), {
                 "mode": "vector",
@@ -430,6 +544,7 @@ class RagService:
                 "fused_count": len(vector_chunks),
                 "degraded": False,
                 "degraded_reason": None,
+                "index_version": index_version,
             }
 
         if mode == "bm25":
@@ -439,6 +554,7 @@ class RagService:
                 kb_id=kb_id,
                 search_query=search_query,
                 top_k=bm25_top_k,
+                index_version=index_version,
             )
             return self._mark_bm25_chunks(bm25_chunks), {
                 "mode": "bm25",
@@ -453,6 +569,7 @@ class RagService:
                 "fused_count": len(bm25_chunks),
                 "degraded": False,
                 "degraded_reason": None,
+                "index_version": index_version,
             }
 
         if mode != "hybrid":
@@ -489,6 +606,7 @@ class RagService:
                 kb_id=kb_id,
                 search_query=search_query,
                 top_k=vector_top_k,
+                index_version=index_version,
             )
         except Exception as exc:
             vector_failed = True
@@ -510,6 +628,7 @@ class RagService:
                 kb_id=kb_id,
                 search_query=search_query,
                 top_k=bm25_top_k,
+                index_version=index_version,
             )
         except Exception as exc:
             bm25_failed = True
@@ -587,17 +706,34 @@ class RagService:
             "degraded": degraded,
             "degraded_reason": degraded_reason,
             "cost_ms": round(cost_ms, 2),
+            "index_version": index_version,
         }
 
-    def _count_indexed_chunks(self, tenant_id: str, kb_ids: list[str]) -> int:
-        return sum(self.chunk_repository.count_by_kb_id(tenant_id, kb_id) for kb_id in kb_ids)
+    def _count_indexed_chunks(
+        self,
+        tenant_id: str,
+        kb_ids: list[str],
+        index_versions: dict[str, str] | None = None,
+    ) -> int:
+        return sum(
+            self.chunk_repository.count_by_kb_id(
+                tenant_id,
+                kb_id,
+                index_version=index_versions.get(kb_id) if index_versions else None,
+            )
+            for kb_id in kb_ids
+        )
 
     def _resolve_empty_reason(
-        self, tenant_id: str, kb_ids: list[str], chunks: list[dict]
+        self,
+        tenant_id: str,
+        kb_ids: list[str],
+        chunks: list[dict],
+        index_versions: dict[str, str] | None = None,
     ) -> str | None:
         if chunks:
             return None
-        if self._count_indexed_chunks(tenant_id, kb_ids) == 0:
+        if self._count_indexed_chunks(tenant_id, kb_ids, index_versions=index_versions) == 0:
             return "no_indexed_chunks"
         return "no_chunks_matched"
 
@@ -608,12 +744,14 @@ class RagService:
         kb_id: str,
         search_query: str,
         top_k: int,
+        index_version: str = "v1",
     ) -> list[dict]:
         query_vector = await self.embedding_provider.embed_query(search_query)
         chunks = await self.vector_store.similarity_search(
             query_vector,
             tenant_id=tenant_id,
             kb_id=kb_id,
+            index_version=index_version,
             top_k=top_k,
         )
         logger.info(
@@ -633,12 +771,14 @@ class RagService:
         kb_id: str,
         search_query: str,
         top_k: int,
+        index_version: str = "v1",
     ) -> list[dict]:
         provider = self._build_keyword_search_provider()
         return await provider.keyword_search(
             query=search_query,
             tenant_id=tenant_id,
             kb_id=kb_id,
+            index_version=index_version,
             top_k=top_k,
         )
 

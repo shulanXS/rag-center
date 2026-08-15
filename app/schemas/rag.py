@@ -29,6 +29,7 @@ class RetrieveRequest(BaseModel):
     kb_ids: list[str] | None = Field(default=None, min_length=1)
     user_id: str = Field(min_length=1, max_length=128)
     query: str = Field(min_length=1)
+    index_version: str | None = Field(default=None, pattern=r"^v[1-9][0-9]*$")
     profile: RetrieveProfile | None = None
     top_k: int | None = Field(default=None, ge=1, le=50)
     retrieval_options: RetrievalOptions | None = None
@@ -90,6 +91,11 @@ class RetrievedChunkData(BaseModel):
     chunk_id: str
     title: str
     content: str
+    retrieval_text: str | None = None
+    index_version: str = "v1"
+    section_id: str | None = None
+    parent_section_id: str | None = None
+    order_index: int | None = None
     score: float
     vector_score: float | None = None
     bm25_score: float | None = None
@@ -98,6 +104,38 @@ class RetrievedChunkData(BaseModel):
     retrieval_source: str | None = None
     rerank_score: float | None = None
     metadata: dict | None = None
+    context: "RetrievedChunkContext | None" = None
+
+
+class RetrievedChunkContextSource(BaseModel):
+    chunk_id: str
+    relation: Literal[
+        "anchor", "previous", "next", "same_section", "parent_section", "reference"
+    ]
+    content: str | None = None
+    document_id: str | None = None
+    title: str | None = None
+    metadata: dict | None = None
+
+
+class RetrievedChunkContext(BaseModel):
+    content: str
+    chunk_ids: list[str]
+    sources: list[RetrievedChunkContextSource]
+    latency_ms: int | None = None
+    degraded: bool = False
+    error: str | None = None
+
+
+class RetrieveContextMetadata(BaseModel):
+    executed: bool = False
+    anchor_count: int = 0
+    expanded_anchor_count: int = 0
+    supplemental_chunk_count: int = 0
+    deduplicated_count: int = 0
+    latency_ms: int = 0
+    degraded: bool = False
+    error: str | None = None
 
 
 class RetrieveRerankMetadata(BaseModel):
@@ -126,6 +164,16 @@ class QueryProcessingMetadata(BaseModel):
     degraded_reason: str | None = None
 
 
+class RetrieveGraphInjectionMetadata(BaseModel):
+    executed: bool = False
+    seed_count: int = 0
+    candidate_count: int = 0
+    injected_count: int = 0
+    latency_ms: int = 0
+    degraded: bool = False
+    error: str | None = None
+
+
 class RetrieveMetadata(BaseModel):
     log_id: str
     trace_id: str | None = None
@@ -133,6 +181,9 @@ class RetrieveMetadata(BaseModel):
     vector_store: str
     latency_ms: int
     retrieval: dict | None = None
+    candidate_filter: dict | None = None
+    graph_injection: RetrieveGraphInjectionMetadata | None = None
+    context: RetrieveContextMetadata | None = None
     rerank: RetrieveRerankMetadata
     query_processing: QueryProcessingMetadata | None = None
     tenant_policy: TenantPolicyMetadata | None = None

@@ -6,9 +6,52 @@ from app.core.auth import TenantContext
 from app.db.session import get_db
 from app.schemas.common import success_response
 from app.schemas.knowledge_base import CreateKnowledgeBaseRequest, UpdateKnowledgeBaseRequest
+from app.services.index_version_service import IndexVersionService
 from app.services.knowledge_base_service import KnowledgeBaseService
 
 router = APIRouter(prefix="/knowledge-bases", tags=["knowledge-bases"])
+
+
+@router.get("/{kb_id}/index-versions")
+def list_index_versions(
+    kb_id: str,
+    db: Session = Depends(get_db),
+    tenant: TenantContext = Depends(get_current_tenant),
+) -> dict:
+    data = IndexVersionService(db).list_versions(tenant.tenant_id, kb_id)
+    return success_response([item.model_dump(mode="json") for item in data])
+
+
+@router.post("/{kb_id}/index-versions/rebuild")
+def rebuild_index_version(
+    kb_id: str,
+    db: Session = Depends(get_db),
+    tenant: TenantContext = Depends(get_current_tenant),
+) -> dict:
+    data = IndexVersionService(db).queue_rebuild(tenant.tenant_id, kb_id)
+    return success_response(data.model_dump(mode="json"))
+
+
+@router.post("/{kb_id}/index-versions/{version}/activate")
+def activate_index_version(
+    kb_id: str,
+    version: str,
+    db: Session = Depends(get_db),
+    tenant: TenantContext = Depends(get_current_tenant),
+) -> dict:
+    data = IndexVersionService(db).activate(tenant.tenant_id, kb_id, version)
+    return success_response(data.model_dump(mode="json"))
+
+
+@router.delete("/{kb_id}/index-versions/{version}")
+async def delete_index_version(
+    kb_id: str,
+    version: str,
+    db: Session = Depends(get_db),
+    tenant: TenantContext = Depends(get_current_tenant),
+) -> dict:
+    await IndexVersionService(db).delete_version(tenant.tenant_id, kb_id, version)
+    return success_response(None)
 
 
 @router.get("/tree")

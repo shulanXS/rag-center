@@ -8,6 +8,7 @@ from app.core.logging import get_logger
 from app.providers.parsers.registry import validate_upload_extension
 from app.repositories.chunk_repository import ChunkRepository
 from app.repositories.document_repository import DocumentRepository
+from app.repositories.knowledge_base_repository import KnowledgeBaseRepository
 from app.schemas.document import (
     DocumentDetailData,
     ReindexDocumentData,
@@ -15,9 +16,10 @@ from app.schemas.document import (
     UploadDocumentRequest,
 )
 from app.services.chunk_purge_service import purge_document_chunks
-from app.services.reindex_service import queue_document_reindex
+from app.services.index_version_service import IndexVersionService
 from app.services.indexing_service import create_indexing_service
 from app.services.quota_service import QuotaService
+from app.services.reindex_service import queue_document_reindex
 from app.tasks.indexing import index_document_task
 from app.utils.document_storage import save_document_file
 from app.utils.id_generator import generate_uuid
@@ -31,6 +33,7 @@ class DocumentService:
         self.db = db
         self.document_repository = DocumentRepository(db)
         self.chunk_repository = ChunkRepository(db)
+        self.knowledge_base_repository = KnowledgeBaseRepository(db)
 
     async def upload(self, tenant_id: str, request: UploadDocumentRequest) -> UploadDocumentData:
         QuotaService(self.db).check_upload_document(tenant_id, request.kb_id)
@@ -92,7 +95,12 @@ class DocumentService:
 
     def get_detail(self, tenant_id: str, document_id: str) -> DocumentDetailData:
         document = self._get_document_or_raise(tenant_id, document_id)
-        chunk_count = self.chunk_repository.count_by_document_id(document_id)
+        knowledge_base = self.knowledge_base_repository.get_by_id_and_tenant(
+            document.kb_id,
+            tenant_id,
+        )
+        index_version = knowledge_base.active_index_version if knowledge_base else "v1"
+        chunk_count = self.chunk_repository.count_by_document_id(document_id, index_version)
         return DocumentDetailData(
             document_id=document.id,
             kb_id=document.kb_id,
@@ -108,6 +116,7 @@ class DocumentService:
 
     async def delete(self, tenant_id: str, document_id: str) -> None:
         document = self._get_document_or_raise(tenant_id, document_id)
+        IndexVersionService(self.db).ensure_not_building(tenant_id, document.kb_id)
         if document.status == DocumentStatus.PROCESSING:
             raise AppError(
                 ErrorCode.DOCUMENT_PROCESSING,
@@ -125,6 +134,7 @@ class DocumentService:
 
     async def reindex(self, tenant_id: str, document_id: str, *, reparse: bool = False) -> ReindexDocumentData:
         document = self._get_document_or_raise(tenant_id, document_id)
+        IndexVersionService(self.db).ensure_not_building(tenant_id, document.kb_id)
         if document.status == DocumentStatus.PROCESSING:
             raise AppError(
                 ErrorCode.DOCUMENT_PROCESSING,
