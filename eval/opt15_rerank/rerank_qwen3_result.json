@@ -1,0 +1,986 @@
+{
+  "status": "completed",
+  "generated_at": "2026-08-15T02:19:33.942476+00:00",
+  "dataset": "ecommerce_retrieval_comparison",
+  "dataset_created_at": "2026-08-14T07:18:09.432146+00:00",
+  "provider": "qwen3",
+  "model": "qwen3-rerank",
+  "base_url_host": "llm-mxaxvlhne02nkjyd.cn-beijing.maas.aliyuncs.com",
+  "repeat": 3,
+  "warmup": 1,
+  "summary": {
+    "case_count": 8,
+    "request_count": 24,
+    "successful_requests": 24,
+    "failed_requests": 0,
+    "success_rate": 1.0,
+    "degraded_rate": 0.0,
+    "p50_latency_ms": 918.2435,
+    "p95_latency_ms": 1979.2490999999998,
+    "max_latency_ms": 2256.672,
+    "mean_latency_ms": 1126.10275,
+    "top5_consistency": 1.0
+  },
+  "cases": [
+    {
+      "id": "coupon_stack",
+      "question": "满减和优惠券能叠加吗？",
+      "warmups": [
+        {
+          "iteration": 1,
+          "success": true,
+          "latency_ms": 774.385,
+          "rankings": [
+            {
+              "chunk_id": "1d8ddcc2-1cb3-4553-b16f-da7b7040655e",
+              "rerank_score": 0.8057924151810156
+            },
+            {
+              "chunk_id": "7e4e7299-279e-4222-97dc-0b5e1a4e85aa",
+              "rerank_score": 0.7690699364675588
+            },
+            {
+              "chunk_id": "97906ed2-1ed4-4bac-93bb-d0987faea8a2",
+              "rerank_score": 0.6961981350546107
+            },
+            {
+              "chunk_id": "9eb1f58e-7deb-40e7-8756-eccdd79071e8",
+              "rerank_score": 0.6366952830129393
+            },
+            {
+              "chunk_id": "e4d47aa1-0f8c-43d6-9de3-52b8f5c0c8bb",
+              "rerank_score": 0.6336137019916414
+            }
+          ],
+          "error": null
+        }
+      ],
+      "runs": [
+        {
+          "iteration": 2,
+          "success": true,
+          "latency_ms": 781.235,
+          "rankings": [
+            {
+              "chunk_id": "1d8ddcc2-1cb3-4553-b16f-da7b7040655e",
+              "rerank_score": 0.8057924151810156
+            },
+            {
+              "chunk_id": "7e4e7299-279e-4222-97dc-0b5e1a4e85aa",
+              "rerank_score": 0.7690699364675588
+            },
+            {
+              "chunk_id": "97906ed2-1ed4-4bac-93bb-d0987faea8a2",
+              "rerank_score": 0.6961981350546107
+            },
+            {
+              "chunk_id": "9eb1f58e-7deb-40e7-8756-eccdd79071e8",
+              "rerank_score": 0.6366952830129393
+            },
+            {
+              "chunk_id": "e4d47aa1-0f8c-43d6-9de3-52b8f5c0c8bb",
+              "rerank_score": 0.6336137105981735
+            }
+          ],
+          "error": null
+        },
+        {
+          "iteration": 3,
+          "success": true,
+          "latency_ms": 778.891,
+          "rankings": [
+            {
+              "chunk_id": "1d8ddcc2-1cb3-4553-b16f-da7b7040655e",
+              "rerank_score": 0.8057924151810156
+            },
+            {
+              "chunk_id": "7e4e7299-279e-4222-97dc-0b5e1a4e85aa",
+              "rerank_score": 0.7690699364675588
+            },
+            {
+              "chunk_id": "97906ed2-1ed4-4bac-93bb-d0987faea8a2",
+              "rerank_score": 0.6961981350546107
+            },
+            {
+              "chunk_id": "9eb1f58e-7deb-40e7-8756-eccdd79071e8",
+              "rerank_score": 0.6366952830129393
+            },
+            {
+              "chunk_id": "e4d47aa1-0f8c-43d6-9de3-52b8f5c0c8bb",
+              "rerank_score": 0.6336137105981735
+            }
+          ],
+          "error": null
+        },
+        {
+          "iteration": 4,
+          "success": true,
+          "latency_ms": 810.429,
+          "rankings": [
+            {
+              "chunk_id": "1d8ddcc2-1cb3-4553-b16f-da7b7040655e",
+              "rerank_score": 0.8057924151810156
+            },
+            {
+              "chunk_id": "7e4e7299-279e-4222-97dc-0b5e1a4e85aa",
+              "rerank_score": 0.7690699364675588
+            },
+            {
+              "chunk_id": "97906ed2-1ed4-4bac-93bb-d0987faea8a2",
+              "rerank_score": 0.6961981350546107
+            },
+            {
+              "chunk_id": "9eb1f58e-7deb-40e7-8756-eccdd79071e8",
+              "rerank_score": 0.6366952830129393
+            },
+            {
+              "chunk_id": "e4d47aa1-0f8c-43d6-9de3-52b8f5c0c8bb",
+              "rerank_score": 0.6336137105981735
+            }
+          ],
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "refund_unshipped",
+      "question": "还没发货可以申请退款吗？",
+      "warmups": [
+        {
+          "iteration": 1,
+          "success": true,
+          "latency_ms": 1486.852,
+          "rankings": [
+            {
+              "chunk_id": "cf6714e3-9e70-4e87-b26d-d67e9e2535c6",
+              "rerank_score": 0.9013943900280657
+            },
+            {
+              "chunk_id": "4216d308-4b7d-4e50-9a37-d4159c325d47",
+              "rerank_score": 0.8761898210675176
+            },
+            {
+              "chunk_id": "05731482-b9c6-404b-ae81-51e32da18f8d",
+              "rerank_score": 0.6054753755127821
+            },
+            {
+              "chunk_id": "7cd540a5-435b-417b-92da-e2b7b903bfbf",
+              "rerank_score": 0.6021331592636814
+            },
+            {
+              "chunk_id": "b5b4c9b8-4bb3-4fb5-8347-876499e13032",
+              "rerank_score": 0.5719778731776154
+            }
+          ],
+          "error": null
+        }
+      ],
+      "runs": [
+        {
+          "iteration": 2,
+          "success": true,
+          "latency_ms": 822.285,
+          "rankings": [
+            {
+              "chunk_id": "cf6714e3-9e70-4e87-b26d-d67e9e2535c6",
+              "rerank_score": 0.9013943900280657
+            },
+            {
+              "chunk_id": "4216d308-4b7d-4e50-9a37-d4159c325d47",
+              "rerank_score": 0.8761898210675176
+            },
+            {
+              "chunk_id": "05731482-b9c6-404b-ae81-51e32da18f8d",
+              "rerank_score": 0.6054753755127821
+            },
+            {
+              "chunk_id": "7cd540a5-435b-417b-92da-e2b7b903bfbf",
+              "rerank_score": 0.6021331592636814
+            },
+            {
+              "chunk_id": "b5b4c9b8-4bb3-4fb5-8347-876499e13032",
+              "rerank_score": 0.5719778731776154
+            }
+          ],
+          "error": null
+        },
+        {
+          "iteration": 3,
+          "success": true,
+          "latency_ms": 713.17,
+          "rankings": [
+            {
+              "chunk_id": "cf6714e3-9e70-4e87-b26d-d67e9e2535c6",
+              "rerank_score": 0.9013943900280657
+            },
+            {
+              "chunk_id": "4216d308-4b7d-4e50-9a37-d4159c325d47",
+              "rerank_score": 0.8761898210675176
+            },
+            {
+              "chunk_id": "05731482-b9c6-404b-ae81-51e32da18f8d",
+              "rerank_score": 0.6054753755127821
+            },
+            {
+              "chunk_id": "7cd540a5-435b-417b-92da-e2b7b903bfbf",
+              "rerank_score": 0.6021331592636814
+            },
+            {
+              "chunk_id": "b5b4c9b8-4bb3-4fb5-8347-876499e13032",
+              "rerank_score": 0.5719778731776154
+            }
+          ],
+          "error": null
+        },
+        {
+          "iteration": 4,
+          "success": true,
+          "latency_ms": 1091.89,
+          "rankings": [
+            {
+              "chunk_id": "cf6714e3-9e70-4e87-b26d-d67e9e2535c6",
+              "rerank_score": 0.9013943900280657
+            },
+            {
+              "chunk_id": "4216d308-4b7d-4e50-9a37-d4159c325d47",
+              "rerank_score": 0.8761898210675176
+            },
+            {
+              "chunk_id": "05731482-b9c6-404b-ae81-51e32da18f8d",
+              "rerank_score": 0.6054753755127821
+            },
+            {
+              "chunk_id": "7cd540a5-435b-417b-92da-e2b7b903bfbf",
+              "rerank_score": 0.6021331592636814
+            },
+            {
+              "chunk_id": "b5b4c9b8-4bb3-4fb5-8347-876499e13032",
+              "rerank_score": 0.5719778731776154
+            }
+          ],
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "shipping_sla",
+      "question": "现货订单多久必须揽收？",
+      "warmups": [
+        {
+          "iteration": 1,
+          "success": true,
+          "latency_ms": 1246.765,
+          "rankings": [
+            {
+              "chunk_id": "b5b4c9b8-4bb3-4fb5-8347-876499e13032",
+              "rerank_score": 0.9051342295518781
+            },
+            {
+              "chunk_id": "7cd540a5-435b-417b-92da-e2b7b903bfbf",
+              "rerank_score": 0.8138786688138843
+            },
+            {
+              "chunk_id": "bf9d4115-e047-4ca2-b7cd-4492399006ae",
+              "rerank_score": 0.7619156961054557
+            },
+            {
+              "chunk_id": "927259e0-44df-4070-ab11-6b26b204d365",
+              "rerank_score": 0.6484486409293329
+            },
+            {
+              "chunk_id": "cf6714e3-9e70-4e87-b26d-d67e9e2535c6",
+              "rerank_score": 0.63451961459896
+            }
+          ],
+          "error": null
+        }
+      ],
+      "runs": [
+        {
+          "iteration": 2,
+          "success": true,
+          "latency_ms": 929.243,
+          "rankings": [
+            {
+              "chunk_id": "b5b4c9b8-4bb3-4fb5-8347-876499e13032",
+              "rerank_score": 0.9051342295518781
+            },
+            {
+              "chunk_id": "7cd540a5-435b-417b-92da-e2b7b903bfbf",
+              "rerank_score": 0.8138786688138843
+            },
+            {
+              "chunk_id": "bf9d4115-e047-4ca2-b7cd-4492399006ae",
+              "rerank_score": 0.7619156961054557
+            },
+            {
+              "chunk_id": "927259e0-44df-4070-ab11-6b26b204d365",
+              "rerank_score": 0.6484486409293329
+            },
+            {
+              "chunk_id": "cf6714e3-9e70-4e87-b26d-d67e9e2535c6",
+              "rerank_score": 0.63451961459896
+            }
+          ],
+          "error": null
+        },
+        {
+          "iteration": 3,
+          "success": true,
+          "latency_ms": 1633.638,
+          "rankings": [
+            {
+              "chunk_id": "b5b4c9b8-4bb3-4fb5-8347-876499e13032",
+              "rerank_score": 0.9051342295518781
+            },
+            {
+              "chunk_id": "7cd540a5-435b-417b-92da-e2b7b903bfbf",
+              "rerank_score": 0.8138786688138843
+            },
+            {
+              "chunk_id": "bf9d4115-e047-4ca2-b7cd-4492399006ae",
+              "rerank_score": 0.7619156961054557
+            },
+            {
+              "chunk_id": "927259e0-44df-4070-ab11-6b26b204d365",
+              "rerank_score": 0.6484486409293329
+            },
+            {
+              "chunk_id": "cf6714e3-9e70-4e87-b26d-d67e9e2535c6",
+              "rerank_score": 0.63451961459896
+            }
+          ],
+          "error": null
+        },
+        {
+          "iteration": 4,
+          "success": true,
+          "latency_ms": 1987.857,
+          "rankings": [
+            {
+              "chunk_id": "b5b4c9b8-4bb3-4fb5-8347-876499e13032",
+              "rerank_score": 0.9051342295518781
+            },
+            {
+              "chunk_id": "7cd540a5-435b-417b-92da-e2b7b903bfbf",
+              "rerank_score": 0.8138786688138843
+            },
+            {
+              "chunk_id": "bf9d4115-e047-4ca2-b7cd-4492399006ae",
+              "rerank_score": 0.7619156961054557
+            },
+            {
+              "chunk_id": "927259e0-44df-4070-ab11-6b26b204d365",
+              "rerank_score": 0.6484486409293329
+            },
+            {
+              "chunk_id": "cf6714e3-9e70-4e87-b26d-d67e9e2535c6",
+              "rerank_score": 0.63451961459896
+            }
+          ],
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "price_protection",
+      "question": "买贵了可以价保退差价吗？",
+      "warmups": [
+        {
+          "iteration": 1,
+          "success": true,
+          "latency_ms": 845.317,
+          "rankings": [
+            {
+              "chunk_id": "3237a786-493b-4bb1-b0d6-2b4505f38a29",
+              "rerank_score": 0.8758128928468805
+            },
+            {
+              "chunk_id": "db5da2da-f40e-40e8-bc34-dc7c1ce4f2e4",
+              "rerank_score": 0.5911964972525054
+            },
+            {
+              "chunk_id": "9f486659-950e-4c43-a289-9fa603211065",
+              "rerank_score": 0.5418253849839678
+            },
+            {
+              "chunk_id": "70dc7093-402f-4f60-b664-40eab1ab7caa",
+              "rerank_score": 0.5321372674541499
+            },
+            {
+              "chunk_id": "49f6adf5-36b6-441e-ba94-5c1da288a7eb",
+              "rerank_score": 0.5097681570696881
+            }
+          ],
+          "error": null
+        }
+      ],
+      "runs": [
+        {
+          "iteration": 2,
+          "success": true,
+          "latency_ms": 677.315,
+          "rankings": [
+            {
+              "chunk_id": "3237a786-493b-4bb1-b0d6-2b4505f38a29",
+              "rerank_score": 0.8758128928468805
+            },
+            {
+              "chunk_id": "db5da2da-f40e-40e8-bc34-dc7c1ce4f2e4",
+              "rerank_score": 0.5911965033625626
+            },
+            {
+              "chunk_id": "9f486659-950e-4c43-a289-9fa603211065",
+              "rerank_score": 0.5418253849839678
+            },
+            {
+              "chunk_id": "70dc7093-402f-4f60-b664-40eab1ab7caa",
+              "rerank_score": 0.5321372674541499
+            },
+            {
+              "chunk_id": "49f6adf5-36b6-441e-ba94-5c1da288a7eb",
+              "rerank_score": 0.5097681570696881
+            }
+          ],
+          "error": null
+        },
+        {
+          "iteration": 3,
+          "success": true,
+          "latency_ms": 728.684,
+          "rankings": [
+            {
+              "chunk_id": "3237a786-493b-4bb1-b0d6-2b4505f38a29",
+              "rerank_score": 0.8758128928468805
+            },
+            {
+              "chunk_id": "db5da2da-f40e-40e8-bc34-dc7c1ce4f2e4",
+              "rerank_score": 0.5911965033625626
+            },
+            {
+              "chunk_id": "9f486659-950e-4c43-a289-9fa603211065",
+              "rerank_score": 0.5418253849839678
+            },
+            {
+              "chunk_id": "70dc7093-402f-4f60-b664-40eab1ab7caa",
+              "rerank_score": 0.5321372674541499
+            },
+            {
+              "chunk_id": "49f6adf5-36b6-441e-ba94-5c1da288a7eb",
+              "rerank_score": 0.5097681570696881
+            }
+          ],
+          "error": null
+        },
+        {
+          "iteration": 4,
+          "success": true,
+          "latency_ms": 1930.471,
+          "rankings": [
+            {
+              "chunk_id": "3237a786-493b-4bb1-b0d6-2b4505f38a29",
+              "rerank_score": 0.8758128928468805
+            },
+            {
+              "chunk_id": "db5da2da-f40e-40e8-bc34-dc7c1ce4f2e4",
+              "rerank_score": 0.5911965033625626
+            },
+            {
+              "chunk_id": "9f486659-950e-4c43-a289-9fa603211065",
+              "rerank_score": 0.5418253849839678
+            },
+            {
+              "chunk_id": "70dc7093-402f-4f60-b664-40eab1ab7caa",
+              "rerank_score": 0.5321372674541499
+            },
+            {
+              "chunk_id": "49f6adf5-36b6-441e-ba94-5c1da288a7eb",
+              "rerank_score": 0.5097681570696881
+            }
+          ],
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "coupon_expire",
+      "question": "优惠券过期还能用吗？",
+      "warmups": [
+        {
+          "iteration": 1,
+          "success": true,
+          "latency_ms": 1207.252,
+          "rankings": [
+            {
+              "chunk_id": "39d574a5-50fb-46c4-b6e4-8705d1c733a2",
+              "rerank_score": 0.7496207104003684
+            },
+            {
+              "chunk_id": "9eb1f58e-7deb-40e7-8756-eccdd79071e8",
+              "rerank_score": 0.6501910474479226
+            },
+            {
+              "chunk_id": "db5da2da-f40e-40e8-bc34-dc7c1ce4f2e4",
+              "rerank_score": 0.6329616008974435
+            },
+            {
+              "chunk_id": "13f13d69-54df-4421-bba8-a1ab4c31284a",
+              "rerank_score": 0.611436543599399
+            },
+            {
+              "chunk_id": "7e4e7299-279e-4222-97dc-0b5e1a4e85aa",
+              "rerank_score": 0.5687657012249012
+            }
+          ],
+          "error": null
+        }
+      ],
+      "runs": [
+        {
+          "iteration": 2,
+          "success": true,
+          "latency_ms": 1844.034,
+          "rankings": [
+            {
+              "chunk_id": "39d574a5-50fb-46c4-b6e4-8705d1c733a2",
+              "rerank_score": 0.7496207104003684
+            },
+            {
+              "chunk_id": "9eb1f58e-7deb-40e7-8756-eccdd79071e8",
+              "rerank_score": 0.6501910474479226
+            },
+            {
+              "chunk_id": "db5da2da-f40e-40e8-bc34-dc7c1ce4f2e4",
+              "rerank_score": 0.632961609638448
+            },
+            {
+              "chunk_id": "13f13d69-54df-4421-bba8-a1ab4c31284a",
+              "rerank_score": 0.611436543599399
+            },
+            {
+              "chunk_id": "7e4e7299-279e-4222-97dc-0b5e1a4e85aa",
+              "rerank_score": 0.5687657012249012
+            }
+          ],
+          "error": null
+        },
+        {
+          "iteration": 3,
+          "success": true,
+          "latency_ms": 1258.935,
+          "rankings": [
+            {
+              "chunk_id": "39d574a5-50fb-46c4-b6e4-8705d1c733a2",
+              "rerank_score": 0.7496207104003684
+            },
+            {
+              "chunk_id": "9eb1f58e-7deb-40e7-8756-eccdd79071e8",
+              "rerank_score": 0.6501910474479226
+            },
+            {
+              "chunk_id": "db5da2da-f40e-40e8-bc34-dc7c1ce4f2e4",
+              "rerank_score": 0.632961609638448
+            },
+            {
+              "chunk_id": "13f13d69-54df-4421-bba8-a1ab4c31284a",
+              "rerank_score": 0.611436543599399
+            },
+            {
+              "chunk_id": "7e4e7299-279e-4222-97dc-0b5e1a4e85aa",
+              "rerank_score": 0.5687657012249012
+            }
+          ],
+          "error": null
+        },
+        {
+          "iteration": 4,
+          "success": true,
+          "latency_ms": 965.685,
+          "rankings": [
+            {
+              "chunk_id": "39d574a5-50fb-46c4-b6e4-8705d1c733a2",
+              "rerank_score": 0.7496207104003684
+            },
+            {
+              "chunk_id": "9eb1f58e-7deb-40e7-8756-eccdd79071e8",
+              "rerank_score": 0.6501910474479226
+            },
+            {
+              "chunk_id": "db5da2da-f40e-40e8-bc34-dc7c1ce4f2e4",
+              "rerank_score": 0.632961609638448
+            },
+            {
+              "chunk_id": "13f13d69-54df-4421-bba8-a1ab4c31284a",
+              "rerank_score": 0.611436543599399
+            },
+            {
+              "chunk_id": "7e4e7299-279e-4222-97dc-0b5e1a4e85aa",
+              "rerank_score": 0.5687657012249012
+            }
+          ],
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "settlement_new_seller",
+      "question": "新商家货款多久结算？",
+      "warmups": [
+        {
+          "iteration": 1,
+          "success": true,
+          "latency_ms": 1033.897,
+          "rankings": [
+            {
+              "chunk_id": "3b65c48e-70ec-4819-b379-cdac1f6ad8ac",
+              "rerank_score": 0.8799697855776394
+            },
+            {
+              "chunk_id": "927259e0-44df-4070-ab11-6b26b204d365",
+              "rerank_score": 0.7272097558366305
+            },
+            {
+              "chunk_id": "ef54b244-9e9a-499f-8efe-2767ead38810",
+              "rerank_score": 0.639398608844651
+            },
+            {
+              "chunk_id": "7b4c6613-4fda-4767-a6bb-e4888abf4303",
+              "rerank_score": 0.6380230718415018
+            },
+            {
+              "chunk_id": "50a76630-1f1c-4cff-ba88-2941d06f4109",
+              "rerank_score": 0.635559740843766
+            }
+          ],
+          "error": null
+        }
+      ],
+      "runs": [
+        {
+          "iteration": 2,
+          "success": true,
+          "latency_ms": 1124.334,
+          "rankings": [
+            {
+              "chunk_id": "3b65c48e-70ec-4819-b379-cdac1f6ad8ac",
+              "rerank_score": 0.8799697855776394
+            },
+            {
+              "chunk_id": "927259e0-44df-4070-ab11-6b26b204d365",
+              "rerank_score": 0.7272097558366305
+            },
+            {
+              "chunk_id": "ef54b244-9e9a-499f-8efe-2767ead38810",
+              "rerank_score": 0.639398608844651
+            },
+            {
+              "chunk_id": "7b4c6613-4fda-4767-a6bb-e4888abf4303",
+              "rerank_score": 0.6380230718415018
+            },
+            {
+              "chunk_id": "50a76630-1f1c-4cff-ba88-2941d06f4109",
+              "rerank_score": 0.635559740843766
+            }
+          ],
+          "error": null
+        },
+        {
+          "iteration": 3,
+          "success": true,
+          "latency_ms": 732.152,
+          "rankings": [
+            {
+              "chunk_id": "3b65c48e-70ec-4819-b379-cdac1f6ad8ac",
+              "rerank_score": 0.8799697855776394
+            },
+            {
+              "chunk_id": "927259e0-44df-4070-ab11-6b26b204d365",
+              "rerank_score": 0.7272097558366305
+            },
+            {
+              "chunk_id": "ef54b244-9e9a-499f-8efe-2767ead38810",
+              "rerank_score": 0.639398608844651
+            },
+            {
+              "chunk_id": "7b4c6613-4fda-4767-a6bb-e4888abf4303",
+              "rerank_score": 0.6380230718415018
+            },
+            {
+              "chunk_id": "50a76630-1f1c-4cff-ba88-2941d06f4109",
+              "rerank_score": 0.635559740843766
+            }
+          ],
+          "error": null
+        },
+        {
+          "iteration": 4,
+          "success": true,
+          "latency_ms": 922.165,
+          "rankings": [
+            {
+              "chunk_id": "3b65c48e-70ec-4819-b379-cdac1f6ad8ac",
+              "rerank_score": 0.8799697855776394
+            },
+            {
+              "chunk_id": "927259e0-44df-4070-ab11-6b26b204d365",
+              "rerank_score": 0.7272097558366305
+            },
+            {
+              "chunk_id": "ef54b244-9e9a-499f-8efe-2767ead38810",
+              "rerank_score": 0.639398608844651
+            },
+            {
+              "chunk_id": "7b4c6613-4fda-4767-a6bb-e4888abf4303",
+              "rerank_score": 0.6380230718415018
+            },
+            {
+              "chunk_id": "50a76630-1f1c-4cff-ba88-2941d06f4109",
+              "rerank_score": 0.635559740843766
+            }
+          ],
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "prohibited_goods",
+      "question": "哪些商品禁止在平台上架？",
+      "warmups": [
+        {
+          "iteration": 1,
+          "success": true,
+          "latency_ms": 1129.189,
+          "rankings": [
+            {
+              "chunk_id": "609eb898-d8bf-4672-910d-77732d312b37",
+              "rerank_score": 0.9184732281455157
+            },
+            {
+              "chunk_id": "e2ece4da-a365-4c20-997e-a012e529d5b0",
+              "rerank_score": 0.6558594191164828
+            },
+            {
+              "chunk_id": "008a547a-347b-499b-a2cd-f2323acff1ec",
+              "rerank_score": 0.642983482711625
+            },
+            {
+              "chunk_id": "827ef002-3b6b-4c71-b37b-7434b0dacee9",
+              "rerank_score": 0.6325490076519168
+            },
+            {
+              "chunk_id": "4fd6d05b-1f29-4bf8-ab54-b4e9921c7958",
+              "rerank_score": 0.623734238090479
+            }
+          ],
+          "error": null
+        }
+      ],
+      "runs": [
+        {
+          "iteration": 2,
+          "success": true,
+          "latency_ms": 731.351,
+          "rankings": [
+            {
+              "chunk_id": "609eb898-d8bf-4672-910d-77732d312b37",
+              "rerank_score": 0.9184732281455157
+            },
+            {
+              "chunk_id": "e2ece4da-a365-4c20-997e-a012e529d5b0",
+              "rerank_score": 0.6558594191164828
+            },
+            {
+              "chunk_id": "008a547a-347b-499b-a2cd-f2323acff1ec",
+              "rerank_score": 0.642983482711625
+            },
+            {
+              "chunk_id": "827ef002-3b6b-4c71-b37b-7434b0dacee9",
+              "rerank_score": 0.6325490076519168
+            },
+            {
+              "chunk_id": "4fd6d05b-1f29-4bf8-ab54-b4e9921c7958",
+              "rerank_score": 0.623734238090479
+            }
+          ],
+          "error": null
+        },
+        {
+          "iteration": 3,
+          "success": true,
+          "latency_ms": 914.322,
+          "rankings": [
+            {
+              "chunk_id": "609eb898-d8bf-4672-910d-77732d312b37",
+              "rerank_score": 0.9184732281455157
+            },
+            {
+              "chunk_id": "e2ece4da-a365-4c20-997e-a012e529d5b0",
+              "rerank_score": 0.6558594191164828
+            },
+            {
+              "chunk_id": "008a547a-347b-499b-a2cd-f2323acff1ec",
+              "rerank_score": 0.642983482711625
+            },
+            {
+              "chunk_id": "827ef002-3b6b-4c71-b37b-7434b0dacee9",
+              "rerank_score": 0.6325490076519168
+            },
+            {
+              "chunk_id": "4fd6d05b-1f29-4bf8-ab54-b4e9921c7958",
+              "rerank_score": 0.623734238090479
+            }
+          ],
+          "error": null
+        },
+        {
+          "iteration": 4,
+          "success": true,
+          "latency_ms": 729.331,
+          "rankings": [
+            {
+              "chunk_id": "609eb898-d8bf-4672-910d-77732d312b37",
+              "rerank_score": 0.9184732281455157
+            },
+            {
+              "chunk_id": "e2ece4da-a365-4c20-997e-a012e529d5b0",
+              "rerank_score": 0.6558594191164828
+            },
+            {
+              "chunk_id": "008a547a-347b-499b-a2cd-f2323acff1ec",
+              "rerank_score": 0.642983482711625
+            },
+            {
+              "chunk_id": "827ef002-3b6b-4c71-b37b-7434b0dacee9",
+              "rerank_score": 0.6325490076519168
+            },
+            {
+              "chunk_id": "4fd6d05b-1f29-4bf8-ab54-b4e9921c7958",
+              "rerank_score": 0.623734238090479
+            }
+          ],
+          "error": null
+        }
+      ]
+    },
+    {
+      "id": "platform_dispute",
+      "question": "买卖纠纷平台多久出裁决？",
+      "warmups": [
+        {
+          "iteration": 1,
+          "success": true,
+          "latency_ms": 808.038,
+          "rankings": [
+            {
+              "chunk_id": "cecded23-bd67-4469-a87f-ac4216f7e253",
+              "rerank_score": 0.9394073842028985
+            },
+            {
+              "chunk_id": "70dc7093-402f-4f60-b664-40eab1ab7caa",
+              "rerank_score": 0.7805047733991337
+            },
+            {
+              "chunk_id": "740f55eb-d3e8-46ab-8aa7-8e6cdda3a03d",
+              "rerank_score": 0.6704055883462003
+            },
+            {
+              "chunk_id": "c0903180-f7f8-44d5-aad9-13f4b6990037",
+              "rerank_score": 0.5982653013409068
+            },
+            {
+              "chunk_id": "4a0a2187-65cd-41b8-a19d-9134153c4cb7",
+              "rerank_score": 0.5583407335116386
+            }
+          ],
+          "error": null
+        }
+      ],
+      "runs": [
+        {
+          "iteration": 2,
+          "success": true,
+          "latency_ms": 1874.151,
+          "rankings": [
+            {
+              "chunk_id": "cecded23-bd67-4469-a87f-ac4216f7e253",
+              "rerank_score": 0.9394073842028985
+            },
+            {
+              "chunk_id": "70dc7093-402f-4f60-b664-40eab1ab7caa",
+              "rerank_score": 0.7805047733991337
+            },
+            {
+              "chunk_id": "740f55eb-d3e8-46ab-8aa7-8e6cdda3a03d",
+              "rerank_score": 0.6704055883462003
+            },
+            {
+              "chunk_id": "c0903180-f7f8-44d5-aad9-13f4b6990037",
+              "rerank_score": 0.5982653013409068
+            },
+            {
+              "chunk_id": "4a0a2187-65cd-41b8-a19d-9134153c4cb7",
+              "rerank_score": 0.5583407335116386
+            }
+          ],
+          "error": null
+        },
+        {
+          "iteration": 3,
+          "success": true,
+          "latency_ms": 788.226,
+          "rankings": [
+            {
+              "chunk_id": "cecded23-bd67-4469-a87f-ac4216f7e253",
+              "rerank_score": 0.9394073842028985
+            },
+            {
+              "chunk_id": "70dc7093-402f-4f60-b664-40eab1ab7caa",
+              "rerank_score": 0.7805047733991337
+            },
+            {
+              "chunk_id": "740f55eb-d3e8-46ab-8aa7-8e6cdda3a03d",
+              "rerank_score": 0.6704055883462003
+            },
+            {
+              "chunk_id": "c0903180-f7f8-44d5-aad9-13f4b6990037",
+              "rerank_score": 0.5982653013409068
+            },
+            {
+              "chunk_id": "4a0a2187-65cd-41b8-a19d-9134153c4cb7",
+              "rerank_score": 0.5583407335116386
+            }
+          ],
+          "error": null
+        },
+        {
+          "iteration": 4,
+          "success": true,
+          "latency_ms": 2256.672,
+          "rankings": [
+            {
+              "chunk_id": "cecded23-bd67-4469-a87f-ac4216f7e253",
+              "rerank_score": 0.9394073842028985
+            },
+            {
+              "chunk_id": "70dc7093-402f-4f60-b664-40eab1ab7caa",
+              "rerank_score": 0.7805047733991337
+            },
+            {
+              "chunk_id": "740f55eb-d3e8-46ab-8aa7-8e6cdda3a03d",
+              "rerank_score": 0.6704055883462003
+            },
+            {
+              "chunk_id": "c0903180-f7f8-44d5-aad9-13f4b6990037",
+              "rerank_score": 0.5982653013409068
+            },
+            {
+              "chunk_id": "4a0a2187-65cd-41b8-a19d-9134153c4cb7",
+              "rerank_score": 0.5583407335116386
+            }
+          ],
+          "error": null
+        }
+      ]
+    }
+  ]
+}
