@@ -14,6 +14,7 @@ class LLMProvider(ABC):
         user_payload: dict,
         temperature: float = 0.0,
         timeout_seconds: int | None = None,
+        log_payload: bool = True,
     ) -> dict:
         pass
 

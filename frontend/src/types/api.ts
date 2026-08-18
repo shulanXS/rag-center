@@ -73,6 +73,7 @@ export interface AuthFeatures {
   allowed_profiles: string[];
   hybrid_allowed: boolean;
   rerank_allowed: boolean;
+  evidence_allowed: boolean;
   query_rewrite_allowed: boolean;
 }
 
@@ -137,6 +138,11 @@ export interface RerankOptions {
   top_n?: number;
 }
 
+export interface EvidenceOptions {
+  enabled?: boolean;
+  max_items?: number;
+}
+
 export interface QueryOptions {
   enabled?: boolean;
   strategy?: "noop" | "rewrite";
@@ -154,6 +160,7 @@ export interface RetrieveRequest {
   top_k?: number;
   retrieval_options?: RetrievalOptions;
   rerank_options?: RerankOptions;
+  evidence_options?: EvidenceOptions;
   query_options?: QueryOptions;
 }
 
@@ -257,6 +264,7 @@ export interface TenantPolicyMetadata {
   retrieve_profile: string;
   effective_mode: string;
   effective_rerank: boolean;
+  effective_evidence: boolean;
   effective_query_rewrite: boolean;
   max_kb_per_retrieve?: number | null;
   actual_kb_count?: number | null;
@@ -286,6 +294,7 @@ export interface RetrieveMetadata {
     error?: string | null;
   } | null;
   rerank: RetrieveRerankMetadata;
+  evidence?: RetrieveEvidenceMetadata;
   query_processing: QueryProcessingMetadata | null;
   tenant_policy?: TenantPolicyMetadata | null;
 }
@@ -295,7 +304,52 @@ export interface RetrieveData {
   kb_id: string;
   kb_ids: string[];
   retrieved_chunks: RetrievedChunkData[];
+  evidence_pack?: EvidencePack | null;
   metadata: RetrieveMetadata;
+}
+
+export type EvidenceRole = "core" | "supporting";
+export type EvidenceStatus = "complete" | "partial" | "missing";
+
+export interface EvidenceItem {
+  evidence_id: string;
+  chunk_id: string;
+  kb_id: string;
+  document_id: string;
+  title: string;
+  heading_path?: string | null;
+  index_version: string;
+  content: string;
+  source: string;
+  retrieved_rank?: number | null;
+}
+
+export interface EvidenceGroup {
+  aspect: string;
+  evidence: Array<{ evidence_id: string; role: EvidenceRole }>;
+  covered: boolean;
+}
+
+export interface EvidencePack {
+  status: EvidenceStatus;
+  missing_aspects: string[];
+  groups: EvidenceGroup[];
+  items: EvidenceItem[];
+}
+
+export interface RetrieveEvidenceMetadata {
+  enabled: boolean;
+  executed: boolean;
+  candidate_count: number;
+  evidence_count: number;
+  output_chars: number;
+  budget_exceeded: boolean;
+  rerank_enabled: boolean;
+  context_sources_included: boolean;
+  status?: EvidenceStatus | null;
+  latency_ms: number;
+  degraded: boolean;
+  error?: string | null;
 }
 
 export interface FeedbackRequest {

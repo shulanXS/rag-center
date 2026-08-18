@@ -19,6 +19,7 @@ import { fetchTree } from "@/services/knowledgeBaseService";
 import { retrieve, submitFeedback } from "@/services/ragService";
 import type {
   AuthFeatures,
+  EvidencePack,
   KnowledgeBaseTreeItem,
   RetrieveData,
   RetrieveProfile,
@@ -46,6 +47,7 @@ const PARAM_TOOLTIPS = {
   bm25_top_k: "混合模式下，关键词检索先捞多少条候选。适合含职级、专有名词等字面匹配的问题。",
   rrf_k: "两路结果合并时的平滑系数。越大靠后名次的结果也有机会排上来；常用 60，一般不用常改。",
   rerank: "用专用精排模型对初筛结果重新打分排序；调试初始召回时可先关掉。",
+  evidence: "从本次已有候选中选择并分组回答所需证据；不会改变检索结果，也不会生成答案。",
   query_rewrite:
     "用 AI 把口语问题改成更好搜的说法；更慢、消耗 LLM，调试时可对比开/关效果。",
 } as const;
@@ -156,6 +158,11 @@ function buildRetrievePayload(
     ? { enabled: true, top_n: form.rerank_top_n }
     : { enabled: false };
 
+  const evidenceEnabled = form.evidence_enabled && features.evidence_allowed;
+  payload.evidence_options = evidenceEnabled
+    ? { enabled: true, max_items: form.evidence_max_items }
+    : { enabled: false };
+
   const queryRewriteEnabled = form.query_rewrite_enabled && features.query_rewrite_allowed;
   payload.query_options = {
     enabled: queryRewriteEnabled,
@@ -175,6 +182,8 @@ interface RetrieveForm {
   rrf_k: number;
   rerank_enabled: boolean;
   rerank_top_n: number;
+  evidence_enabled: boolean;
+  evidence_max_items: number;
   query_rewrite_enabled: boolean;
 }
 
@@ -188,6 +197,8 @@ const defaultForm = (indexVersion = "v2"): RetrieveForm => ({
   rrf_k: 60,
   rerank_enabled: false,
   rerank_top_n: 5,
+  evidence_enabled: false,
+  evidence_max_items: 8,
   query_rewrite_enabled: false,
 });
 
@@ -646,6 +657,46 @@ export function RetrievePage() {
                   </InlineField>
                 ) : null}
               </div>
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                <InlineField label="证据编排" tooltip={PARAM_TOOLTIPS.evidence}>
+                  <label
+                    className={cn(
+                      "flex items-center gap-2 text-sm",
+                      !features?.evidence_allowed && "cursor-not-allowed opacity-50",
+                    )}
+                    title={
+                      !features?.evidence_allowed
+                        ? getProfileDisabledTooltip(tenantInfo?.plan ?? "", "quality")
+                        : undefined
+                    }
+                  >
+                    <input
+                      type="checkbox"
+                      checked={form.evidence_enabled}
+                      disabled={!features?.evidence_allowed}
+                      onChange={(event) =>
+                        updateForm("evidence_enabled", event.target.checked)
+                      }
+                    />
+                    启用
+                  </label>
+                </InlineField>
+                {form.evidence_enabled && features?.evidence_allowed ? (
+                  <InlineField label="最大证据数" htmlFor="retrieve-evidence-max-items">
+                    <Input
+                      id="retrieve-evidence-max-items"
+                      type="number"
+                      min={1}
+                      max={20}
+                      className="h-9 w-20"
+                      value={form.evidence_max_items}
+                      onChange={(event) =>
+                        updateForm("evidence_max_items", Number(event.target.value))
+                      }
+                    />
+                  </InlineField>
+                ) : null}
+              </div>
               </div>
               ) : null}
             </CardContent>
@@ -710,6 +761,12 @@ export function RetrievePage() {
               ) : null}
 
               {result ? <RetrieveResultsList chunks={result.retrieved_chunks} /> : null}
+              {result ? (
+                <EvidencePackCard
+                  pack={result.evidence_pack ?? null}
+                  metadata={result.metadata.evidence}
+                />
+              ) : null}
             </CardContent>
           </Card>
         </form>
@@ -1065,6 +1122,93 @@ function ChunkContextDetails({ chunk }: { chunk: RetrievedChunkData }) {
   );
 }
 
+function EvidencePackCard({
+  pack,
+  metadata,
+}: {
+  pack: EvidencePack | null;
+  metadata: RetrieveData["metadata"]["evidence"];
+}) {
+  if (!metadata?.enabled && !pack) {
+    return null;
+  }
+  const evidenceMetadata = metadata ?? {
+    degraded: false,
+    error: null,
+    candidate_count: 0,
+    evidence_count: pack?.items.length ?? 0,
+    output_chars: pack?.items.reduce((total, item) => total + item.content.length, 0) ?? 0,
+    latency_ms: 0,
+    context_sources_included: false,
+    budget_exceeded: false,
+  };
+  const itemsById = new Map(pack?.items.map((item) => [item.evidence_id, item]) ?? []);
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle>证据包</CardTitle>
+        <Badge>{pack?.status ?? (evidenceMetadata.degraded ? "degraded" : "missing")}</Badge>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {evidenceMetadata.degraded ? (
+          <div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+            证据编排已降级，原检索结果不受影响
+            {evidenceMetadata.error ? `：${evidenceMetadata.error}` : ""}
+          </div>
+        ) : null}
+        {pack?.missing_aspects.length ? (
+          <p className="text-sm text-amber-700">
+            缺失要点：{pack.missing_aspects.join("、")}
+          </p>
+        ) : null}
+        {pack?.groups.map((group) => (
+          <div key={group.aspect} className="space-y-2 rounded-md border p-3">
+            <div className="flex items-center gap-2 font-medium">
+              <span>{group.aspect}</span>
+              <Badge>{group.covered ? "已覆盖" : "未覆盖"}</Badge>
+            </div>
+            {group.evidence.map((reference) => {
+              const item = itemsById.get(reference.evidence_id);
+              if (!item) return null;
+              return (
+                <div
+                  key={`${group.aspect}-${reference.evidence_id}`}
+                  className="rounded border bg-muted/30 p-3"
+                >
+                  <div className="mb-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                    <Badge>{reference.evidence_id}</Badge>
+                    <Badge>{reference.role}</Badge>
+                    <Badge>
+                      {item.retrieved_rank != null
+                        ? `TopK #${item.retrieved_rank}`
+                        : "TopK 外"}
+                    </Badge>
+                    <span>{item.title}</span>
+                    {item.heading_path ? <span>{item.heading_path}</span> : null}
+                    <span>{item.source}</span>
+                  </div>
+                  <MarkdownContent content={item.content} />
+                </div>
+              );
+            })}
+          </div>
+        ))}
+        <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+          <span>候选 {evidenceMetadata.candidate_count}</span>
+          <span>证据 {evidenceMetadata.evidence_count}</span>
+          <span>正文 {evidenceMetadata.output_chars} 字符</span>
+          <span>耗时 {evidenceMetadata.latency_ms} ms</span>
+          {evidenceMetadata.context_sources_included ? <span>已包含 context sources</span> : null}
+          {evidenceMetadata.budget_exceeded ? (
+            <span className="text-amber-700">达到输出预算</span>
+          ) : null}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 function RetrieveSummaryCard({ data }: { data: RetrieveData }) {
   const retrieval = data.metadata.retrieval;
   const rerank = data.metadata.rerank;
@@ -1105,6 +1249,12 @@ function RetrieveSummaryCard({ data }: { data: RetrieveData }) {
                 rerank：
                 <span className="text-foreground">
                   {tenantPolicy.effective_rerank ? "已启用" : "未启用"}
+                </span>
+              </p>
+              <p>
+                证据编排：
+                <span className="text-foreground">
+                  {tenantPolicy.effective_evidence ? "已启用" : "未启用"}
                 </span>
               </p>
               <p>

@@ -1,0 +1,735 @@
+{
+  "name": "opt17_evidence_pack_runs",
+  "generated_at": "2026-08-18T09:52:36.622519+00:00",
+  "dataset": "opt17_evidence_challenge_five",
+  "dataset_annotation_sha256": "daf61e775adcdfc59496f1f9886a138aa0ac629e9bf5e2bf10e51efbd7751f38",
+  "provider": "openai_compatible",
+  "model": "deepseek-v4-pro",
+  "prompt_sha256": "d985fd8630c471a3008e8e3693c5858b7b6b8bc03782e603110a09fca5338007",
+  "parameters": {
+    "repeat": 1,
+    "warmup": 0,
+    "max_items": 8,
+    "timeout_seconds": 60
+  },
+  "cases": [
+    {
+      "id": "live_category_qualification",
+      "question": "直播带货美妆或医疗器械需要哪些额外资质？",
+      "runs": [
+        {
+          "iteration": 1,
+          "warmup": false,
+          "success": true,
+          "degraded": false,
+          "error": null,
+          "latency_ms": 58492,
+          "usage": {
+            "prompt_tokens": 2482,
+            "completion_tokens": 3853,
+            "total_tokens": 6335,
+            "prompt_tokens_details": {
+              "cached_tokens": 2432
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 3762
+            },
+            "prompt_cache_hit_tokens": 2432,
+            "prompt_cache_miss_tokens": 50
+          },
+          "metadata": {
+            "enabled": true,
+            "executed": true,
+            "candidate_count": 10,
+            "evidence_count": 2,
+            "output_chars": 358,
+            "budget_exceeded": false,
+            "rerank_enabled": true,
+            "context_sources_included": false,
+            "status": "partial",
+            "latency_ms": 58492,
+            "degraded": false,
+            "error": null
+          },
+          "evidence_pack": {
+            "status": "partial",
+            "missing_aspects": [
+              "医疗器械直播带货额外资质"
+            ],
+            "groups": [
+              {
+                "aspect": "美妆直播带货额外资质",
+                "evidence": [
+                  {
+                    "evidence_id": "E1",
+                    "role": "core"
+                  },
+                  {
+                    "evidence_id": "E2",
+                    "role": "supporting"
+                  }
+                ],
+                "covered": true
+              },
+              {
+                "aspect": "医疗器械直播带货额外资质",
+                "evidence": [],
+                "covered": false
+              }
+            ],
+            "items": [
+              {
+                "evidence_id": "E1",
+                "chunk_id": "44159d28-676b-40c1-a84f-34b8e4ac6c18",
+                "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+                "document_id": "4b932e57-a65e-46c8-b8c9-fa9637fd40cd",
+                "title": "商品上架与类目合规规范.md",
+                "heading_path": "商品上架与类目合规规范/3. 类目资质对照（示例）",
+                "index_version": "v2",
+                "content": "【表头】类目 | 必备资质\n| 类目 | 必备资质 |\n|------|----------|\n| 食品 | SC 编号、生产许可证、质检报告 |\n| 3C 数码 | CCC 认证（目录内产品） |\n| 化妆品 | 备案/注册凭证、成分表 |\n| 婴幼儿配方乳粉 | 配方注册证书 |\n| 出版物 | ISBN、出版许可证 |\n\n资质到期前 **30 天**系统提醒，过期 **自动下架** 相关 SKU。",
+                "source": "hybrid",
+                "retrieved_rank": null
+              },
+              {
+                "evidence_id": "E2",
+                "chunk_id": "6400b836-5cf1-43fc-89b8-a2f57e5629d2",
+                "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+                "document_id": "bdf47657-fec9-4112-a059-08abc6431696",
+                "title": "直播带货与内容营销合规.md",
+                "heading_path": "直播带货与内容营销合规/2. 开播与账号要求",
+                "index_version": "v2",
+                "content": "- 实名认证；商家直播须绑定已入驻店铺；\n- 达人带货须完成 **带货权限** 申请，部分类目需额外资质（食品、美妆、医疗器械宣传等）；\n- 未成年人 **不得**作为直播带货主播或诱导消费对象进行营销话术。\n\n> 关联规则：部分类目所需资质，参见《商品上架与类目合规规范》第 3 节“类目资质对照（示例）”。",
+                "source": "hybrid",
+                "retrieved_rank": 1
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "live_campaign_shipping",
+      "question": "大场直播产生的大促订单多久要发货，超时如何处理？",
+      "runs": [
+        {
+          "iteration": 1,
+          "warmup": false,
+          "success": true,
+          "degraded": false,
+          "error": null,
+          "latency_ms": 30173,
+          "usage": {
+            "prompt_tokens": 2551,
+            "completion_tokens": 1666,
+            "total_tokens": 4217,
+            "prompt_tokens_details": {
+              "cached_tokens": 2432
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 1535
+            },
+            "prompt_cache_hit_tokens": 2432,
+            "prompt_cache_miss_tokens": 119
+          },
+          "metadata": {
+            "enabled": true,
+            "executed": true,
+            "candidate_count": 10,
+            "evidence_count": 2,
+            "output_chars": 446,
+            "budget_exceeded": false,
+            "rerank_enabled": true,
+            "context_sources_included": false,
+            "status": "complete",
+            "latency_ms": 30173,
+            "degraded": false,
+            "error": null
+          },
+          "evidence_pack": {
+            "status": "complete",
+            "missing_aspects": [],
+            "groups": [
+              {
+                "aspect": "大场直播大促订单发货时限",
+                "evidence": [
+                  {
+                    "evidence_id": "E1",
+                    "role": "supporting"
+                  },
+                  {
+                    "evidence_id": "E2",
+                    "role": "core"
+                  }
+                ],
+                "covered": true
+              },
+              {
+                "aspect": "超时处理规则",
+                "evidence": [
+                  {
+                    "evidence_id": "E2",
+                    "role": "core"
+                  },
+                  {
+                    "evidence_id": "E1",
+                    "role": "supporting"
+                  }
+                ],
+                "covered": true
+              }
+            ],
+            "items": [
+              {
+                "evidence_id": "E1",
+                "chunk_id": "c4c6be7a-ef36-4a1d-99e9-eff07b442873",
+                "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+                "document_id": "bdf47657-fec9-4112-a059-08abc6431696",
+                "title": "直播带货与内容营销合规.md",
+                "heading_path": "直播带货与内容营销合规/5. 直播间交易特殊规则",
+                "index_version": "v2",
+                "content": "- **秒杀库存：** 独立库存，售罄须立即下架挂车，禁止继续收款后拒单；\n- **讲解优惠：** 直播专享券须设置正确门槛与有效期，避免「口播有券、下单无券」；\n- **延迟发货：** 大场直播订单适用活动发货 SLA；超时按平台规则赔付；\n- **翻车处置：** 严重货不对板，平台可 **全员退款**、暂停直播权限，并追溯佣金。\n\n> 关联规则：普通及预售订单的履约时限参见《仓储物流与发货履约 SLA》第 2 节“发货 SLA”；大促订单另参见《促销活动与优惠券使用规则》第 5 节“大促商家规则（节选）”。",
+                "source": "hybrid",
+                "retrieved_rank": 1
+              },
+              {
+                "evidence_id": "E2",
+                "chunk_id": "be592533-2534-499a-ad02-ed0888908d52",
+                "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+                "document_id": "8b484755-a80d-44a2-85c0-0b21e53247bc",
+                "title": "促销活动与优惠券使用规则.md",
+                "heading_path": "促销活动与优惠券使用规则/5. 大促商家规则（节选）",
+                "index_version": "v2",
+                "content": "**报名门槛：**\n\n- 店铺 DSR ≥4.6，近 30 天纠纷率 ≤1%；\n- 活动价须低于近 **30 天**最低成交价（部分类目要求 60 天）；\n- 库存须 ≥活动承诺量，**虚假库存**处罚下架。\n\n**发货要求：**\n\n- 大促订单 **48 小时内**揽收（特殊类目 72 小时）；\n- 延迟发货按 **订单金额 5%** 向买家赔付券（上限 30 元/单）。",
+                "source": "hybrid",
+                "retrieved_rank": 3
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "search_ad_invoice_reconciliation",
+      "question": "广告费账单有差异怎么申诉，广告费发票由谁开？",
+      "runs": [
+        {
+          "iteration": 1,
+          "warmup": false,
+          "success": true,
+          "degraded": false,
+          "error": null,
+          "latency_ms": 35693,
+          "usage": {
+            "prompt_tokens": 2352,
+            "completion_tokens": 2429,
+            "total_tokens": 4781,
+            "prompt_tokens_details": {
+              "cached_tokens": 2304
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 2367
+            },
+            "prompt_cache_hit_tokens": 2304,
+            "prompt_cache_miss_tokens": 48
+          },
+          "metadata": {
+            "enabled": true,
+            "executed": true,
+            "candidate_count": 10,
+            "evidence_count": 3,
+            "output_chars": 535,
+            "budget_exceeded": false,
+            "rerank_enabled": true,
+            "context_sources_included": false,
+            "status": "complete",
+            "latency_ms": 35693,
+            "degraded": false,
+            "error": null
+          },
+          "evidence_pack": {
+            "status": "complete",
+            "missing_aspects": [],
+            "groups": [
+              {
+                "aspect": "广告费账单有差异怎么申诉",
+                "evidence": [
+                  {
+                    "evidence_id": "E1",
+                    "role": "core"
+                  },
+                  {
+                    "evidence_id": "E2",
+                    "role": "supporting"
+                  }
+                ],
+                "covered": true
+              },
+              {
+                "aspect": "广告费发票由谁开",
+                "evidence": [
+                  {
+                    "evidence_id": "E3",
+                    "role": "core"
+                  }
+                ],
+                "covered": true
+              }
+            ],
+            "items": [
+              {
+                "evidence_id": "E1",
+                "chunk_id": "079529f9-bae4-48d6-8917-8d3582ed77da",
+                "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+                "document_id": "872cc351-513b-490f-ac35-c5485de799b1",
+                "title": "搜索推荐与广告投放规则.md",
+                "heading_path": "搜索推荐与广告投放规则/5. 出价、预算与结算",
+                "index_version": "v2",
+                "content": "- 日预算用尽后当日广告 **停投**，次日预算重置后恢复；\n- 点击异常（机器人、连点）由反作弊判定，**无效点击不计费**；\n- 账单：T+1 可查，异议须在账单日后 **7 天内**提出；\n- 发票：广告费按 **6% 或合同税率** 开具，与货款结算分离。\n\n> 关联规则：商家对账流程参见《商家入驻结算与对账流程》第 4 节“对账与提现”；广告费发票参见《商家入驻结算与对账流程》第 6 节“发票与税务”。",
+                "source": "hybrid",
+                "retrieved_rank": 1
+              },
+              {
+                "evidence_id": "E2",
+                "chunk_id": "5142e91c-eb33-4e8a-a88a-2e4a910ca807",
+                "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+                "document_id": "872cc351-513b-490f-ac35-c5485de799b1",
+                "title": "搜索推荐与广告投放规则.md",
+                "heading_path": "搜索推荐与广告投放规则/8. 客服 / 商家运营常见问题",
+                "index_version": "v2",
+                "content": "【表头】问题 | 要点\n| 问题 | 要点 |\n|------|------|\n| 为什么搜不到我的商品 | 查下架、类目错放、严重降权、无库存 |\n| 广告费扣了没展现 | 依次检查本文件第 4 节“投放准入与素材规范”和第 5 节“出价、预算与结算” |\n| 自然流量是不是被广告挤掉 | 广告位与自然位分区，质量差仍难获自然流 |\n| 如何申诉无效点击 | 商业化后台提交，附异常时段与证据 |",
+                "source": "hybrid",
+                "retrieved_rank": 2
+              },
+              {
+                "evidence_id": "E3",
+                "chunk_id": "cb269192-7e36-4a31-9832-174fee8ad306",
+                "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+                "document_id": "d3049f5c-5617-4fe0-98fb-e18a37d45cb7",
+                "title": "商家入驻结算与对账流程.md",
+                "heading_path": "商家入驻结算与对账流程/6. 发票与税务",
+                "index_version": "v2",
+                "content": "- **商家向消费者：** 须按订单金额开具 **电子普通/专用发票**（类目要求专票的商品除外）；\n- **平台向商家：** 佣金、广告费等开具 **6% 技术服务费** 发票；\n- 商家须自行完成 **增值税、所得税** 申报，平台依法报送交易数据。",
+                "source": "hybrid",
+                "retrieved_rank": 3
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "member_points_refund",
+      "question": "积分抵扣订单退款后，积分和现金分别怎么退？",
+      "runs": [
+        {
+          "iteration": 1,
+          "warmup": false,
+          "success": true,
+          "degraded": false,
+          "error": null,
+          "latency_ms": 17676,
+          "usage": {
+            "prompt_tokens": 2677,
+            "completion_tokens": 1003,
+            "total_tokens": 3680,
+            "prompt_tokens_details": {
+              "cached_tokens": 2560
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 916
+            },
+            "prompt_cache_hit_tokens": 2560,
+            "prompt_cache_miss_tokens": 117
+          },
+          "metadata": {
+            "enabled": true,
+            "executed": true,
+            "candidate_count": 10,
+            "evidence_count": 2,
+            "output_chars": 636,
+            "budget_exceeded": false,
+            "rerank_enabled": true,
+            "context_sources_included": false,
+            "status": "complete",
+            "latency_ms": 17676,
+            "degraded": false,
+            "error": null
+          },
+          "evidence_pack": {
+            "status": "complete",
+            "missing_aspects": [],
+            "groups": [
+              {
+                "aspect": "积分退还规则",
+                "evidence": [
+                  {
+                    "evidence_id": "E1",
+                    "role": "core"
+                  }
+                ],
+                "covered": true
+              },
+              {
+                "aspect": "现金退还规则",
+                "evidence": [
+                  {
+                    "evidence_id": "E2",
+                    "role": "core"
+                  }
+                ],
+                "covered": true
+              }
+            ],
+            "items": [
+              {
+                "evidence_id": "E1",
+                "chunk_id": "779b77ca-dcb0-4de1-9eaf-d2279a876f34",
+                "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+                "document_id": "185b2ef5-15f7-4983-95ef-4a5a1875ae0a",
+                "title": "会员体系与积分权益说明.md",
+                "heading_path": "会员体系与积分权益说明/2. 积分规则/2.2 使用与有效期",
+                "index_version": "v2",
+                "content": "- **抵扣比例：** 默认 100 积分 = 1 元，单笔最多抵扣实付的 **20%**（特殊活动除外）；\n- **不可用于：** 充值类、虚拟卡密、部分国际站订单；\n- **有效期：** 自获取日起 **12 个月**，过期清零且不补偿；\n- 退款时：已使用积分按 **抵扣金额等值** 退回积分池（若积分已过期则不退）。\n\n> 关联规则：订单退款的审核及发起时限参见《售后服务与退换货政策》第 4 节“售后时效 SLA”；现金部分的到账路径参见《支付方式与资金安全规范》第 3 节“退款原路退回”。",
+                "source": "hybrid",
+                "retrieved_rank": 1
+              },
+              {
+                "evidence_id": "E2",
+                "chunk_id": "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+                "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+                "document_id": "9b4bac02-5e6f-4d50-b6e2-83dde5ac5269",
+                "title": "支付方式与资金安全规范.md",
+                "heading_path": "支付方式与资金安全规范/3. 退款原路退回",
+                "index_version": "v2",
+                "content": "【表头】原支付方式 | 退回路径 | 到账时效\n| 原支付方式 | 退回路径 | 到账时效 |\n|------------|----------|----------|\n| 微信 / 支付宝 | 原账户 | 即时~24 小时 |\n| 银行卡 | 原卡 | 1~3 工作日（节假日顺延） |\n| 平台余额 | 余额账户 | 即时 |\n| 礼品卡 | 原卡额度 | 即时（过期卡退回余额） |\n| 组合支付 | 按支付比例拆分退回 | 取各通道较长时效 |\n\n**部分退款：** 按商品行实付金额退，已用积分/券按促销与会员规则处理。\n\n> 关联规则：优惠券分类参见《促销活动与优惠券使用规则》第 2 节“优惠券分类”；优惠券能否退回参见《促销活动与优惠券使用规则》第 6 节“客服常见问题应答”；积分退回规则参见《会员体系与积分权益说明》第 2.2 节“使用与有效期”。",
+                "source": "hybrid",
+                "retrieved_rank": 2
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "aftersales_intercept_refund",
+      "question": "商品已经发货但未签收，拦截成功后怎么退款，失败怎么办？",
+      "runs": [
+        {
+          "iteration": 1,
+          "warmup": false,
+          "success": true,
+          "degraded": false,
+          "error": null,
+          "latency_ms": 59434,
+          "usage": {
+            "prompt_tokens": 2483,
+            "completion_tokens": 3232,
+            "total_tokens": 5715,
+            "prompt_tokens_details": {
+              "cached_tokens": 2432
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 3123
+            },
+            "prompt_cache_hit_tokens": 2432,
+            "prompt_cache_miss_tokens": 51
+          },
+          "metadata": {
+            "enabled": true,
+            "executed": true,
+            "candidate_count": 10,
+            "evidence_count": 2,
+            "output_chars": 351,
+            "budget_exceeded": false,
+            "rerank_enabled": true,
+            "context_sources_included": false,
+            "status": "complete",
+            "latency_ms": 59434,
+            "degraded": false,
+            "error": null
+          },
+          "evidence_pack": {
+            "status": "complete",
+            "missing_aspects": [],
+            "groups": [
+              {
+                "aspect": "拦截成功后如何退款",
+                "evidence": [
+                  {
+                    "evidence_id": "E1",
+                    "role": "core"
+                  }
+                ],
+                "covered": true
+              },
+              {
+                "aspect": "拦截失败后的处理方式",
+                "evidence": [
+                  {
+                    "evidence_id": "E1",
+                    "role": "core"
+                  },
+                  {
+                    "evidence_id": "E2",
+                    "role": "supporting"
+                  }
+                ],
+                "covered": true
+              }
+            ],
+            "items": [
+              {
+                "evidence_id": "E1",
+                "chunk_id": "73703d96-4fda-4cab-a2da-7be08461020b",
+                "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+                "document_id": "71785118-9dcb-41cc-97bf-4e8dbf83c27b",
+                "title": "售后服务与退换货政策.md",
+                "heading_path": "售后服务与退换货政策/6. 拒收与拦截",
+                "index_version": "v2",
+                "content": "- **未签收拒收：** 按退货退款处理，运费由责任方承担（无理由拒收通常买家承担）；\n- **快递拦截：** 已发货未签收可申请拦截，成功则退款；失败须按退货流程；\n- 商家不得以「已出库无法拦截」为由拒绝 **未发货仅退款**（以系统揽收节点为准）。\n\n> 关联规则：退货入库、仓库质检和退款触发流程参见《仓储物流与发货履约 SLA》第 6 节“逆向物流（退货）”；未发货订单的极速退款时限参见《平台交易规则与买家保障》第 3.2 节“极速退款”。",
+                "source": "hybrid",
+                "retrieved_rank": 1
+              },
+              {
+                "evidence_id": "E2",
+                "chunk_id": "44d9f1c9-99b3-47b0-8a89-927da0bbb9c0",
+                "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+                "document_id": "ba5cb3bc-e642-4d39-926f-e9736d80d6c4",
+                "title": "仓储物流与发货履约SLA.md",
+                "heading_path": "仓储物流与发货履约 SLA/6. 逆向物流（退货）",
+                "index_version": "v2",
+                "content": "- 消费者寄回：**上门取件**（会员/高价值）或 **自行寄回**（运费险/责任方承担）；\n- 仓库 **签收后 48 小时**内完成质检并触发退款流程；\n- 退货商品 **良品** 重新上架，**残次** 入残品区或销毁（美妆等一次性拆封除外）。",
+                "source": "hybrid",
+                "retrieved_rank": 3
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "comparison": {
+    "name": "opt17_evidence_pack_comparison",
+    "generated_at": "2026-08-18T09:54:30.851747+00:00",
+    "dataset": {
+      "name": "opt17_evidence_challenge_five",
+      "annotation": {
+        "status": "reviewed",
+        "method": "document_grounded_manual_challenge_review",
+        "note": "固定 5 个多要点问题；要点和等价 Chunk 按问题、ground truth 及原文人工核对，不依据本轮 evidence 输出改标。"
+      },
+      "annotation_sha256": "daf61e775adcdfc59496f1f9886a138aa0ac629e9bf5e2bf10e51efbd7751f38",
+      "case_count": 5
+    },
+    "runtime": {
+      "provider": "openai_compatible",
+      "model": "deepseek-v4-pro",
+      "prompt_sha256": "d985fd8630c471a3008e8e3693c5858b7b6b8bc03782e603110a09fca5338007",
+      "parameters": {
+        "repeat": 1,
+        "warmup": 0,
+        "max_items": 8,
+        "timeout_seconds": 60
+      }
+    },
+    "summary": {
+      "baseline_topk_context": {
+        "required_aspect_coverage": 0.9166666666666666,
+        "complete_case_rate": 0.8,
+        "evidence_precision": 0.44,
+        "average_evidence_count": 5.0,
+        "average_evidence_chars": 914.0
+      },
+      "evidence_pack": {
+        "required_aspect_coverage": 0.6666666666666666,
+        "complete_case_rate": 0.2,
+        "evidence_precision": 1.0,
+        "average_evidence_count": 1.4,
+        "average_evidence_chars": 317.6,
+        "status_accuracy": 0.4,
+        "p50_latency_ms": 35693.0,
+        "p95_latency_ms": 59245.6,
+        "success_rate": 1.0,
+        "degraded_rate": 0.0,
+        "evidence_set_consistency": null,
+        "citation_traceability_rate": 1.0,
+        "usage_totals": {
+          "prompt_tokens": 12545,
+          "completion_tokens": 12183,
+          "total_tokens": 24728
+        },
+        "average_theoretical_cost": null,
+        "cost_note": "未配置统一计价参数，不虚构理论成本。"
+      },
+      "outside_topk_gain_case_count": 0,
+      "outside_topk_gain_cases": []
+    },
+    "baseline_cases": [
+      {
+        "id": "live_category_qualification",
+        "covered_aspects": 1,
+        "aspect_count": 2,
+        "complete": false,
+        "precision": 0.2,
+        "status": "partial",
+        "selected_ids": [
+          "15eedd26-ba03-4665-aa67-0768afece9d9",
+          "337710fc-63a7-4067-b301-851de1291994",
+          "6400b836-5cf1-43fc-89b8-a2f57e5629d2",
+          "9feabcb9-b32f-4409-a23c-fc8ebde99408",
+          "bfc4aae9-b04b-482a-a649-f53ca0496e39"
+        ]
+      },
+      {
+        "id": "live_campaign_shipping",
+        "covered_aspects": 3,
+        "aspect_count": 3,
+        "complete": true,
+        "precision": 0.6,
+        "status": "complete",
+        "selected_ids": [
+          "0fb81e95-1221-40af-b4b7-8c6ec4d4919a",
+          "413ec4ca-4474-4c54-a97e-ee642182aa66",
+          "be592533-2534-499a-ad02-ed0888908d52",
+          "c44a8d38-d8ca-46c0-9522-f5813d672e17",
+          "c4c6be7a-ef36-4a1d-99e9-eff07b442873"
+        ]
+      },
+      {
+        "id": "search_ad_invoice_reconciliation",
+        "covered_aspects": 3,
+        "aspect_count": 3,
+        "complete": true,
+        "precision": 0.6,
+        "status": "complete",
+        "selected_ids": [
+          "008fc2ce-e5d7-4895-bbc3-c38d047745e2",
+          "079529f9-bae4-48d6-8917-8d3582ed77da",
+          "5142e91c-eb33-4e8a-a88a-2e4a910ca807",
+          "cb269192-7e36-4a31-9832-174fee8ad306",
+          "da6c6060-b3d8-4966-bc72-129292455044"
+        ]
+      },
+      {
+        "id": "member_points_refund",
+        "covered_aspects": 2,
+        "aspect_count": 2,
+        "complete": true,
+        "precision": 0.4,
+        "status": "complete",
+        "selected_ids": [
+          "176c98b8-a7f5-4c86-a2f0-96752afbf776",
+          "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+          "3c6dfd3c-98f2-46cd-b4b1-639c6125f1c0",
+          "779b77ca-dcb0-4de1-9eaf-d2279a876f34",
+          "95d5e2be-30c0-48da-ae16-df407fbb53d7"
+        ]
+      },
+      {
+        "id": "aftersales_intercept_refund",
+        "covered_aspects": 2,
+        "aspect_count": 2,
+        "complete": true,
+        "precision": 0.4,
+        "status": "complete",
+        "selected_ids": [
+          "3644b62a-f3ef-41f6-a05e-22e028582565",
+          "44d9f1c9-99b3-47b0-8a89-927da0bbb9c0",
+          "73703d96-4fda-4cab-a2da-7be08461020b",
+          "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+          "d02e1d0e-e54c-4ec5-8a1a-082c7e68432d"
+        ]
+      }
+    ],
+    "evidence_runs": [
+      {
+        "id": "live_category_qualification",
+        "iteration": 1,
+        "covered_aspects": 1,
+        "aspect_count": 2,
+        "complete": false,
+        "precision": 1.0,
+        "status": "partial",
+        "predicted_status": "partial",
+        "selected_ids": [
+          "44159d28-676b-40c1-a84f-34b8e4ac6c18"
+        ],
+        "latency_ms": 58492,
+        "success": true,
+        "degraded": false,
+        "error": null
+      },
+      {
+        "id": "live_campaign_shipping",
+        "iteration": 1,
+        "covered_aspects": 2,
+        "aspect_count": 3,
+        "complete": false,
+        "precision": 1.0,
+        "status": "partial",
+        "predicted_status": "complete",
+        "selected_ids": [
+          "be592533-2534-499a-ad02-ed0888908d52"
+        ],
+        "latency_ms": 30173,
+        "success": true,
+        "degraded": false,
+        "error": null
+      },
+      {
+        "id": "search_ad_invoice_reconciliation",
+        "iteration": 1,
+        "covered_aspects": 2,
+        "aspect_count": 3,
+        "complete": false,
+        "precision": 1.0,
+        "status": "partial",
+        "predicted_status": "complete",
+        "selected_ids": [
+          "079529f9-bae4-48d6-8917-8d3582ed77da",
+          "cb269192-7e36-4a31-9832-174fee8ad306"
+        ],
+        "latency_ms": 35693,
+        "success": true,
+        "degraded": false,
+        "error": null
+      },
+      {
+        "id": "member_points_refund",
+        "iteration": 1,
+        "covered_aspects": 2,
+        "aspect_count": 2,
+        "complete": true,
+        "precision": 1.0,
+        "status": "complete",
+        "predicted_status": "complete",
+        "selected_ids": [
+          "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+          "779b77ca-dcb0-4de1-9eaf-d2279a876f34"
+        ],
+        "latency_ms": 17676,
+        "success": true,
+        "degraded": false,
+        "error": null
+      },
+      {
+        "id": "aftersales_intercept_refund",
+        "iteration": 1,
+        "covered_aspects": 1,
+        "aspect_count": 2,
+        "complete": false,
+        "precision": 1.0,
+        "status": "partial",
+        "predicted_status": "complete",
+        "selected_ids": [
+          "73703d96-4fda-4cab-a2da-7be08461020b"
+        ],
+        "latency_ms": 59434,
+        "success": true,
+        "degraded": false,
+        "error": null
+      }
+    ],
+    "degraded_cases": []
+  }
+}

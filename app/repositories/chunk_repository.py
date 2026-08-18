@@ -208,3 +208,23 @@ class ChunkRepository:
             Chunk.kb_id.in_(allowed_kb_ids),
         )
         return list(self.db.scalars(stmt).all())
+
+    def get_by_ids_in_versioned_scope(
+        self,
+        chunk_ids: list[str],
+        *,
+        tenant_id: str,
+        index_versions: dict[str, str],
+    ) -> list[Chunk]:
+        if not chunk_ids or not index_versions:
+            return []
+        version_conditions = [
+            and_(Chunk.kb_id == kb_id, Chunk.index_version == index_version)
+            for kb_id, index_version in index_versions.items()
+        ]
+        stmt = select(Chunk).where(
+            Chunk.id.in_(chunk_ids),
+            Chunk.tenant_id == tenant_id,
+            or_(*version_conditions),
+        )
+        return list(self.db.scalars(stmt).all())

@@ -50,6 +50,9 @@ class Settings(BaseSettings):
     rerank_model: str = "qwen3-rerank"
     rerank_timeout_seconds: int = Field(default=15, ge=1)
 
+    evidence_enabled: bool = False
+    evidence_timeout_seconds: int = Field(default=15, ge=1)
+
     log_level: str = "INFO"
     log_dir: str = "logs"
     log_max_bytes: int = 20 * 1024 * 1024

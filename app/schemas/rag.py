@@ -12,6 +12,11 @@ class RerankOptions(BaseModel):
     top_n: int | None = Field(default=None, ge=1, le=50)
 
 
+class EvidenceOptions(BaseModel):
+    enabled: bool | None = None
+    max_items: int | None = Field(default=None, ge=1, le=20)
+
+
 class RetrievalOptions(BaseModel):
     mode: str | None = Field(default=None, pattern="^(vector|bm25|hybrid)$")
     vector_top_k: int | None = Field(default=None, ge=1, le=50)
@@ -34,6 +39,7 @@ class RetrieveRequest(BaseModel):
     top_k: int | None = Field(default=None, ge=1, le=50)
     retrieval_options: RetrievalOptions | None = None
     rerank_options: RerankOptions | None = None
+    evidence_options: EvidenceOptions | None = None
     query_options: QueryOptions | None = None
 
     @model_validator(mode="after")
@@ -79,6 +85,7 @@ class TenantPolicyMetadata(BaseModel):
     retrieve_profile: str
     effective_mode: str
     effective_rerank: bool
+    effective_evidence: bool
     effective_query_rewrite: bool
     max_kb_per_retrieve: int | None = None
     actual_kb_count: int | None = None
@@ -174,6 +181,56 @@ class RetrieveGraphInjectionMetadata(BaseModel):
     error: str | None = None
 
 
+EvidenceRole = Literal["core", "supporting"]
+EvidenceStatus = Literal["complete", "partial", "missing"]
+
+
+class EvidenceItem(BaseModel):
+    evidence_id: str
+    chunk_id: str
+    kb_id: str
+    document_id: str
+    title: str
+    heading_path: str | None = None
+    index_version: str
+    content: str
+    source: str
+    retrieved_rank: int | None = None
+
+
+class EvidenceGroupItem(BaseModel):
+    evidence_id: str
+    role: EvidenceRole
+
+
+class EvidenceGroup(BaseModel):
+    aspect: str
+    evidence: list[EvidenceGroupItem]
+    covered: bool
+
+
+class EvidencePack(BaseModel):
+    status: EvidenceStatus
+    missing_aspects: list[str] = Field(default_factory=list)
+    groups: list[EvidenceGroup] = Field(default_factory=list)
+    items: list[EvidenceItem] = Field(default_factory=list)
+
+
+class RetrieveEvidenceMetadata(BaseModel):
+    enabled: bool = False
+    executed: bool = False
+    candidate_count: int = 0
+    evidence_count: int = 0
+    output_chars: int = 0
+    budget_exceeded: bool = False
+    rerank_enabled: bool = False
+    context_sources_included: bool = False
+    status: EvidenceStatus | None = None
+    latency_ms: int = 0
+    degraded: bool = False
+    error: str | None = None
+
+
 class RetrieveMetadata(BaseModel):
     log_id: str
     trace_id: str | None = None
@@ -184,6 +241,7 @@ class RetrieveMetadata(BaseModel):
     candidate_filter: dict | None = None
     graph_injection: RetrieveGraphInjectionMetadata | None = None
     context: RetrieveContextMetadata | None = None
+    evidence: RetrieveEvidenceMetadata = Field(default_factory=RetrieveEvidenceMetadata)
     rerank: RetrieveRerankMetadata
     query_processing: QueryProcessingMetadata | None = None
     tenant_policy: TenantPolicyMetadata | None = None
@@ -194,4 +252,5 @@ class RetrieveData(BaseModel):
     kb_id: str
     kb_ids: list[str]
     retrieved_chunks: list[RetrievedChunkData]
+    evidence_pack: EvidencePack | None = None
     metadata: RetrieveMetadata

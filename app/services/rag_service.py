@@ -24,6 +24,7 @@ from app.repositories.knowledge_base_repository import KnowledgeBaseRepository
 from app.repositories.retrieval_log_repository import RetrievalLogRepository
 from app.repositories.tenant_repository import TenantRepository
 from app.schemas.rag import (
+    EvidenceOptions,
     QueryProcessingMetadata,
     RetrieveContextMetadata,
     RetrieveData,
@@ -34,6 +35,7 @@ from app.schemas.rag import (
     RetrieveRerankMetadata,
 )
 from app.services.context_expansion_service import ContextExpansionService
+from app.services.evidence_orchestration_service import EvidenceOrchestrationService
 from app.services.graph_candidate_expansion_service import GraphCandidateExpansionService
 from app.services.hybrid_search_service import HybridSearchService
 from app.services.multi_kb_fusion_service import MultiKbFusionService
@@ -61,6 +63,7 @@ class RagService:
         self.multi_kb_fusion_service = MultiKbFusionService()
         self.query_processor = QueryProcessorPipeline()
         self.context_expansion_service = ContextExpansionService(db)
+        self.evidence_orchestration_service = EvidenceOrchestrationService(db)
         self.graph_candidate_expansion_service = GraphCandidateExpansionService(db)
 
     async def retrieve(
@@ -195,6 +198,7 @@ class RagService:
                 candidate_count=len(chunks),
             )
 
+        candidate_snapshot = [dict(chunk) for chunk in chunks]
         chunks, rerank_metadata = await self._maybe_rerank(
             request=resolved_request,
             chunks=chunks,
@@ -215,6 +219,16 @@ class RagService:
             chunks = expansion.anchors
             context_metadata = expansion.metadata
 
+        evidence_result = await self.evidence_orchestration_service.orchestrate(
+            query=resolved_request.query,
+            tenant_id=tenant_id,
+            kb_ids=kb_ids,
+            index_versions=index_versions,
+            candidates=candidate_snapshot,
+            retrieved_chunks=chunks,
+            options=resolved_request.evidence_options or EvidenceOptions(enabled=False),
+            rerank_enabled=rerank_metadata.enabled,
+        )
         latency_ms = int((perf_counter() - retrieval_started_at) * 1000)
         observability.record_retrieval(retrieval_metadata, latency_ms=latency_ms)
         observability.record_rerank(rerank_metadata.model_dump())
@@ -259,6 +273,7 @@ class RagService:
             kb_id=primary_kb_id,
             kb_ids=kb_ids,
             retrieved_chunks=[RetrievedChunkData(**chunk) for chunk in chunks],
+            evidence_pack=evidence_result.pack,
             metadata=RetrieveMetadata(
                 log_id=log_id,
                 trace_id=observability.trace_id,
@@ -269,6 +284,7 @@ class RagService:
                 candidate_filter=candidate_filter_metadata,
                 graph_injection=graph_injection_metadata,
                 context=context_metadata,
+                evidence=evidence_result.metadata,
                 rerank=rerank_metadata,
                 query_processing=query_processing,
                 tenant_policy=tenant_policy,

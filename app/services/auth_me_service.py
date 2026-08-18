@@ -29,6 +29,7 @@ class AuthMeService:
                     allowed_profiles=["speed"],
                     hybrid_allowed=False,
                     rerank_allowed=False,
+                    evidence_allowed=False,
                     query_rewrite_allowed=False,
                 ),
                 limits=AuthLimits(
@@ -57,6 +58,7 @@ class AuthMeService:
                 allowed_profiles=sorted(features.allowed_profiles),
                 hybrid_allowed=features.hybrid_allowed,
                 rerank_allowed=features.rerank_allowed,
+                evidence_allowed=features.evidence_allowed,
                 query_rewrite_allowed=features.query_rewrite_allowed,
             ),
             limits=AuthLimits(

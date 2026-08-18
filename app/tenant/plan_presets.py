@@ -14,6 +14,7 @@ class PlanFeatures:
     allowed_profiles: frozenset[str]
     hybrid_allowed: bool
     rerank_allowed: bool
+    evidence_allowed: bool
     query_rewrite_allowed: bool
 
 
@@ -39,6 +40,7 @@ PLAN_PRESETS: dict[PlanName, PlanPreset] = {
             allowed_profiles=frozenset({"speed"}),
             hybrid_allowed=False,
             rerank_allowed=False,
+            evidence_allowed=False,
             query_rewrite_allowed=False,
         ),
         limits=PlanLimits(
@@ -55,6 +57,7 @@ PLAN_PRESETS: dict[PlanName, PlanPreset] = {
             allowed_profiles=frozenset({"speed", "balanced", "custom"}),
             hybrid_allowed=True,
             rerank_allowed=False,
+            evidence_allowed=False,
             query_rewrite_allowed=False,
         ),
         limits=PlanLimits(
@@ -71,6 +74,7 @@ PLAN_PRESETS: dict[PlanName, PlanPreset] = {
             allowed_profiles=frozenset({"speed", "balanced", "quality", "custom"}),
             hybrid_allowed=True,
             rerank_allowed=True,
+            evidence_allowed=True,
             query_rewrite_allowed=True,
         ),
         limits=PlanLimits(

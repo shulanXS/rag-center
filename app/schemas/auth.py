@@ -5,6 +5,7 @@ class AuthFeatures(BaseModel):
     allowed_profiles: list[str]
     hybrid_allowed: bool
     rerank_allowed: bool
+    evidence_allowed: bool
     query_rewrite_allowed: bool
 
 

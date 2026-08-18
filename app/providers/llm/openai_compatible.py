@@ -30,6 +30,7 @@ class OpenAICompatibleLLMProvider(LLMProvider):
         user_payload: dict,
         temperature: float = 0.0,
         timeout_seconds: int | None = None,
+        log_payload: bool = True,
     ) -> dict:
         payload = {
             "model": self.model,
@@ -45,10 +46,23 @@ class OpenAICompatibleLLMProvider(LLMProvider):
         }
         headers = {"Authorization": f"Bearer {self.api_key}"}
         started_at = time.perf_counter()
+        candidates = user_payload.get("candidates")
+        candidate_count = len(candidates) if isinstance(candidates, list) else 0
+        input_chars = len(json.dumps(user_payload, ensure_ascii=False))
+        logged_prompt = (
+            {"system_prompt": system_prompt, "user_payload": user_payload}
+            if log_payload
+            else {"payload_redacted": True}
+        )
         log_llm_request(
             model=self.model,
-            prompt={"system_prompt": system_prompt, "user_payload": user_payload},
-            extra={"provider": "openai_compatible", "base_url": self.base_url},
+            prompt=logged_prompt,
+            extra={
+                "provider": "openai_compatible",
+                "base_url": self.base_url,
+                "candidate_count": candidate_count,
+                "input_chars": input_chars,
+            },
         )
 
         try:
@@ -65,8 +79,13 @@ class OpenAICompatibleLLMProvider(LLMProvider):
                 model=self.model,
                 error=exc,
                 cost_ms=cost_ms,
-                prompt={"system_prompt": system_prompt, "user_payload": user_payload},
-                extra={"provider": "openai_compatible", "base_url": self.base_url},
+                prompt=logged_prompt,
+                extra={
+                    "provider": "openai_compatible",
+                    "base_url": self.base_url,
+                    "candidate_count": candidate_count,
+                    "input_chars": input_chars,
+                },
             )
             raise LLMProviderError(f"llm request failed: {exc}") from exc
 
@@ -79,9 +98,13 @@ class OpenAICompatibleLLMProvider(LLMProvider):
             cost_ms = (time.perf_counter() - started_at) * 1000
             log_llm_response(
                 model=self.model,
-                response=parsed,
+                response=parsed if log_payload else {"payload_redacted": True},
                 cost_ms=cost_ms,
-                extra={"provider": "openai_compatible"},
+                extra={
+                    "provider": "openai_compatible",
+                    "candidate_count": candidate_count,
+                    "input_chars": input_chars,
+                },
             )
             return parsed
         except (KeyError, IndexError, TypeError, json.JSONDecodeError) as exc:
@@ -90,8 +113,12 @@ class OpenAICompatibleLLMProvider(LLMProvider):
                 model=self.model,
                 error=exc,
                 cost_ms=cost_ms,
-                prompt={"system_prompt": system_prompt, "user_payload": user_payload},
-                extra={"provider": "openai_compatible"},
+                prompt=logged_prompt,
+                extra={
+                    "provider": "openai_compatible",
+                    "candidate_count": candidate_count,
+                    "input_chars": input_chars,
+                },
             )
             raise LLMProviderError(f"llm response json parse failed: {exc}") from exc
 
