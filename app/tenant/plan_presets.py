@@ -16,6 +16,7 @@ class PlanFeatures:
     rerank_allowed: bool
     evidence_allowed: bool
     query_rewrite_allowed: bool
+    research_allowed: bool
 
 
 @dataclass(frozen=True, slots=True)
@@ -42,6 +43,7 @@ PLAN_PRESETS: dict[PlanName, PlanPreset] = {
             rerank_allowed=False,
             evidence_allowed=False,
             query_rewrite_allowed=False,
+            research_allowed=False,
         ),
         limits=PlanLimits(
             retrieve_qps=3,
@@ -59,6 +61,7 @@ PLAN_PRESETS: dict[PlanName, PlanPreset] = {
             rerank_allowed=False,
             evidence_allowed=False,
             query_rewrite_allowed=False,
+            research_allowed=False,
         ),
         limits=PlanLimits(
             retrieve_qps=10,
@@ -76,6 +79,7 @@ PLAN_PRESETS: dict[PlanName, PlanPreset] = {
             rerank_allowed=True,
             evidence_allowed=True,
             query_rewrite_allowed=True,
+            research_allowed=True,
         ),
         limits=PlanLimits(
             retrieve_qps=50,

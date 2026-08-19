@@ -5,9 +5,9 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core.exceptions import AppError, ErrorCode
+from app.core.index_versions import DEFAULT_INDEX_VERSION
 from app.core.logging import get_logger
 from app.models.knowledge_base import KnowledgeBase
-from app.models.retrieval_log import RetrievalLog
 from app.observability.langfuse_client import RetrieveObservability
 from app.providers.embedding.openai_compatible import OpenAICompatibleEmbeddingProvider
 from app.providers.keyword_search.base import KeywordSearchProvider
@@ -21,15 +21,12 @@ from app.providers.vectorstores.pgvector import PgVectorStore
 from app.repositories.chunk_repository import ChunkRepository
 from app.repositories.index_version_repository import IndexVersionRepository
 from app.repositories.knowledge_base_repository import KnowledgeBaseRepository
-from app.repositories.retrieval_log_repository import RetrievalLogRepository
 from app.repositories.tenant_repository import TenantRepository
 from app.schemas.rag import (
     EvidenceOptions,
     QueryProcessingMetadata,
-    RetrieveContextMetadata,
     RetrieveData,
     RetrievedChunkData,
-    RetrieveGraphInjectionMetadata,
     RetrieveMetadata,
     RetrieveRequest,
     RetrieveRerankMetadata,
@@ -40,7 +37,7 @@ from app.services.graph_candidate_expansion_service import GraphCandidateExpansi
 from app.services.hybrid_search_service import HybridSearchService
 from app.services.multi_kb_fusion_service import MultiKbFusionService
 from app.services.rate_limit_service import get_rate_limit_service
-from app.services.retrieval_candidate_filter import filter_retrieval_candidates
+from app.services.retrieve_once_service import RetrieveOnceService
 from app.tenant.plan_resolver import PlanResolver
 from app.tenant.retrieve_policy import resolve_retrieve_request
 from app.utils.id_generator import generate_uuid
@@ -55,7 +52,6 @@ class RagService:
         self.db = db
         self.knowledge_base_repository = KnowledgeBaseRepository(db)
         self.chunk_repository = ChunkRepository(db)
-        self.retrieval_log_repository = RetrievalLogRepository(db)
         self.index_version_repository = IndexVersionRepository(db)
         self.embedding_provider = OpenAICompatibleEmbeddingProvider()
         self.vector_store = PgVectorStore(db)
@@ -65,6 +61,7 @@ class RagService:
         self.context_expansion_service = ContextExpansionService(db)
         self.evidence_orchestration_service = EvidenceOrchestrationService(db)
         self.graph_candidate_expansion_service = GraphCandidateExpansionService(db)
+        self.retrieve_once_service = RetrieveOnceService(self)
 
     async def retrieve(
         self,
@@ -102,7 +99,6 @@ class RagService:
 
         retrieval_mode = self._get_retrieval_mode(resolved_request)
         top_k = resolved_request.top_k or settings.top_k
-        retrieval_candidate_k = self._get_retrieval_candidate_k(resolved_request, top_k)
         logger.info(
             "BUSINESS_NODE | rag_retrieve_start | tenant_id=%s | kb_ids=%s | user_id=%s | "
             "plan=%s | profile=%s | mode=%s | top_k=%s | retrieval_options=%s | "
@@ -148,76 +144,22 @@ class RagService:
             query_processing.model_dump() if query_processing else None
         )
 
-        retrieval_started_at = perf_counter()
-        per_kb_top_k = self._get_per_kb_top_k(resolved_request, retrieval_candidate_k)
-
-        try:
-            chunks, retrieval_metadata = await self._retrieve_multi_kb(
-                tenant_id=tenant_id,
-                request=resolved_request,
-                knowledge_bases=knowledge_bases,
-                search_query=search_query,
-                mode=retrieval_mode,
-                top_k=retrieval_candidate_k,
-                per_kb_top_k=per_kb_top_k,
-                index_versions=index_versions,
-            )
-            empty_reason = self._resolve_empty_reason(
-                tenant_id,
-                kb_ids,
-                chunks,
-                index_versions=index_versions,
-            )
-            if empty_reason:
-                retrieval_metadata = {**retrieval_metadata, "empty_reason": empty_reason}
-        except AppError:
-            raise
-        except Exception as exc:
-            raise AppError(
-                ErrorCode.RETRIEVAL_FAILED,
-                internal_msg=f"retrieval failed: {exc}",
-                context={"tenant_id": tenant_id, "kb_ids": kb_ids},
-            ) from exc
-
-        chunks, candidate_filter_metadata = filter_retrieval_candidates(chunks)
-
-        should_inject_graph = graph_injection
-        if should_inject_graph is None:
-            should_inject_graph = any(version != "v1" for version in index_versions.values())
-        if should_inject_graph:
-            graph_expansion = await self.graph_candidate_expansion_service.expand_candidates(
-                tenant_id=tenant_id,
-                kb_ids=kb_ids,
-                seeds=chunks,
-            )
-            chunks = graph_expansion.candidates
-            graph_injection_metadata = graph_expansion.metadata
-        else:
-            graph_injection_metadata = RetrieveGraphInjectionMetadata(
-                executed=False,
-                candidate_count=len(chunks),
-            )
-
-        candidate_snapshot = [dict(chunk) for chunk in chunks]
-        chunks, rerank_metadata = await self._maybe_rerank(
+        once = await self.retrieve_once_service.execute(
+            tenant_id=tenant_id,
             request=resolved_request,
-            chunks=chunks,
-            top_k=min(top_k, len(chunks)) if chunks else top_k,
+            knowledge_bases=knowledge_bases,
+            index_versions=index_versions,
+            search_query=search_query,
+            expand_context=expand_context,
+            graph_injection=graph_injection,
         )
-
-        if expand_context is False:
-            context_metadata = RetrieveContextMetadata(
-                executed=False,
-                anchor_count=len(chunks),
-            )
-        else:
-            expansion = await self.context_expansion_service.expand(
-                tenant_id=tenant_id,
-                kb_ids=kb_ids,
-                anchors=chunks,
-            )
-            chunks = expansion.anchors
-            context_metadata = expansion.metadata
+        chunks = once.retrieved_chunks
+        candidate_snapshot = once.candidate_snapshot
+        retrieval_metadata = once.retrieval_metadata
+        candidate_filter_metadata = once.candidate_filter_metadata
+        graph_injection_metadata = once.graph_injection_metadata
+        context_metadata = once.context_metadata
+        rerank_metadata = once.rerank_metadata
 
         evidence_result = await self.evidence_orchestration_service.orchestrate(
             query=resolved_request.query,
@@ -229,31 +171,12 @@ class RagService:
             options=resolved_request.evidence_options or EvidenceOptions(enabled=False),
             rerank_enabled=rerank_metadata.enabled,
         )
-        latency_ms = int((perf_counter() - retrieval_started_at) * 1000)
+        latency_ms = once.latency_ms
         observability.record_retrieval(retrieval_metadata, latency_ms=latency_ms)
         observability.record_rerank(rerank_metadata.model_dump())
         observability.finish(chunks, latency_ms=latency_ms)
 
         primary_kb_id = kb_ids[0]
-        self.retrieval_log_repository.create(
-            RetrievalLog(
-                id=log_id,
-                tenant_id=tenant_id,
-                kb_id=primary_kb_id,
-                kb_ids=kb_ids,
-                user_id=resolved_request.user_id,
-                query=resolved_request.query,
-                retrieved_chunks=chunks,
-                top_k=top_k,
-                vector_store=retrieval_metadata.get("vector_store", self.vector_store.name),
-                latency_ms=latency_ms,
-                trace_id=observability.trace_id,
-                profile=tenant_policy.retrieve_profile,
-                search_query=search_query,
-                effective_query=query_result.effective_query,
-            )
-        )
-        self.db.commit()
         get_rate_limit_service().record_retrieve_success(tenant_id)
 
         logger.info(
@@ -371,7 +294,8 @@ class RagService:
         index_versions: dict[str, str] | None = None,
     ) -> tuple[list[dict], dict]:
         effective_versions = index_versions or {
-            kb.id: getattr(kb, "active_index_version", "v1") for kb in knowledge_bases
+            kb.id: getattr(kb, "active_index_version", DEFAULT_INDEX_VERSION)
+            for kb in knowledge_bases
         }
         tasks = [
             self._retrieve_candidates_for_kb(
@@ -537,7 +461,7 @@ class RagService:
         search_query: str,
         mode: str,
         per_kb_top_k: int,
-        index_version: str = "v1",
+        index_version: str = DEFAULT_INDEX_VERSION,
     ) -> tuple[list[dict], dict]:
         if mode == "vector":
             vector_chunks = await self._vector_search(
@@ -760,7 +684,7 @@ class RagService:
         kb_id: str,
         search_query: str,
         top_k: int,
-        index_version: str = "v1",
+        index_version: str = DEFAULT_INDEX_VERSION,
     ) -> list[dict]:
         query_vector = await self.embedding_provider.embed_query(search_query)
         chunks = await self.vector_store.similarity_search(
@@ -787,7 +711,7 @@ class RagService:
         kb_id: str,
         search_query: str,
         top_k: int,
-        index_version: str = "v1",
+        index_version: str = DEFAULT_INDEX_VERSION,
     ) -> list[dict]:
         provider = self._build_keyword_search_provider()
         return await provider.keyword_search(

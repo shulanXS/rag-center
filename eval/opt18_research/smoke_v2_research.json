@@ -1,0 +1,920 @@
+{
+  "run_id": "55749b8c9d56c6c8",
+  "run_started_at": "2026-08-19T05:42:26.294538+00:00",
+  "dataset_sha256": "cb034101845f3ef0697c29739ff2663ad3c0d37b55210d2d8f074dc5306de460",
+  "code_commit": "0e6c2284cb0dca7d7a25592153d43f4d1ff3ccfa",
+  "code_dirty": true,
+  "code_sha256": "1b2001ff627cb5cf3980ff53086835e15f9c647276e717019a5fd16b2e8b85be",
+  "mode": "research",
+  "provider": "openai_compatible",
+  "models": {
+    "fast": "deepseek-v4-flash",
+    "strong": "deepseek-v4-pro"
+  },
+  "prompt_sha256": {
+    "planner": "304ef3fe9d0b6fa2bf5a8b16b86a1ad0e5cb58a0308ed62e55c4c72ceaf6ba88",
+    "decider": "5694d163836e5209fbe0192d726ac8c05180c6c2dd4720fc2b0714575cd14cc3",
+    "finalizer": "623ea62053beac52b6d9946e6be5d2783051f7c7ad2cc06b1b22d3df9689689f"
+  },
+  "tenant_id": "tenant_ecom_pro",
+  "profile": "quality",
+  "kb_ids": [
+    "df1dad54-7bfd-4ec7-9116-cfe2448e9389"
+  ],
+  "index_versions": {
+    "df1dad54-7bfd-4ec7-9116-cfe2448e9389": "v2"
+  },
+  "case_timeout_seconds": 90,
+  "repeat": 1,
+  "warmup": 0,
+  "case_types": [
+    "dependent_multi_hop"
+  ],
+  "max_cases": null,
+  "cases": [
+    {
+      "case_id": "live_price_protection_reference",
+      "case_type": "dependent_multi_hop",
+      "question": "直播间买贵后，客服规则指向的价保细则具体如何计算、哪些情况不适用，不同会员等级又分别能保多久？",
+      "success": true,
+      "degraded": true,
+      "error": null,
+      "elapsed_ms": 16919,
+      "query": "直播间买贵后，客服规则指向的价保细则具体如何计算、哪些情况不适用，不同会员等级又分别能保多久？",
+      "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+      "kb_ids": [
+        "df1dad54-7bfd-4ec7-9116-cfe2448e9389"
+      ],
+      "answer": null,
+      "evidence_pack": {
+        "status": "complete",
+        "missing_aspects": [],
+        "groups": [
+          {
+            "aspect": "价保细则的计算方式",
+            "evidence": [
+              {
+                "evidence_id": "E1",
+                "role": "core"
+              },
+              {
+                "evidence_id": "E2",
+                "role": "supporting"
+              }
+            ],
+            "covered": true
+          },
+          {
+            "aspect": "价保不适用的情况",
+            "evidence": [
+              {
+                "evidence_id": "E1",
+                "role": "core"
+              }
+            ],
+            "covered": true
+          },
+          {
+            "aspect": "不同会员等级的价保时长",
+            "evidence": [
+              {
+                "evidence_id": "E3",
+                "role": "core"
+              }
+            ],
+            "covered": true
+          }
+        ],
+        "items": [
+          {
+            "evidence_id": "E1",
+            "chunk_id": "c7ed159f-1ea9-4567-b2ae-e4a543aebd8a",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "8b484755-a80d-44a2-85c0-0b21e53247bc",
+            "title": "促销活动与优惠券使用规则.md",
+            "heading_path": "促销活动与优惠券使用规则/4. 价格保护（价保）",
+            "index_version": "v2",
+            "content": "- 参与价保的商品，在价保期内降价，消费者可申请 **退差价**；\n- 差价 = 实付金额 - 当前可购最低价（含可用券后价）；\n- **不含**：秒杀、拼团、限量抢购、二手、已关闭订单；\n- 会员价保周期见《会员权益》（7~30 天）。",
+            "source": "context:reference",
+            "retrieved_rank": 1,
+            "rounds": [
+              1
+            ],
+            "query_ids": [
+              "Q1"
+            ]
+          },
+          {
+            "evidence_id": "E2",
+            "chunk_id": "3c6dfd3c-98f2-46cd-b4b1-639c6125f1c0",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "8b484755-a80d-44a2-85c0-0b21e53247bc",
+            "title": "促销活动与优惠券使用规则.md",
+            "heading_path": "促销活动与优惠券使用规则/6. 客服常见问题应答",
+            "index_version": "v2",
+            "content": "【表头】问题 | 要点\n| 问题 | 要点 |\n|------|------|\n| 券为什么不能用 | 查适用范围、门槛、有效期、是否与当前活动互斥 |\n| 满减没生效 | 确认是否跨店凑单、是否含排除类目 |\n| 退款后券退吗 | 未过期且未使用的平台券一般退回；店铺券看商家规则 |\n| 保价怎么算 | 以申请时刻页面价为准，需在同一 SKU 同一规格 |",
+            "source": "vector",
+            "retrieved_rank": 4,
+            "rounds": [
+              1
+            ],
+            "query_ids": [
+              "Q1"
+            ]
+          },
+          {
+            "evidence_id": "E3",
+            "chunk_id": "4e509ae5-5c32-4312-8556-dd65f0316165",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "185b2ef5-15f7-4983-95ef-4a5a1875ae0a",
+            "title": "会员体系与积分权益说明.md",
+            "heading_path": "会员体系与积分权益说明/4. 价保与会员专属服务",
+            "index_version": "v2",
+            "content": "- 银卡及以上：基础价保 **7 天**；白金 **30 天**（秒杀/清仓除外）；\n- 白金/黑卡：**专属客服热线**，工作时段响应目标 ≤60 秒；\n- 生日礼：等级对应优惠券，生日当月领取，**当月有效**。\n\n> 关联规则：价保商品范围、排除活动和退差价规则，参见《促销活动与优惠券使用规则》第 4 节“价格保护（价保）”。",
+            "source": "context:reference",
+            "retrieved_rank": 1,
+            "rounds": [
+              1
+            ],
+            "query_ids": [
+              "Q1"
+            ]
+          }
+        ]
+      },
+      "plan": {
+        "aspects": [
+          {
+            "aspect_id": "A1",
+            "description": "价保细则的计算方式"
+          },
+          {
+            "aspect_id": "A2",
+            "description": "价保不适用的情况"
+          },
+          {
+            "aspect_id": "A3",
+            "description": "不同会员等级的价保时长"
+          }
+        ],
+        "initial_queries": [
+          {
+            "query_id": "Q1",
+            "query": "直播间买贵后价保细则如何计算，哪些情况不适用，不同会员等级分别能保多久",
+            "aspect_ids": [
+              "A1",
+              "A2",
+              "A3"
+            ]
+          }
+        ],
+        "degraded": false,
+        "error": null
+      },
+      "rounds": [
+        {
+          "round": 1,
+          "purpose": "initial",
+          "tasks": [
+            {
+              "query_id": "Q1",
+              "query": "直播间买贵后价保细则如何计算，哪些情况不适用，不同会员等级分别能保多久",
+              "aspect_ids": [
+                "A1",
+                "A2",
+                "A3"
+              ],
+              "success": true,
+              "chunk_count": 10,
+              "chunk_ids": [
+                "1ed0393c-580a-4a3f-b98c-ead0d0a9e010",
+                "4e509ae5-5c32-4312-8556-dd65f0316165",
+                "c7ed159f-1ea9-4567-b2ae-e4a543aebd8a",
+                "3c6dfd3c-98f2-46cd-b4b1-639c6125f1c0",
+                "37389834-a3a1-432a-9484-691f17cd397c",
+                "a7aa03f5-67a5-40bf-9578-fa39d3f1b224",
+                "2d9e0dfa-fa34-4363-819b-1a514224e5c4",
+                "c5bbdec9-bfdb-4cb7-ac6f-e7eddcabce4d",
+                "2e198acf-848b-41ea-9c16-92bf3035f163",
+                "6c454b32-af30-4937-9087-9e924de60f13"
+              ],
+              "new_chunk_count": 10,
+              "latency_ms": 3866,
+              "degraded": false,
+              "error": null
+            }
+          ],
+          "candidate_count": 10,
+          "new_chunk_count": 10,
+          "latency_ms": 3866
+        }
+      ],
+      "metadata": {
+        "research_id": "e8f0bcd0-dc41-417e-92cd-f638f6a5c8a8",
+        "log_id": "941e501d-a4a3-4dcb-bc33-b846572a8546",
+        "trace_id": "f93847b3-c0ec-444b-8992-24c518227c87",
+        "profile": "quality",
+        "plan": "pro",
+        "index_versions": {
+          "df1dad54-7bfd-4ec7-9116-cfe2448e9389": "v2"
+        },
+        "round_count": 1,
+        "retrieval_task_count": 1,
+        "llm_call_count": 3,
+        "input_tokens": 5981,
+        "output_tokens": 645,
+        "latency_ms": 14651,
+        "initial_evidence_status": "complete",
+        "stop_reason": "evidence_complete",
+        "degraded": true,
+        "errors": [
+          "finalizer output schema is invalid"
+        ],
+        "stages": [
+          {
+            "stage": "planner",
+            "role": "fast",
+            "model": "deepseek-v4-flash",
+            "latency_ms": 2263,
+            "input_tokens": 332,
+            "output_tokens": 90,
+            "degraded": false
+          },
+          {
+            "stage": "decider",
+            "role": "fast",
+            "model": "deepseek-v4-flash",
+            "latency_ms": 2507,
+            "input_tokens": 2884,
+            "output_tokens": 143,
+            "degraded": false
+          },
+          {
+            "stage": "finalizer",
+            "role": "strong",
+            "model": "deepseek-v4-pro",
+            "latency_ms": 6011,
+            "input_tokens": 2765,
+            "output_tokens": 412,
+            "degraded": true
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "aftersales_intercept_reference",
+      "case_type": "dependent_multi_hop",
+      "question": "商品已发货未签收，快递拦截失败后，关联规则规定的后续处理是什么，到什么节点触发退款？",
+      "success": true,
+      "degraded": false,
+      "error": null,
+      "elapsed_ms": 11354,
+      "query": "商品已发货未签收，快递拦截失败后，关联规则规定的后续处理是什么，到什么节点触发退款？",
+      "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+      "kb_ids": [
+        "df1dad54-7bfd-4ec7-9116-cfe2448e9389"
+      ],
+      "answer": "快递拦截失败后，须按退货流程处理，即消费者寄回商品。[E1][E2]\n\n仓库签收后48小时内完成质检并触发退款流程。[E3][E4]",
+      "evidence_pack": {
+        "status": "complete",
+        "missing_aspects": [],
+        "groups": [
+          {
+            "aspect": "快递拦截失败后的后续处理流程",
+            "evidence": [
+              {
+                "evidence_id": "E1",
+                "role": "core"
+              },
+              {
+                "evidence_id": "E2",
+                "role": "supporting"
+              }
+            ],
+            "covered": true
+          },
+          {
+            "aspect": "触发退款的时间节点",
+            "evidence": [
+              {
+                "evidence_id": "E3",
+                "role": "core"
+              },
+              {
+                "evidence_id": "E4",
+                "role": "supporting"
+              }
+            ],
+            "covered": true
+          }
+        ],
+        "items": [
+          {
+            "evidence_id": "E1",
+            "chunk_id": "73703d96-4fda-4cab-a2da-7be08461020b",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "71785118-9dcb-41cc-97bf-4e8dbf83c27b",
+            "title": "售后服务与退换货政策.md",
+            "heading_path": "售后服务与退换货政策/6. 拒收与拦截",
+            "index_version": "v2",
+            "content": "- **未签收拒收：** 按退货退款处理，运费由责任方承担（无理由拒收通常买家承担）；\n- **快递拦截：** 已发货未签收可申请拦截，成功则退款；失败须按退货流程；\n- 商家不得以「已出库无法拦截」为由拒绝 **未发货仅退款**（以系统揽收节点为准）。\n\n> 关联规则：退货入库、仓库质检和退款触发流程参见《仓储物流与发货履约 SLA》第 6 节“逆向物流（退货）”；未发货订单的极速退款时限参见《平台交易规则与买家保障》第 3.2 节“极速退款”。",
+            "source": "hybrid",
+            "retrieved_rank": 1,
+            "rounds": [
+              1
+            ],
+            "query_ids": [
+              "Q1"
+            ]
+          },
+          {
+            "evidence_id": "E2",
+            "chunk_id": "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "24993327-2205-43a9-877f-4f4237c95d68",
+            "title": "平台交易规则与买家保障.md",
+            "heading_path": "平台交易规则与买家保障/3. 买家保障服务/3.2 极速退款",
+            "index_version": "v2",
+            "content": "- **未发货**订单：申请后 **2 小时内**原路退款；\n- **已发货未签收**：部分类目支持「拦截退款」，失败则按退货流程。",
+            "source": "context:reference",
+            "retrieved_rank": 1,
+            "rounds": [
+              1
+            ],
+            "query_ids": [
+              "Q1"
+            ]
+          },
+          {
+            "evidence_id": "E3",
+            "chunk_id": "44d9f1c9-99b3-47b0-8a89-927da0bbb9c0",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "ba5cb3bc-e642-4d39-926f-e9736d80d6c4",
+            "title": "仓储物流与发货履约SLA.md",
+            "heading_path": "仓储物流与发货履约 SLA/6. 逆向物流（退货）",
+            "index_version": "v2",
+            "content": "- 消费者寄回：**上门取件**（会员/高价值）或 **自行寄回**（运费险/责任方承担）；\n- 仓库 **签收后 48 小时**内完成质检并触发退款流程；\n- 退货商品 **良品** 重新上架，**残次** 入残品区或销毁（美妆等一次性拆封除外）。",
+            "source": "context:reference",
+            "retrieved_rank": 1,
+            "rounds": [
+              1
+            ],
+            "query_ids": [
+              "Q1"
+            ]
+          },
+          {
+            "evidence_id": "E4",
+            "chunk_id": "3644b62a-f3ef-41f6-a05e-22e028582565",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "71785118-9dcb-41cc-97bf-4e8dbf83c27b",
+            "title": "售后服务与退换货政策.md",
+            "heading_path": "售后服务与退换货政策/4. 售后时效 SLA",
+            "index_version": "v2",
+            "content": "【表头】环节 | 时限\n| 环节 | 时限 |\n|------|------|\n| 商家审核退货申请 | **24 小时**（超时系统自动同意） |\n| 买家寄回 | 审核通过后 **7 天**内须揽收，逾期关闭 |\n| 商家签收质检 | **48 小时**内完成并同意/拒绝退款 |\n| 退款到账 | 同意后 **1~3 个工作日**原路退回 |\n\n**自动同意规则：** 商家超时未处理的退货申请，系统按买家诉求自动通过，费用由商家承担。\n\n> 关联规则：本节规定售后处理和退款发起时限；退款发起后的原路退回路径及各支付渠道到账时间，参见《支付方式与资金安全规范》第 3 节“退款原路退回”。",
+            "source": "context:reference",
+            "retrieved_rank": 3,
+            "rounds": [
+              1
+            ],
+            "query_ids": [
+              "Q1"
+            ]
+          }
+        ]
+      },
+      "plan": {
+        "aspects": [
+          {
+            "aspect_id": "A1",
+            "description": "快递拦截失败后的后续处理流程"
+          },
+          {
+            "aspect_id": "A2",
+            "description": "触发退款的时间节点"
+          }
+        ],
+        "initial_queries": [
+          {
+            "query_id": "Q1",
+            "query": "商品已发货未签收，快递拦截失败后，关联规则规定的后续处理是什么，到什么节点触发退款？",
+            "aspect_ids": [
+              "A1",
+              "A2"
+            ]
+          }
+        ],
+        "degraded": false,
+        "error": null
+      },
+      "rounds": [
+        {
+          "round": 1,
+          "purpose": "initial",
+          "tasks": [
+            {
+              "query_id": "Q1",
+              "query": "商品已发货未签收，快递拦截失败后，关联规则规定的后续处理是什么，到什么节点触发退款？",
+              "aspect_ids": [
+                "A1",
+                "A2"
+              ],
+              "success": true,
+              "chunk_count": 10,
+              "chunk_ids": [
+                "73703d96-4fda-4cab-a2da-7be08461020b",
+                "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+                "61f394fc-ceb2-44b6-b1e6-ae4c7bc1527e",
+                "3644b62a-f3ef-41f6-a05e-22e028582565",
+                "779b77ca-dcb0-4de1-9eaf-d2279a876f34",
+                "6cf4b54b-2675-418f-8ed1-88cabd6bb592",
+                "c4c6be7a-ef36-4a1d-99e9-eff07b442873",
+                "44d9f1c9-99b3-47b0-8a89-927da0bbb9c0",
+                "37389834-a3a1-432a-9484-691f17cd397c",
+                "87e6cbec-5499-4f38-b9cf-a13551e90ca4"
+              ],
+              "new_chunk_count": 10,
+              "latency_ms": 1394,
+              "degraded": false,
+              "error": null
+            }
+          ],
+          "candidate_count": 13,
+          "new_chunk_count": 13,
+          "latency_ms": 1395
+        }
+      ],
+      "metadata": {
+        "research_id": "4879510c-1bf4-4520-a0dd-57b0d22e52dd",
+        "log_id": "1595de39-ba9c-46fa-aae8-c358e1074253",
+        "trace_id": "76201260-8761-407b-8ff8-49455b3ba931",
+        "profile": "quality",
+        "plan": "pro",
+        "index_versions": {
+          "df1dad54-7bfd-4ec7-9116-cfe2448e9389": "v2"
+        },
+        "round_count": 1,
+        "retrieval_task_count": 1,
+        "llm_call_count": 3,
+        "input_tokens": 8094,
+        "output_tokens": 417,
+        "latency_ms": 10796,
+        "initial_evidence_status": "complete",
+        "stop_reason": "evidence_complete",
+        "degraded": false,
+        "errors": [],
+        "stages": [
+          {
+            "stage": "planner",
+            "role": "fast",
+            "model": "deepseek-v4-flash",
+            "latency_ms": 2383,
+            "input_tokens": 326,
+            "output_tokens": 81,
+            "degraded": false
+          },
+          {
+            "stage": "decider",
+            "role": "fast",
+            "model": "deepseek-v4-flash",
+            "latency_ms": 2468,
+            "input_tokens": 3944,
+            "output_tokens": 103,
+            "degraded": false
+          },
+          {
+            "stage": "finalizer",
+            "role": "strong",
+            "model": "deepseek-v4-pro",
+            "latency_ms": 4547,
+            "input_tokens": 3824,
+            "output_tokens": 233,
+            "degraded": false
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "search_ranking_referenced_standards",
+      "case_type": "dependent_multi_hop",
+      "question": "自然搜索排序规则提到还要满足两项关联规范，这两项规范分别有哪些具体要求？",
+      "success": true,
+      "degraded": false,
+      "error": null,
+      "elapsed_ms": 11655,
+      "query": "自然搜索排序规则提到还要满足两项关联规范，这两项规范分别有哪些具体要求？",
+      "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+      "kb_ids": [
+        "df1dad54-7bfd-4ec7-9116-cfe2448e9389"
+      ],
+      "answer": "两项关联规范的具体要求如下：\n1. 标题规范：长度25~60字符（中文按字计）；结构为品牌+产品名+核心规格+适用场景；禁止堆砌关键词、夸大宣传（如“全国第一”“最好”等绝对化用语）、与实物无关热词。\n2. 类目资质要求：不同类目需具备相应资质，如食品需SC编号、生产许可证、质检报告；3C数码需CCC认证（目录内产品）；化妆品需备案/注册凭证、成分表；婴幼儿配方乳粉需配方注册证书；出版物需ISBN、出版许可证。资质到期前30天系统提醒，过期自动下架相关SKU。[E1][E2][E3]",
+      "evidence_pack": {
+        "status": "complete",
+        "missing_aspects": [],
+        "groups": [
+          {
+            "aspect": "两项关联规范的具体要求",
+            "evidence": [
+              {
+                "evidence_id": "E1",
+                "role": "core"
+              },
+              {
+                "evidence_id": "E2",
+                "role": "core"
+              },
+              {
+                "evidence_id": "E3",
+                "role": "supporting"
+              }
+            ],
+            "covered": true
+          }
+        ],
+        "items": [
+          {
+            "evidence_id": "E1",
+            "chunk_id": "e3918579-c48f-4829-85bb-5f4945703362",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "4b932e57-a65e-46c8-b8c9-fa9637fd40cd",
+            "title": "商品上架与类目合规规范.md",
+            "heading_path": "商品上架与类目合规规范/2. 商品信息要求/2.1 标题规范",
+            "index_version": "v2",
+            "content": "- 长度：25~60 字符（中文按字计）；\n- 结构：品牌 + 产品名 + 核心规格 + 适用场景；\n- 禁止：堆砌关键词、夸大宣传（「全国第一」「最好」等绝对化用语）、与实物无关热词。",
+            "source": "context:reference",
+            "retrieved_rank": 1,
+            "rounds": [
+              1
+            ],
+            "query_ids": [
+              "Q1"
+            ]
+          },
+          {
+            "evidence_id": "E2",
+            "chunk_id": "44159d28-676b-40c1-a84f-34b8e4ac6c18",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "4b932e57-a65e-46c8-b8c9-fa9637fd40cd",
+            "title": "商品上架与类目合规规范.md",
+            "heading_path": "商品上架与类目合规规范/3. 类目资质对照（示例）",
+            "index_version": "v2",
+            "content": "【表头】类目 | 必备资质\n| 类目 | 必备资质 |\n|------|----------|\n| 食品 | SC 编号、生产许可证、质检报告 |\n| 3C 数码 | CCC 认证（目录内产品） |\n| 化妆品 | 备案/注册凭证、成分表 |\n| 婴幼儿配方乳粉 | 配方注册证书 |\n| 出版物 | ISBN、出版许可证 |\n\n资质到期前 **30 天**系统提醒，过期 **自动下架** 相关 SKU。",
+            "source": "context:reference",
+            "retrieved_rank": 1,
+            "rounds": [
+              1
+            ],
+            "query_ids": [
+              "Q1"
+            ]
+          },
+          {
+            "evidence_id": "E3",
+            "chunk_id": "458e0ad6-7256-432d-bb46-4bc7cf86f650",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "872cc351-513b-490f-ac35-c5485de799b1",
+            "title": "搜索推荐与广告投放规则.md",
+            "heading_path": "搜索推荐与广告投放规则/1. 自然搜索排序因素（概要）",
+            "index_version": "v2",
+            "content": "平台综合以下信号排序（权重动态调整，**不对外公布精确公式**）：\n\n【表头】信号类别 | 示例\n| 信号类别 | 示例 |\n|----------|------|\n| 相关性 | 标题、类目、属性、主图与查询匹配 |\n| 品质 | DSR、退货率、品退率、正品纠纷 |\n| 履约 | 揽收及时率、物流时效、缺货率 |\n| 转化 | 点击率、加购率、成交转化（去刷单） |\n| 价格力 | 同款比价、促销力度（真实成交价） |\n| 新品扶持 | 符合条件的新品有限时流量倾斜 |\n\n**禁止：** 通过堆砌无关关键词、错放类目、刷单炒信提升排名；一经核实 **降权 7~90 天** 或清退。\n\n> 关联规则：商品标题规范参见《商品上架与类目合规规范》第 2.1 节“标题规范”；类目资质要求参见《商品上架与类目合规规范》第 3 节“类目资质对照（示例）”。",
+            "source": "hybrid",
+            "retrieved_rank": 1,
+            "rounds": [
+              1
+            ],
+            "query_ids": [
+              "Q1"
+            ]
+          }
+        ]
+      },
+      "plan": {
+        "aspects": [
+          {
+            "aspect_id": "A1",
+            "description": "两项关联规范的具体要求"
+          }
+        ],
+        "initial_queries": [
+          {
+            "query_id": "Q1",
+            "query": "自然搜索排序规则 两项关联规范 具体要求",
+            "aspect_ids": [
+              "A1"
+            ]
+          }
+        ],
+        "degraded": false,
+        "error": null
+      },
+      "rounds": [
+        {
+          "round": 1,
+          "purpose": "initial",
+          "tasks": [
+            {
+              "query_id": "Q1",
+              "query": "自然搜索排序规则 两项关联规范 具体要求",
+              "aspect_ids": [
+                "A1"
+              ],
+              "success": true,
+              "chunk_count": 10,
+              "chunk_ids": [
+                "458e0ad6-7256-432d-bb46-4bc7cf86f650",
+                "57acaa1c-5141-4126-932e-33f2fbccfb75",
+                "5142e91c-eb33-4e8a-a88a-2e4a910ca807",
+                "fe50235c-8850-469a-9cfd-301dcc4b5c71",
+                "e3918579-c48f-4829-85bb-5f4945703362",
+                "61f394fc-ceb2-44b6-b1e6-ae4c7bc1527e",
+                "45a38391-3d2e-4410-8548-561ba6457cd9",
+                "8e64a13d-b431-4e8a-81ee-a0018a91199c",
+                "2f9a4281-d35d-471a-a18b-6654a62b1013",
+                "079529f9-bae4-48d6-8917-8d3582ed77da"
+              ],
+              "new_chunk_count": 10,
+              "latency_ms": 1913,
+              "degraded": false,
+              "error": null
+            }
+          ],
+          "candidate_count": 17,
+          "new_chunk_count": 17,
+          "latency_ms": 1914
+        }
+      ],
+      "metadata": {
+        "research_id": "cb65caf6-c23d-44d3-a6e6-cf61538ecd2d",
+        "log_id": "c4b43292-6d35-46f1-879e-5953abf0234c",
+        "trace_id": "5558e043-a7eb-4b7d-9b8b-d777e2b98e0c",
+        "profile": "quality",
+        "plan": "pro",
+        "index_versions": {
+          "df1dad54-7bfd-4ec7-9116-cfe2448e9389": "v2"
+        },
+        "round_count": 1,
+        "retrieval_task_count": 1,
+        "llm_call_count": 3,
+        "input_tokens": 10221,
+        "output_tokens": 442,
+        "latency_ms": 11420,
+        "initial_evidence_status": "complete",
+        "stop_reason": "evidence_complete",
+        "degraded": false,
+        "errors": [],
+        "stages": [
+          {
+            "stage": "planner",
+            "role": "fast",
+            "model": "deepseek-v4-flash",
+            "latency_ms": 2079,
+            "input_tokens": 320,
+            "output_tokens": 55,
+            "degraded": false
+          },
+          {
+            "stage": "decider",
+            "role": "fast",
+            "model": "deepseek-v4-flash",
+            "latency_ms": 2625,
+            "input_tokens": 5004,
+            "output_tokens": 105,
+            "degraded": false
+          },
+          {
+            "stage": "finalizer",
+            "role": "strong",
+            "model": "deepseek-v4-pro",
+            "latency_ms": 4800,
+            "input_tokens": 4897,
+            "output_tokens": 282,
+            "degraded": false
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "ad_placement_referenced_rules",
+      "case_type": "dependent_multi_hop",
+      "question": "广告投放准入规则还引用了处罚和商品上架两项规则，它们分别规定了什么？",
+      "success": true,
+      "degraded": false,
+      "error": null,
+      "elapsed_ms": 13205,
+      "query": "广告投放准入规则还引用了处罚和商品上架两项规则，它们分别规定了什么？",
+      "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+      "kb_ids": [
+        "df1dad54-7bfd-4ec7-9116-cfe2448e9389"
+      ],
+      "answer": "处罚规则规定：虚假发货扣保证金、降权、限制提报活动；售假清退、冻结货款、法务追诉；延迟发货率>10%店铺搜索降权7~30天；纠纷率>行业2倍限制新品上架。[E1]\n\n商品上架规则规定：商家须完成企业/个体资质审核（营业执照、法人身份证、对公账户）、类目授权（品牌需提供商标注册证或授权链二级以内）、缴纳保证金（按类目1000~50000元，关店无纠纷可退）；禁售清单包括枪支弹药、管制刀具、毒品及制毒工具、假币、发票、窃听窃照器材、未取得批号的药品和医疗器械（除平台白名单）、侵犯知识产权的仿品、活体动物（除合规宠物类目）。[E2]",
+      "evidence_pack": {
+        "status": "complete",
+        "missing_aspects": [],
+        "groups": [
+          {
+            "aspect": "处罚规则的规定内容",
+            "evidence": [
+              {
+                "evidence_id": "E1",
+                "role": "core"
+              }
+            ],
+            "covered": true
+          },
+          {
+            "aspect": "商品上架规则的规定内容",
+            "evidence": [
+              {
+                "evidence_id": "E2",
+                "role": "core"
+              }
+            ],
+            "covered": true
+          }
+        ],
+        "items": [
+          {
+            "evidence_id": "E1",
+            "chunk_id": "a7d53887-dce1-4380-b6af-8bf44212e941",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "24993327-2205-43a9-877f-4f4237c95d68",
+            "title": "平台交易规则与买家保障.md",
+            "heading_path": "平台交易规则与买家保障/5. 违规与处罚（商家）",
+            "index_version": "v2",
+            "content": "【表头】违规类型 | 典型处罚\n| 违规类型 | 典型处罚 |\n|----------|----------|\n| 虚假发货 | 扣保证金、降权、限制提报活动 |\n| 售假 | 清退、冻结货款、法务追诉 |\n| 延迟发货率 >10% | 店铺搜索降权 7~30 天 |\n| 纠纷率 >行业 2 倍 | 限制新品上架 |",
+            "source": "context:reference",
+            "retrieved_rank": 1,
+            "rounds": [
+              1
+            ],
+            "query_ids": [
+              "Q1",
+              "Q2"
+            ]
+          },
+          {
+            "evidence_id": "E2",
+            "chunk_id": "bfc4aae9-b04b-482a-a649-f53ca0496e39",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "4b932e57-a65e-46c8-b8c9-fa9637fd40cd",
+            "title": "商品上架与类目合规规范.md",
+            "heading_path": "商品上架与类目合规规范/1. 上架准入",
+            "index_version": "v2",
+            "content": "商家须完成：\n\n1. **企业/个体资质**审核（营业执照、法人身份证、对公账户）；\n2. **类目授权**：品牌需提供商标注册证或授权链（二级以内）；\n3. **保证金**：按类目缴纳 1000~50000 元不等，关店无纠纷可退。\n\n**禁售清单（节选）：**\n\n- 枪支弹药、管制刀具、毒品及制毒工具；\n- 假币、发票、窃听窃照器材；\n- 未取得批号的药品、医疗器械（除平台白名单）；\n- 侵犯知识产权的仿品；\n- 活体动物（除合规宠物类目）。",
+            "source": "context:reference",
+            "retrieved_rank": 1,
+            "rounds": [
+              1
+            ],
+            "query_ids": [
+              "Q1",
+              "Q2"
+            ]
+          }
+        ]
+      },
+      "plan": {
+        "aspects": [
+          {
+            "aspect_id": "A1",
+            "description": "处罚规则的规定内容"
+          },
+          {
+            "aspect_id": "A2",
+            "description": "商品上架规则的规定内容"
+          }
+        ],
+        "initial_queries": [
+          {
+            "query_id": "Q1",
+            "query": "广告投放准入规则引用的处罚规则规定了什么",
+            "aspect_ids": [
+              "A1"
+            ]
+          },
+          {
+            "query_id": "Q2",
+            "query": "广告投放准入规则引用的商品上架规则规定了什么",
+            "aspect_ids": [
+              "A2"
+            ]
+          }
+        ],
+        "degraded": false,
+        "error": null
+      },
+      "rounds": [
+        {
+          "round": 1,
+          "purpose": "initial",
+          "tasks": [
+            {
+              "query_id": "Q1",
+              "query": "广告投放准入规则引用的处罚规则规定了什么",
+              "aspect_ids": [
+                "A1"
+              ],
+              "success": true,
+              "chunk_count": 10,
+              "chunk_ids": [
+                "fe50235c-8850-469a-9cfd-301dcc4b5c71",
+                "57acaa1c-5141-4126-932e-33f2fbccfb75",
+                "5142e91c-eb33-4e8a-a88a-2e4a910ca807",
+                "2f9a4281-d35d-471a-a18b-6654a62b1013",
+                "458e0ad6-7256-432d-bb46-4bc7cf86f650",
+                "37389834-a3a1-432a-9484-691f17cd397c",
+                "e3918579-c48f-4829-85bb-5f4945703362",
+                "5b92e1de-d0dd-4b3d-bd07-1c2c61cd80bc",
+                "a7d53887-dce1-4380-b6af-8bf44212e941",
+                "dbd88251-5fd8-4e4d-9c12-f34414025d18"
+              ],
+              "new_chunk_count": 10,
+              "latency_ms": 3734,
+              "degraded": false,
+              "error": null
+            },
+            {
+              "query_id": "Q2",
+              "query": "广告投放准入规则引用的商品上架规则规定了什么",
+              "aspect_ids": [
+                "A2"
+              ],
+              "success": true,
+              "chunk_count": 10,
+              "chunk_ids": [
+                "fe50235c-8850-469a-9cfd-301dcc4b5c71",
+                "57acaa1c-5141-4126-932e-33f2fbccfb75",
+                "5142e91c-eb33-4e8a-a88a-2e4a910ca807",
+                "7d395c15-ea03-4bfb-b004-aaa64b6ce640",
+                "2f9a4281-d35d-471a-a18b-6654a62b1013",
+                "458e0ad6-7256-432d-bb46-4bc7cf86f650",
+                "e3918579-c48f-4829-85bb-5f4945703362",
+                "5b92e1de-d0dd-4b3d-bd07-1c2c61cd80bc",
+                "a7d53887-dce1-4380-b6af-8bf44212e941",
+                "dbd88251-5fd8-4e4d-9c12-f34414025d18"
+              ],
+              "new_chunk_count": 10,
+              "latency_ms": 1446,
+              "degraded": false,
+              "error": null
+            }
+          ],
+          "candidate_count": 13,
+          "new_chunk_count": 13,
+          "latency_ms": 3734
+        }
+      ],
+      "metadata": {
+        "research_id": "9a6b3151-8ea1-4612-a4b7-de17d4d8ce25",
+        "log_id": "1d799232-e76a-4f2e-aa02-c66ef3a15476",
+        "trace_id": "a11b7381-bd74-4d30-9514-f9207396dabe",
+        "profile": "quality",
+        "plan": "pro",
+        "index_versions": {
+          "df1dad54-7bfd-4ec7-9116-cfe2448e9389": "v2"
+        },
+        "round_count": 1,
+        "retrieval_task_count": 2,
+        "llm_call_count": 3,
+        "input_tokens": 7621,
+        "output_tokens": 504,
+        "latency_ms": 12649,
+        "initial_evidence_status": "complete",
+        "stop_reason": "evidence_complete",
+        "degraded": false,
+        "errors": [],
+        "stages": [
+          {
+            "stage": "planner",
+            "role": "fast",
+            "model": "deepseek-v4-flash",
+            "latency_ms": 2241,
+            "input_tokens": 322,
+            "output_tokens": 74,
+            "degraded": false
+          },
+          {
+            "stage": "decider",
+            "role": "fast",
+            "model": "deepseek-v4-flash",
+            "latency_ms": 1938,
+            "input_tokens": 3710,
+            "output_tokens": 103,
+            "degraded": false
+          },
+          {
+            "stage": "finalizer",
+            "role": "strong",
+            "model": "deepseek-v4-pro",
+            "latency_ms": 4734,
+            "input_tokens": 3589,
+            "output_tokens": 327,
+            "degraded": false
+          }
+        ]
+      }
+    }
+  ],
+  "checkpoint_at": "2026-08-19T05:43:19.514202+00:00",
+  "run_finished_at": "2026-08-19T05:43:19.516239+00:00"
+}

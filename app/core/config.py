@@ -21,7 +21,8 @@ class Settings(BaseSettings):
     llm_provider: str = "openai_compatible"
     llm_base_url: str = "https://api.deepseek.com/v1"
     llm_api_key: str = "your-deepseek-api-key"
-    llm_model: str = "deepseek-chat"
+    llm_model: str = "deepseek-v4-flash"
+    llm_strong_model: str = "deepseek-v4-pro"
     llm_timeout_seconds: int = Field(default=60, ge=1)
 
     vector_store: str = "pgvector"

@@ -1,0 +1,184 @@
+{
+  "name": "opt18_dependent_reference_smoke_v3",
+  "evaluation_scope": "smoke",
+  "created_at": "2026-08-19T05:53:47.961001+00:00",
+  "tenant_id": "tenant_ecom_pro",
+  "profile": "quality",
+  "top_k": 10,
+  "annotation": {
+    "status": "reviewed",
+    "method": "document_grounded_reference_chain_review",
+    "annotator": "project_owner",
+    "reviewer": "optimization_18_dependency_chain_review",
+    "note": "四题使用真实的三至四级引用链；入口和中间Chunk只负责暴露下一跳线索，答案要点仅由末端目标Chunk直接支持。"
+  },
+  "annotation_sha256": "b4620fa0742643cd81ae6dc15a0249efacee3288de95466f6dd9a7f4f9d695d6",
+  "cases": [
+    {
+      "id": "enterprise_points_refund_timing_chain",
+      "case_type": "dependent_multi_hop",
+      "question": "从企业购会员规则开始，沿“对公转账方式”再查看其中的“积分抵扣限制”；积分规则继续引用的第一项退款规则具体规定了什么？",
+      "ground_truth": "商家24小时内审核退货申请，买家在审核通过后7天内寄回，商家签收后48小时内完成质检并同意或拒绝退款；同意后1至3个工作日原路到账。",
+      "required_aspects": [
+        {
+          "aspect_id": "A1",
+          "description": "积分退款所关联的售后审核、寄回、质检和退款发起时限",
+          "acceptable_chunk_ids": [
+            "3644b62a-f3ef-41f6-a05e-22e028582565"
+          ]
+        }
+      ],
+      "expected_documents": [
+        "71785118-9dcb-41cc-97bf-4e8dbf83c27b"
+      ],
+      "expected_status": "complete",
+      "dependency": {
+        "discover_from_chunk_ids": [
+          "6f6f5f85-e455-4d92-adb5-52b6a15d60ec"
+        ],
+        "intermediate_chunk_ids": [
+          "16c97ec5-40e0-4b0e-8fc6-b7b526dfe4ff",
+          "779b77ca-dcb0-4de1-9eaf-d2279a876f34"
+        ],
+        "target_chunk_ids": [
+          "3644b62a-f3ef-41f6-a05e-22e028582565"
+        ]
+      },
+      "kb_ids": [
+        "df1dad54-7bfd-4ec7-9116-cfe2448e9389"
+      ],
+      "index_versions": {
+        "df1dad54-7bfd-4ec7-9116-cfe2448e9389": "v2"
+      },
+      "requires_multi_hop": true,
+      "review_status": "reviewed"
+    },
+    {
+      "id": "enterprise_points_cash_refund_chain",
+      "case_type": "dependent_multi_hop",
+      "question": "从企业购会员规则开始，沿“对公转账方式”再查看其中的“积分抵扣限制”；积分规则继续引用的第二项退款规则具体规定了什么？",
+      "ground_truth": "微信和支付宝即时至24小时原账户到账，银行卡1至3个工作日原卡到账，平台余额即时到账，礼品卡即时退原卡额度，组合支付按比例拆分并取各通道较长时效。",
+      "required_aspects": [
+        {
+          "aspect_id": "A1",
+          "description": "积分退款所关联的现金原路退回路径和到账时效",
+          "acceptable_chunk_ids": [
+            "2af0bac1-6126-4d91-bc42-774ca90d9d4d"
+          ]
+        }
+      ],
+      "expected_documents": [
+        "9b4bac02-5e6f-4d50-b6e2-83dde5ac5269"
+      ],
+      "expected_status": "complete",
+      "dependency": {
+        "discover_from_chunk_ids": [
+          "6f6f5f85-e455-4d92-adb5-52b6a15d60ec"
+        ],
+        "intermediate_chunk_ids": [
+          "16c97ec5-40e0-4b0e-8fc6-b7b526dfe4ff",
+          "779b77ca-dcb0-4de1-9eaf-d2279a876f34"
+        ],
+        "target_chunk_ids": [
+          "2af0bac1-6126-4d91-bc42-774ca90d9d4d"
+        ]
+      },
+      "kb_ids": [
+        "df1dad54-7bfd-4ec7-9116-cfe2448e9389"
+      ],
+      "index_versions": {
+        "df1dad54-7bfd-4ec7-9116-cfe2448e9389": "v2"
+      },
+      "requires_multi_hop": true,
+      "review_status": "reviewed"
+    },
+    {
+      "id": "enterprise_points_coupon_refund_chain",
+      "case_type": "dependent_multi_hop",
+      "question": "从企业购会员规则开始，沿“对公转账方式”和“积分抵扣限制”找到现金退款规则；该规则继续引用的优惠券退回条件是什么？",
+      "ground_truth": "未过期且未使用的平台券一般退回；店铺券是否退回需看商家规则。",
+      "required_aspects": [
+        {
+          "aspect_id": "A1",
+          "description": "现金退款规则进一步引用的优惠券退回条件",
+          "acceptable_chunk_ids": [
+            "3c6dfd3c-98f2-46cd-b4b1-639c6125f1c0"
+          ]
+        }
+      ],
+      "expected_documents": [
+        "8b484755-a80d-44a2-85c0-0b21e53247bc"
+      ],
+      "expected_status": "complete",
+      "dependency": {
+        "discover_from_chunk_ids": [
+          "6f6f5f85-e455-4d92-adb5-52b6a15d60ec"
+        ],
+        "intermediate_chunk_ids": [
+          "16c97ec5-40e0-4b0e-8fc6-b7b526dfe4ff",
+          "779b77ca-dcb0-4de1-9eaf-d2279a876f34",
+          "2af0bac1-6126-4d91-bc42-774ca90d9d4d"
+        ],
+        "target_chunk_ids": [
+          "3c6dfd3c-98f2-46cd-b4b1-639c6125f1c0"
+        ]
+      },
+      "kb_ids": [
+        "df1dad54-7bfd-4ec7-9116-cfe2448e9389"
+      ],
+      "index_versions": {
+        "df1dad54-7bfd-4ec7-9116-cfe2448e9389": "v2"
+      },
+      "requires_multi_hop": true,
+      "review_status": "reviewed"
+    },
+    {
+      "id": "enterprise_points_refund_end_to_end_chain",
+      "case_type": "dependent_multi_hop",
+      "question": "从企业购会员规则开始，沿“对公转账方式”再查看其中的“积分抵扣限制”；积分订单退款时，积分规则继续引用的两项后续规则如何衔接？",
+      "ground_truth": "先按售后时效完成申请审核、寄回和签收质检并发起退款，再按原支付渠道退回现金；微信和支付宝即时至24小时，银行卡1至3个工作日，余额即时，组合支付按比例拆分。",
+      "required_aspects": [
+        {
+          "aspect_id": "A1",
+          "description": "积分订单退款的售后审核和退款发起时限",
+          "acceptable_chunk_ids": [
+            "3644b62a-f3ef-41f6-a05e-22e028582565"
+          ]
+        },
+        {
+          "aspect_id": "A2",
+          "description": "积分订单现金部分的原路退回路径和到账时效",
+          "acceptable_chunk_ids": [
+            "2af0bac1-6126-4d91-bc42-774ca90d9d4d"
+          ]
+        }
+      ],
+      "expected_documents": [
+        "71785118-9dcb-41cc-97bf-4e8dbf83c27b",
+        "9b4bac02-5e6f-4d50-b6e2-83dde5ac5269"
+      ],
+      "expected_status": "complete",
+      "dependency": {
+        "discover_from_chunk_ids": [
+          "6f6f5f85-e455-4d92-adb5-52b6a15d60ec"
+        ],
+        "intermediate_chunk_ids": [
+          "16c97ec5-40e0-4b0e-8fc6-b7b526dfe4ff",
+          "779b77ca-dcb0-4de1-9eaf-d2279a876f34"
+        ],
+        "target_chunk_ids": [
+          "3644b62a-f3ef-41f6-a05e-22e028582565",
+          "2af0bac1-6126-4d91-bc42-774ca90d9d4d"
+        ]
+      },
+      "kb_ids": [
+        "df1dad54-7bfd-4ec7-9116-cfe2448e9389"
+      ],
+      "index_versions": {
+        "df1dad54-7bfd-4ec7-9116-cfe2448e9389": "v2"
+      },
+      "requires_multi_hop": true,
+      "review_status": "reviewed"
+    }
+  ]
+}

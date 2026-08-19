@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core.exceptions import AppError, ErrorCode
+from app.core.index_versions import DEFAULT_INDEX_VERSION
 from app.core.logging import get_logger
 from app.models.index_version import KnowledgeBaseIndexVersion
 from app.providers.keyword_search.elasticsearch import ElasticsearchKeywordSearchProvider
@@ -38,13 +39,19 @@ class IndexVersionService:
         self.chunk_repository = ChunkRepository(db)
         self.relation_repository = ChunkRelationRepository(db)
 
-    def create_initial_v1(self, *, tenant_id: str, kb_id: str) -> None:
+    def create_initial(
+        self,
+        *,
+        tenant_id: str,
+        kb_id: str,
+        version: str = DEFAULT_INDEX_VERSION,
+    ) -> None:
         self.version_repository.create(
             KnowledgeBaseIndexVersion(
                 id=generate_uuid(),
                 tenant_id=tenant_id,
                 kb_id=kb_id,
-                version="v1",
+                version=version,
                 status="active",
                 document_count=0,
                 chunk_count=0,
@@ -55,7 +62,9 @@ class IndexVersionService:
 
     def list_versions(self, tenant_id: str, kb_id: str) -> list[IndexVersionData]:
         self._get_kb_or_raise(tenant_id, kb_id)
-        return [self._to_data(item) for item in self.version_repository.list_by_kb(tenant_id, kb_id)]
+        return [
+            self._to_data(item) for item in self.version_repository.list_by_kb(tenant_id, kb_id)
+        ]
 
     def queue_rebuild(self, tenant_id: str, kb_id: str) -> RebuildIndexData:
         data = self.start_rebuild(tenant_id, kb_id)
@@ -167,9 +176,7 @@ class IndexVersionService:
                 context={"status": target.status, "version": version},
             )
 
-        current = self.version_repository.get(
-            tenant_id, kb_id, knowledge_base.active_index_version
-        )
+        current = self.version_repository.get(tenant_id, kb_id, knowledge_base.active_index_version)
         if current is not None and current.status == "active":
             current.status = "archived"
             self.db.flush()

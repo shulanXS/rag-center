@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Literal
 
 
 class LLMProviderError(Exception):
@@ -15,6 +16,7 @@ class LLMProvider(ABC):
         temperature: float = 0.0,
         timeout_seconds: int | None = None,
         log_payload: bool = True,
+        max_tokens: int | None = None,
+        thinking: Literal["enabled", "disabled"] | None = None,
     ) -> dict:
         pass
-

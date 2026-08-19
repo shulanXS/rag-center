@@ -1,0 +1,782 @@
+{
+  "run_id": "87dc2de2d74bcc61",
+  "run_started_at": "2026-08-20T04:49:08.854716+00:00",
+  "dataset_sha256": "70241022c44bef3beaa8e5296c64031bd882ec337410cc44804d73fe62c0b917",
+  "code_commit": "a341b9ad96ad74a0831727e4ce8fe3b50a54888b",
+  "code_dirty": true,
+  "code_sha256": "36e235a5179fbf977bed5eb13a08cff404871eb88bd90698623d6a92a9c8f809",
+  "mode": "single",
+  "provider": "openai_compatible",
+  "models": {
+    "fast": "deepseek-v4-flash",
+    "strong": "deepseek-v4-pro"
+  },
+  "prompt_sha256": {
+    "planner": "ef22364462665e3d212727a9fa768b02dc3ea9af8f1c6c968c9510c8e88be784",
+    "decider": "cf3183725dba9b59c5509921bc0dd679322d79d28aa47cc761ed132639b462c3",
+    "finalizer": "c7eaa28bcd29e6cd6a5c4e90d2dd60e111aa50df8b67c048e967075961387c5b"
+  },
+  "tenant_id": "tenant_ecom_pro",
+  "profile": "quality",
+  "kb_ids": [
+    "524146da-ad39-4c93-bee0-12b299d63af6"
+  ],
+  "index_versions": {
+    "524146da-ad39-4c93-bee0-12b299d63af6": "v2"
+  },
+  "case_timeout_seconds": 90,
+  "repeat": 1,
+  "warmup": 0,
+  "case_types": [
+    "simple",
+    "independent_multi_aspect",
+    "dependent_multi_hop",
+    "control"
+  ],
+  "max_cases": null,
+  "cases": [
+    {
+      "case_id": "probation_senior_engineer_beijing",
+      "case_type": "dependent_multi_hop",
+      "question": "一名试用期资深工程师去北京出差3天，预计费用8500元，可以乘坐什么交通工具，酒店每晚上限多少，最低需要哪些人审批？",
+      "success": true,
+      "degraded": false,
+      "error": null,
+      "elapsed_ms": 32111,
+      "answer": null,
+      "plan": null,
+      "rounds": [
+        {
+          "round": 1,
+          "purpose": "initial",
+          "tasks": [
+            {
+              "query_id": "Q1",
+              "query": "一名试用期资深工程师去北京出差3天，预计费用8500元，可以乘坐什么交通工具，酒店每晚上限多少，最低需要哪些人审批？",
+              "aspect_ids": [],
+              "success": true,
+              "chunk_ids": [
+                "ca7f416b-b65b-4f25-809a-dbe90d6b941c",
+                "7d4146cf-c9e4-4e91-9c65-7c00eb29c916",
+                "0b52462e-6429-4741-be9e-5c4ea0bcea75",
+                "38fe750f-cc1e-47ee-b367-7df7209d801a",
+                "5a1068af-9f36-4383-a751-a8005c5c3126",
+                "447e8e18-008d-47b9-ae93-94f0f01bee51",
+                "c502f223-22f7-4e2d-b367-30b9059a1308",
+                "616162e0-1fe2-42d6-8fc6-8c55e1dc6ea7",
+                "ae7897a0-2018-42fb-aef9-6690e8be90ef",
+                "5d1c4482-692f-4fca-ac65-cb9cb1e9a8fc"
+              ],
+              "new_chunk_count": 10,
+              "latency_ms": 2809
+            }
+          ],
+          "candidate_chunk_ids": [
+            "ca7f416b-b65b-4f25-809a-dbe90d6b941c",
+            "7d4146cf-c9e4-4e91-9c65-7c00eb29c916",
+            "0b52462e-6429-4741-be9e-5c4ea0bcea75",
+            "38fe750f-cc1e-47ee-b367-7df7209d801a",
+            "5a1068af-9f36-4383-a751-a8005c5c3126",
+            "447e8e18-008d-47b9-ae93-94f0f01bee51",
+            "c502f223-22f7-4e2d-b367-30b9059a1308",
+            "616162e0-1fe2-42d6-8fc6-8c55e1dc6ea7",
+            "ae7897a0-2018-42fb-aef9-6690e8be90ef",
+            "5d1c4482-692f-4fca-ac65-cb9cb1e9a8fc"
+          ],
+          "candidate_count": 10,
+          "new_chunk_count": 10,
+          "latency_ms": 2809
+        }
+      ],
+      "evidence_pack": {
+        "status": "partial",
+        "missing_aspects": [
+          "可乘坐的交通工具"
+        ],
+        "groups": [
+          {
+            "aspect": "可乘坐的交通工具",
+            "evidence": [],
+            "covered": false
+          },
+          {
+            "aspect": "酒店每晚住宿上限",
+            "evidence": [
+              {
+                "evidence_id": "E1",
+                "role": "core"
+              },
+              {
+                "evidence_id": "E2",
+                "role": "supporting"
+              }
+            ],
+            "covered": true
+          },
+          {
+            "aspect": "最低审批人",
+            "evidence": [
+              {
+                "evidence_id": "E3",
+                "role": "core"
+              },
+              {
+                "evidence_id": "E4",
+                "role": "supporting"
+              }
+            ],
+            "covered": true
+          }
+        ],
+        "items": [
+          {
+            "evidence_id": "E1",
+            "chunk_id": "10f8ce8c-a4d1-4e35-8523-8c1ad12d6e67",
+            "kb_id": "524146da-ad39-4c93-bee0-12b299d63af6",
+            "document_id": "83df86d5-b9f3-49b4-bad2-effe4d35e572",
+            "title": "住宿与差旅补助标准",
+            "heading_path": "住宿与差旅补助标准/9. 示例",
+            "index_version": "v2",
+            "content": "- T2员工前往北京，城市类别为A+，住宿上限为650元/晚，餐费补助为120元/天。\n- T1员工前往武汉，城市类别为B，住宿上限为380元/晚，餐费补助为100元/天。\n- T3与T1员工在杭州合住一间，杭州为A类，一间房的上限可按T3的750元计算。\n- T2员工在北京连续驻场20天，第1至15晚按650元上限，第16晚起按520元上限执行。\n- T1员工在武汉参会且主办方提供午餐，当日100元补助扣减40%，可领取60元。\n- T3员工在杭州入住客户指定的780元会议酒店，超过750元标准，仍需事前超标审批。",
+            "source": "hybrid",
+            "retrieved_rank": null,
+            "rounds": [],
+            "query_ids": []
+          },
+          {
+            "evidence_id": "E2",
+            "chunk_id": "c502f223-22f7-4e2d-b367-30b9059a1308",
+            "kb_id": "524146da-ad39-4c93-bee0-12b299d63af6",
+            "document_id": "83df86d5-b9f3-49b4-bad2-effe4d35e572",
+            "title": "住宿与差旅补助标准",
+            "heading_path": "住宿与差旅补助标准/1. 单人单晚住宿上限",
+            "index_version": "v2",
+            "content": "住宿标准由“差旅等级 + 目的地城市类别”共同确定，金额为含税人民币上限。\n\n【表头】城市类别 | T0/T1 | T2 | T3 | T4\n| 城市类别 | T0/T1 | T2 | T3 | T4 |\n|----------|-------|----|----|----|\n| A+类 | 500元 | 650元 | 850元 | 1,200元 |\n| A类 | 450元 | 600元 | 750元 | 1,000元 |\n| B类 | 380元 | 500元 | 650元 | 850元 |\n| C类 | 320元 | 420元 | 550元 | 700元 |\n\n城市类别必须依据公司发布的差旅城市分类清单确定，不得按个人对城市消费水平的判断自行分类。",
+            "source": "bm25",
+            "retrieved_rank": 7,
+            "rounds": [],
+            "query_ids": []
+          },
+          {
+            "evidence_id": "E3",
+            "chunk_id": "ca7f416b-b65b-4f25-809a-dbe90d6b941c",
+            "kb_id": "524146da-ad39-4c93-bee0-12b299d63af6",
+            "document_id": "b0b9273c-5faf-4d87-aa6a-bd04556df045",
+            "title": "国内出差申请与审批权限规范",
+            "heading_path": "国内出差申请与审批权限规范/10. 判断示例",
+            "index_version": "v2",
+            "content": "- T2员工出差3天、预算8,500元，常规情况下最低由直属负责人审批；若其处于试用期，还须增加部门负责人审批。\n- 两名员工出差5天、各自预算8,000元，应按各自申请判断时长条件，最低均由部门负责人审批。\n- 原预算9,000元增加到10,500元，增幅超过20%，应重新审批；即使增幅较小，只要新增超标酒店也需专项审批。",
+            "source": "vector",
+            "retrieved_rank": 1,
+            "rounds": [],
+            "query_ids": []
+          },
+          {
+            "evidence_id": "E4",
+            "chunk_id": "7d4146cf-c9e4-4e91-9c65-7c00eb29c916",
+            "kb_id": "524146da-ad39-4c93-bee0-12b299d63af6",
+            "document_id": "b0b9273c-5faf-4d87-aa6a-bd04556df045",
+            "title": "国内出差申请与审批权限规范",
+            "heading_path": "国内出差申请与审批权限规范/4. 特殊审批",
+            "index_version": "v2",
+            "content": "下列情形除常规审批外，还须增加相应审批：\n\n【表头】情形 | 增加审批人\n| 情形 | 增加审批人 |\n|------|------------|\n| 试用期员工出差 | 部门负责人 |\n| 实习生单独出差 | 原则上禁止；确需出差须 HRBP 和部门负责人批准 |\n| 超交通或住宿标准 | 财务负责人 |\n| 客户承担部分或全部费用 | 合规负责人 |\n| 临时升级差旅等级 | HRBP、财务负责人 |\n| 前往自然灾害或公共卫生事件影响地区 | 行政安全负责人 |\n\n审批人不得审批本人的出差申请。直属负责人同时是预算负责人时，可以合并业务和预算审批，但系统应保留两个审批角色。多人同行可以关联同一出差事项，但每名员工的身份、等级和费用预算须分别记录。",
+            "source": "vector",
+            "retrieved_rank": 2,
+            "rounds": [],
+            "query_ids": []
+          }
+        ]
+      },
+      "metadata": {
+        "trace_id": "985f97fe-d7ba-4b01-a834-67ffd932fb82",
+        "log_id": "97d2f116-7e59-4a5f-8d5d-0fa5f4ed83fa",
+        "initial_evidence_status": "partial",
+        "stop_reason": "max_rounds",
+        "round_count": 1,
+        "retrieval_task_count": 1,
+        "llm_call_count": 1,
+        "input_tokens": 4286,
+        "output_tokens": 2718,
+        "latency_ms": 30062,
+        "degraded": false,
+        "errors": [],
+        "stages": []
+      }
+    },
+    {
+      "case_id": "intern_wuhan_emergency_solo_trip",
+      "case_type": "dependent_multi_hop",
+      "question": "一名实习生需要单独去武汉处理2天生产故障，这种情况是否允许，交通和住宿按什么标准，来不及事前走完审批该怎么办？",
+      "success": true,
+      "degraded": false,
+      "error": null,
+      "elapsed_ms": 28085,
+      "answer": null,
+      "plan": null,
+      "rounds": [
+        {
+          "round": 1,
+          "purpose": "initial",
+          "tasks": [
+            {
+              "query_id": "Q1",
+              "query": "一名实习生需要单独去武汉处理2天生产故障，这种情况是否允许，交通和住宿按什么标准，来不及事前走完审批该怎么办？",
+              "aspect_ids": [],
+              "success": true,
+              "chunk_ids": [
+                "94719d4a-f0cf-4ee6-ab54-36b97c225e39",
+                "d94f02db-0120-4842-8f8d-84f743f47a0c",
+                "b211a933-380c-44d1-8859-c6592d897897",
+                "7a147ca4-00df-4707-9984-e8d00681f96d",
+                "10f8ce8c-a4d1-4e35-8523-8c1ad12d6e67",
+                "93219594-e874-47b0-bfcf-37ff3658121c",
+                "91c022e2-9356-408e-ba7a-34ee6ac41cc3",
+                "d51207d6-28ae-4f0c-9eda-c16a0cba1dd5",
+                "cfd98922-ba3c-4945-8d2e-1d2f39c17140",
+                "d1d7a092-e6ad-4350-ae49-4ee6d924c7af"
+              ],
+              "new_chunk_count": 10,
+              "latency_ms": 2214
+            }
+          ],
+          "candidate_chunk_ids": [
+            "94719d4a-f0cf-4ee6-ab54-36b97c225e39",
+            "d94f02db-0120-4842-8f8d-84f743f47a0c",
+            "b211a933-380c-44d1-8859-c6592d897897",
+            "7a147ca4-00df-4707-9984-e8d00681f96d",
+            "10f8ce8c-a4d1-4e35-8523-8c1ad12d6e67",
+            "93219594-e874-47b0-bfcf-37ff3658121c",
+            "91c022e2-9356-408e-ba7a-34ee6ac41cc3",
+            "d51207d6-28ae-4f0c-9eda-c16a0cba1dd5",
+            "cfd98922-ba3c-4945-8d2e-1d2f39c17140",
+            "d1d7a092-e6ad-4350-ae49-4ee6d924c7af"
+          ],
+          "candidate_count": 10,
+          "new_chunk_count": 10,
+          "latency_ms": 2214
+        }
+      ],
+      "evidence_pack": {
+        "status": "complete",
+        "missing_aspects": [],
+        "groups": [
+          {
+            "aspect": "实习生单独去武汉处理生产故障是否允许",
+            "evidence": [
+              {
+                "evidence_id": "E1",
+                "role": "core"
+              },
+              {
+                "evidence_id": "E2",
+                "role": "supporting"
+              }
+            ],
+            "covered": true
+          },
+          {
+            "aspect": "交通和住宿按什么标准",
+            "evidence": [
+              {
+                "evidence_id": "E1",
+                "role": "core"
+              },
+              {
+                "evidence_id": "E3",
+                "role": "core"
+              },
+              {
+                "evidence_id": "E4",
+                "role": "core"
+              },
+              {
+                "evidence_id": "E2",
+                "role": "supporting"
+              }
+            ],
+            "covered": true
+          },
+          {
+            "aspect": "来不及事前走完审批该怎么办",
+            "evidence": [
+              {
+                "evidence_id": "E2",
+                "role": "core"
+              }
+            ],
+            "covered": true
+          }
+        ],
+        "items": [
+          {
+            "evidence_id": "E1",
+            "chunk_id": "b211a933-380c-44d1-8859-c6592d897897",
+            "kb_id": "524146da-ad39-4c93-bee0-12b299d63af6",
+            "document_id": "e8e7154e-b7bb-4b2f-84d6-8d6cf96f9d05",
+            "title": "特殊人员与特殊场景差旅规则",
+            "heading_path": "特殊人员与特殊场景差旅规则/2. 实习生",
+            "index_version": "v2",
+            "content": "- 实习生统一按T0执行。\n- 原则上不得单独出差，必须由正式员工带队。\n- 确需单独出差时，须由HRBP和部门负责人共同批准。\n- 晚于22:00到达目的地时，带队负责人应确认安全到达。",
+            "source": "hybrid",
+            "retrieved_rank": 3,
+            "rounds": [],
+            "query_ids": []
+          },
+          {
+            "evidence_id": "E2",
+            "chunk_id": "94719d4a-f0cf-4ee6-ab54-36b97c225e39",
+            "kb_id": "524146da-ad39-4c93-bee0-12b299d63af6",
+            "document_id": "e8e7154e-b7bb-4b2f-84d6-8d6cf96f9d05",
+            "title": "特殊人员与特殊场景差旅规则",
+            "heading_path": "特殊人员与特殊场景差旅规则/7. 紧急技术支持",
+            "index_version": "v2",
+            "content": "生产事故、重大客户故障等紧急任务可先获得直属负责人即时确认后出发，并在1个工作日内补齐审批。紧急情形不自动放宽交通和住宿标准；确因票源或安全原因超标的，须保留无票截图或事故通知。",
+            "source": "hybrid",
+            "retrieved_rank": 1,
+            "rounds": [],
+            "query_ids": []
+          },
+          {
+            "evidence_id": "E3",
+            "chunk_id": "d1d7a092-e6ad-4350-ae49-4ee6d924c7af",
+            "kb_id": "524146da-ad39-4c93-bee0-12b299d63af6",
+            "document_id": "af9b9d7b-81fd-4048-8d68-8b5a8ab8787c",
+            "title": "差旅城市分类清单",
+            "heading_path": "差旅城市分类清单/3. B类城市",
+            "index_version": "v2",
+            "content": "天津、重庆、武汉、西安、长沙、青岛、郑州、宁波、无锡、佛山、东莞、珠海。",
+            "source": "bm25",
+            "retrieved_rank": 10,
+            "rounds": [],
+            "query_ids": []
+          },
+          {
+            "evidence_id": "E4",
+            "chunk_id": "c502f223-22f7-4e2d-b367-30b9059a1308",
+            "kb_id": "524146da-ad39-4c93-bee0-12b299d63af6",
+            "document_id": "83df86d5-b9f3-49b4-bad2-effe4d35e572",
+            "title": "住宿与差旅补助标准",
+            "heading_path": "住宿与差旅补助标准/1. 单人单晚住宿上限",
+            "index_version": "v2",
+            "content": "住宿标准由“差旅等级 + 目的地城市类别”共同确定，金额为含税人民币上限。\n\n【表头】城市类别 | T0/T1 | T2 | T3 | T4\n| 城市类别 | T0/T1 | T2 | T3 | T4 |\n|----------|-------|----|----|----|\n| A+类 | 500元 | 650元 | 850元 | 1,200元 |\n| A类 | 450元 | 600元 | 750元 | 1,000元 |\n| B类 | 380元 | 500元 | 650元 | 850元 |\n| C类 | 320元 | 420元 | 550元 | 700元 |\n\n城市类别必须依据公司发布的差旅城市分类清单确定，不得按个人对城市消费水平的判断自行分类。",
+            "source": "hybrid",
+            "retrieved_rank": null,
+            "rounds": [],
+            "query_ids": []
+          }
+        ]
+      },
+      "metadata": {
+        "trace_id": "0a473ddc-7b50-43ad-9db8-d48cedf60133",
+        "log_id": "2f221866-e065-4e54-9d35-7864a2b2871a",
+        "initial_evidence_status": "complete",
+        "stop_reason": "evidence_complete",
+        "round_count": 1,
+        "retrieval_task_count": 1,
+        "llm_call_count": 1,
+        "input_tokens": 3931,
+        "output_tokens": 2683,
+        "latency_ms": 27551,
+        "degraded": false,
+        "errors": [],
+        "stages": []
+      }
+    },
+    {
+      "case_id": "research_manager_suzhou_late_arrival",
+      "case_type": "dependent_multi_hop",
+      "question": "一名研发经理去苏州工业园区出差，晚上23:30到站，他的差旅等级是什么，酒店每晚上限多少，从车站打车到酒店的单程上限多少？",
+      "success": true,
+      "degraded": false,
+      "error": null,
+      "elapsed_ms": 42499,
+      "answer": null,
+      "plan": null,
+      "rounds": [
+        {
+          "round": 1,
+          "purpose": "initial",
+          "tasks": [
+            {
+              "query_id": "Q1",
+              "query": "一名研发经理去苏州工业园区出差，晚上23:30到站，他的差旅等级是什么，酒店每晚上限多少，从车站打车到酒店的单程上限多少？",
+              "aspect_ids": [],
+              "success": true,
+              "chunk_ids": [
+                "00c23298-261b-4c1e-b468-127dc91b16c5",
+                "d528c387-e895-4baf-9646-efbeea298d61",
+                "2cfb8c24-de2f-4e97-b99b-3e73a08f8f63",
+                "06bb9e89-b8b2-4d06-b279-b35d13b63b74",
+                "95a129f6-3cbc-4836-98dc-e1c07ee11d28",
+                "1bb20f02-8530-4ac7-983a-aca881ee9afa",
+                "c1da48ab-d007-430d-9d2d-6a9d8a0c95f9",
+                "c502f223-22f7-4e2d-b367-30b9059a1308",
+                "c6b5336b-3369-46ec-a32f-b1b4fc32c8d2",
+                "047e1931-1950-4696-8ee6-f0210aaf7b36"
+              ],
+              "new_chunk_count": 10,
+              "latency_ms": 2712
+            }
+          ],
+          "candidate_chunk_ids": [
+            "00c23298-261b-4c1e-b468-127dc91b16c5",
+            "d528c387-e895-4baf-9646-efbeea298d61",
+            "2cfb8c24-de2f-4e97-b99b-3e73a08f8f63",
+            "06bb9e89-b8b2-4d06-b279-b35d13b63b74",
+            "95a129f6-3cbc-4836-98dc-e1c07ee11d28",
+            "1bb20f02-8530-4ac7-983a-aca881ee9afa",
+            "c1da48ab-d007-430d-9d2d-6a9d8a0c95f9",
+            "c502f223-22f7-4e2d-b367-30b9059a1308",
+            "c6b5336b-3369-46ec-a32f-b1b4fc32c8d2",
+            "047e1931-1950-4696-8ee6-f0210aaf7b36"
+          ],
+          "candidate_count": 10,
+          "new_chunk_count": 10,
+          "latency_ms": 2712
+        }
+      ],
+      "evidence_pack": {
+        "status": "complete",
+        "missing_aspects": [],
+        "groups": [
+          {
+            "aspect": "确定研发经理的差旅等级",
+            "evidence": [
+              {
+                "evidence_id": "E1",
+                "role": "core"
+              },
+              {
+                "evidence_id": "E2",
+                "role": "supporting"
+              }
+            ],
+            "covered": true
+          },
+          {
+            "aspect": "确定苏州工业园区的城市类别",
+            "evidence": [
+              {
+                "evidence_id": "E3",
+                "role": "core"
+              }
+            ],
+            "covered": true
+          },
+          {
+            "aspect": "确定酒店每晚住宿上限",
+            "evidence": [
+              {
+                "evidence_id": "E4",
+                "role": "core"
+              },
+              {
+                "evidence_id": "E5",
+                "role": "supporting"
+              },
+              {
+                "evidence_id": "E6",
+                "role": "supporting"
+              }
+            ],
+            "covered": true
+          },
+          {
+            "aspect": "确定深夜到站打车单程上限",
+            "evidence": [
+              {
+                "evidence_id": "E7",
+                "role": "core"
+              }
+            ],
+            "covered": true
+          }
+        ],
+        "items": [
+          {
+            "evidence_id": "E1",
+            "chunk_id": "1bb20f02-8530-4ac7-983a-aca881ee9afa",
+            "kb_id": "524146da-ad39-4c93-bee0-12b299d63af6",
+            "document_id": "705ba5dc-2302-4981-a9de-1fb9fbe2161b",
+            "title": "职级与差旅等级映射标准",
+            "heading_path": "职级与差旅等级映射标准/1. 差旅等级定义",
+            "index_version": "v2",
+            "content": "差旅等级使用 T0、T1、T2、T3、T4 表示，只用于匹配交通、住宿和国际差旅标准，不代表组织职权或薪酬等级。\n\n【表头】人员或职级 | 差旅等级\n| 人员或职级 | 差旅等级 |\n|------------|----------|\n| 实习生 | T0 |\n| P1～P4 | T1 |\n| P5～P6、M1～M2 | T2 |\n| P7～P8、M3 | T3 |\n| P9及以上、M4及以上 | T4 |\n| 劳务派遣人员 | 合同约定；无约定为 T1 |\n| 外部顾问 | 合同约定；无约定为 T2 |\n\n外包人员原则上由供应商承担差旅费。确需公司承担且合同无标准时，项目负责人可申请按 T1 执行。",
+            "source": "vector",
+            "retrieved_rank": 6,
+            "rounds": [],
+            "query_ids": []
+          },
+          {
+            "evidence_id": "E2",
+            "chunk_id": "047e1931-1950-4696-8ee6-f0210aaf7b36",
+            "kb_id": "524146da-ad39-4c93-bee0-12b299d63af6",
+            "document_id": "705ba5dc-2302-4981-a9de-1fb9fbe2161b",
+            "title": "职级与差旅等级映射标准",
+            "heading_path": "职级与差旅等级映射标准/8. 等级使用顺序",
+            "index_version": "v2",
+            "content": "处理差旅问题时应按以下顺序认定：\n\n1. 确认人员身份；\n2. 确认生效的 P/M 职级；\n3. 映射为 T0～T4；\n4. 查询目的地城市类别或国际风险等级；\n5. 匹配交通、住宿、补助和审批规则。\n\n任何单一步骤缺少证据时，不得直接推定最终报销上限。",
+            "source": "hybrid",
+            "retrieved_rank": 10,
+            "rounds": [],
+            "query_ids": []
+          },
+          {
+            "evidence_id": "E3",
+            "chunk_id": "2cfb8c24-de2f-4e97-b99b-3e73a08f8f63",
+            "kb_id": "524146da-ad39-4c93-bee0-12b299d63af6",
+            "document_id": "af9b9d7b-81fd-4048-8d68-8b5a8ab8787c",
+            "title": "差旅城市分类清单",
+            "heading_path": "差旅城市分类清单/5. 特殊区域认定",
+            "index_version": "v2",
+            "content": "【表头】目的地描述 | 认定方式\n| 目的地描述 | 认定方式 |\n|------------|----------|\n| 北京市各区 | 均按A+类 |\n| 上海市各区 | 均按A+类 |\n| 深圳市各区 | 均按A+类 |\n| 杭州市辖区及余杭、临平 | 按A类 |\n| 苏州工业园区、昆山 | 按A类 |\n| 成都天府新区 | 按A类 |\n| 香港、澳门、台湾 | 不适用本清单，按境外差旅处理 |",
+            "source": "bm25",
+            "retrieved_rank": 3,
+            "rounds": [],
+            "query_ids": []
+          },
+          {
+            "evidence_id": "E4",
+            "chunk_id": "c502f223-22f7-4e2d-b367-30b9059a1308",
+            "kb_id": "524146da-ad39-4c93-bee0-12b299d63af6",
+            "document_id": "83df86d5-b9f3-49b4-bad2-effe4d35e572",
+            "title": "住宿与差旅补助标准",
+            "heading_path": "住宿与差旅补助标准/1. 单人单晚住宿上限",
+            "index_version": "v2",
+            "content": "住宿标准由“差旅等级 + 目的地城市类别”共同确定，金额为含税人民币上限。\n\n【表头】城市类别 | T0/T1 | T2 | T3 | T4\n| 城市类别 | T0/T1 | T2 | T3 | T4 |\n|----------|-------|----|----|----|\n| A+类 | 500元 | 650元 | 850元 | 1,200元 |\n| A类 | 450元 | 600元 | 750元 | 1,000元 |\n| B类 | 380元 | 500元 | 650元 | 850元 |\n| C类 | 320元 | 420元 | 550元 | 700元 |\n\n城市类别必须依据公司发布的差旅城市分类清单确定，不得按个人对城市消费水平的判断自行分类。",
+            "source": "hybrid",
+            "retrieved_rank": 8,
+            "rounds": [],
+            "query_ids": []
+          },
+          {
+            "evidence_id": "E5",
+            "chunk_id": "c1da48ab-d007-430d-9d2d-6a9d8a0c95f9",
+            "kb_id": "524146da-ad39-4c93-bee0-12b299d63af6",
+            "document_id": "af9b9d7b-81fd-4048-8d68-8b5a8ab8787c",
+            "title": "差旅城市分类清单",
+            "heading_path": "差旅城市分类清单/10. 使用限制",
+            "index_version": "v2",
+            "content": "本清单只回答目的地属于哪一类城市，不能单独确定住宿金额。最终住宿上限还需结合人员差旅等级查询住宿与补助标准。",
+            "source": "bm25",
+            "retrieved_rank": 7,
+            "rounds": [],
+            "query_ids": []
+          },
+          {
+            "evidence_id": "E6",
+            "chunk_id": "10f8ce8c-a4d1-4e35-8523-8c1ad12d6e67",
+            "kb_id": "524146da-ad39-4c93-bee0-12b299d63af6",
+            "document_id": "83df86d5-b9f3-49b4-bad2-effe4d35e572",
+            "title": "住宿与差旅补助标准",
+            "heading_path": "住宿与差旅补助标准/9. 示例",
+            "index_version": "v2",
+            "content": "- T2员工前往北京，城市类别为A+，住宿上限为650元/晚，餐费补助为120元/天。\n- T1员工前往武汉，城市类别为B，住宿上限为380元/晚，餐费补助为100元/天。\n- T3与T1员工在杭州合住一间，杭州为A类，一间房的上限可按T3的750元计算。\n- T2员工在北京连续驻场20天，第1至15晚按650元上限，第16晚起按520元上限执行。\n- T1员工在武汉参会且主办方提供午餐，当日100元补助扣减40%，可领取60元。\n- T3员工在杭州入住客户指定的780元会议酒店，超过750元标准，仍需事前超标审批。",
+            "source": "hybrid",
+            "retrieved_rank": null,
+            "rounds": [],
+            "query_ids": []
+          },
+          {
+            "evidence_id": "E7",
+            "chunk_id": "00c23298-261b-4c1e-b468-127dc91b16c5",
+            "kb_id": "524146da-ad39-4c93-bee0-12b299d63af6",
+            "document_id": "e8e7154e-b7bb-4b2f-84d6-8d6cf96f9d05",
+            "title": "特殊人员与特殊场景差旅规则",
+            "heading_path": "特殊人员与特殊场景差旅规则/5. 深夜和安全场景",
+            "index_version": "v2",
+            "content": "因公务行程在23:00至次日06:00到达机场或车站，可以使用企业网约车或正规出租车。A+、A类城市单程不超过250元，B、C类城市单程不超过150元；超过上限须说明距离、时间和安全原因。\n\n女性员工、行动不便员工或携带重要设备的员工，在存在明确安全风险时可选择更安全的交通方案，不以最低价格为唯一标准。\n\n深夜交通上限只适用于机场、火车站与住宿地或常驻地之间的必要接驳，不适用于聚餐、娱乐或个人拜访后的返程。多人同路线时应合理合乘，单程上限按车辆计算而不是按人数计算。",
+            "source": "bm25",
+            "retrieved_rank": 1,
+            "rounds": [],
+            "query_ids": []
+          }
+        ]
+      },
+      "metadata": {
+        "trace_id": "81f16889-7047-4f79-bc16-ad50699f293c",
+        "log_id": "6e61ad1f-3777-47ec-b5ba-b88615acf41a",
+        "initial_evidence_status": "complete",
+        "stop_reason": "evidence_complete",
+        "round_count": 1,
+        "retrieval_task_count": 1,
+        "llm_call_count": 1,
+        "input_tokens": 4379,
+        "output_tokens": 4183,
+        "latency_ms": 42258,
+        "degraded": false,
+        "errors": [],
+        "stages": []
+      }
+    },
+    {
+      "case_id": "technical_expert_singapore_long_flight",
+      "case_type": "dependent_multi_hop",
+      "question": "一名技术专家去新加坡出差，单段计划飞行9小时，他的差旅等级是什么，最低需要哪些人审批，可以坐什么舱位，酒店每晚上限多少？",
+      "success": true,
+      "degraded": false,
+      "error": null,
+      "elapsed_ms": 30843,
+      "answer": null,
+      "plan": null,
+      "rounds": [
+        {
+          "round": 1,
+          "purpose": "initial",
+          "tasks": [
+            {
+              "query_id": "Q1",
+              "query": "一名技术专家去新加坡出差，单段计划飞行9小时，他的差旅等级是什么，最低需要哪些人审批，可以坐什么舱位，酒店每晚上限多少？",
+              "aspect_ids": [],
+              "success": true,
+              "chunk_ids": [
+                "3c4f3838-61bc-4e45-8816-dea9b4a0fb67",
+                "9c2272d9-4edc-4aa7-a4a6-2f773f2110d4",
+                "d528c387-e895-4baf-9646-efbeea298d61",
+                "ae7897a0-2018-42fb-aef9-6690e8be90ef",
+                "95a129f6-3cbc-4836-98dc-e1c07ee11d28",
+                "047e1931-1950-4696-8ee6-f0210aaf7b36",
+                "9f2620d5-305f-480c-8eba-0c081c1b39d3",
+                "3e643099-cd8c-48a3-b195-4c81f4b64133",
+                "38fe750f-cc1e-47ee-b367-7df7209d801a",
+                "c1da48ab-d007-430d-9d2d-6a9d8a0c95f9"
+              ],
+              "new_chunk_count": 10,
+              "latency_ms": 2131
+            }
+          ],
+          "candidate_chunk_ids": [
+            "3c4f3838-61bc-4e45-8816-dea9b4a0fb67",
+            "9c2272d9-4edc-4aa7-a4a6-2f773f2110d4",
+            "d528c387-e895-4baf-9646-efbeea298d61",
+            "ae7897a0-2018-42fb-aef9-6690e8be90ef",
+            "95a129f6-3cbc-4836-98dc-e1c07ee11d28",
+            "047e1931-1950-4696-8ee6-f0210aaf7b36",
+            "9f2620d5-305f-480c-8eba-0c081c1b39d3",
+            "3e643099-cd8c-48a3-b195-4c81f4b64133",
+            "38fe750f-cc1e-47ee-b367-7df7209d801a",
+            "c1da48ab-d007-430d-9d2d-6a9d8a0c95f9"
+          ],
+          "candidate_count": 10,
+          "new_chunk_count": 10,
+          "latency_ms": 2131
+        }
+      ],
+      "evidence_pack": {
+        "status": "complete",
+        "missing_aspects": [],
+        "groups": [
+          {
+            "aspect": "差旅等级",
+            "evidence": [
+              {
+                "evidence_id": "E1",
+                "role": "core"
+              }
+            ],
+            "covered": true
+          },
+          {
+            "aspect": "最低审批人",
+            "evidence": [
+              {
+                "evidence_id": "E2",
+                "role": "core"
+              },
+              {
+                "evidence_id": "E1",
+                "role": "supporting"
+              }
+            ],
+            "covered": true
+          },
+          {
+            "aspect": "允许舱位",
+            "evidence": [
+              {
+                "evidence_id": "E1",
+                "role": "core"
+              },
+              {
+                "evidence_id": "E3",
+                "role": "supporting"
+              }
+            ],
+            "covered": true
+          },
+          {
+            "aspect": "酒店每晚上限",
+            "evidence": [
+              {
+                "evidence_id": "E1",
+                "role": "core"
+              }
+            ],
+            "covered": true
+          }
+        ],
+        "items": [
+          {
+            "evidence_id": "E1",
+            "chunk_id": "3c4f3838-61bc-4e45-8816-dea9b4a0fb67",
+            "kb_id": "524146da-ad39-4c93-bee0-12b299d63af6",
+            "document_id": "f3bbb3a9-dbde-4a6d-a189-ec7aa7b48f91",
+            "title": "国际及高风险地区差旅管理规范",
+            "heading_path": "国际及高风险地区差旅管理规范/12. 判断示例",
+            "index_version": "v2",
+            "content": "- P7员工对应T3，前往新加坡属于R1、G1；单段飞行超过8小时可选择超级经济舱，住宿上限为1,800元。\n- M2员工对应T2，前往墨西哥通常按R2、G3处理，需要事业部负责人和行政安全负责人审批，住宿上限为1,000元。\n- 行程包含日本和一个当期R3地区时，整体按R3完成审批，但每晚住宿仍按实际所在地地区组匹配。",
+            "source": "hybrid",
+            "retrieved_rank": 1,
+            "rounds": [],
+            "query_ids": []
+          },
+          {
+            "evidence_id": "E2",
+            "chunk_id": "ae7897a0-2018-42fb-aef9-6690e8be90ef",
+            "kb_id": "524146da-ad39-4c93-bee0-12b299d63af6",
+            "document_id": "f3bbb3a9-dbde-4a6d-a189-ec7aa7b48f91",
+            "title": "国际及高风险地区差旅管理规范",
+            "heading_path": "国际及高风险地区差旅管理规范/3. 审批要求",
+            "index_version": "v2",
+            "content": "【表头】风险等级 | 最低审批要求\n| 风险等级 | 最低审批要求 |\n|----------|--------------|\n| R1 | 部门负责人、国际业务负责人 |\n| R2 | 事业部负责人、行政安全负责人 |\n| R3 | 集团分管副总裁、法务、行政安全委员会 |\n| R4 | 原则上禁止出行 |\n\n国际出差无论金额和天数，均不得仅由直属负责人审批。\n\n出差申请还应包含护照和签证有效性确认、境外联系人、紧急联系人、住宿地址、保险方案及通信方式。R2及以上地区必须提交书面安全计划；多人出行时应指定一名行程安全负责人。",
+            "source": "vector",
+            "retrieved_rank": 4,
+            "rounds": [],
+            "query_ids": []
+          },
+          {
+            "evidence_id": "E3",
+            "chunk_id": "9c2272d9-4edc-4aa7-a4a6-2f773f2110d4",
+            "kb_id": "524146da-ad39-4c93-bee0-12b299d63af6",
+            "document_id": "f3bbb3a9-dbde-4a6d-a189-ec7aa7b48f91",
+            "title": "国际及高风险地区差旅管理规范",
+            "heading_path": "国际及高风险地区差旅管理规范/4. 国际交通标准",
+            "index_version": "v2",
+            "content": "【表头】差旅等级 | 飞行时间8小时以内 | 飞行时间超过8小时\n| 差旅等级 | 飞行时间8小时以内 | 飞行时间超过8小时 |\n|----------|-------------------|--------------------|\n| T0/T1 | 经济舱 | 经济舱 |\n| T2 | 经济舱 | 经济舱，可选额外腿部空间座位 |\n| T3 | 经济舱 | 超级经济舱 |\n| T4 | 商务舱 | 商务舱 |\n\n飞行时间按单段计划飞行时间计算，不累加中转等待时间。无对应舱位时，应选择相邻较低舱位；升级须事前审批。",
+            "source": "vector",
+            "retrieved_rank": 2,
+            "rounds": [],
+            "query_ids": []
+          }
+        ]
+      },
+      "metadata": {
+        "trace_id": "ae4da24f-3e99-4c54-b1be-5211540aa057",
+        "log_id": "84549241-e693-4fa8-a56a-a70d491729b8",
+        "initial_evidence_status": "complete",
+        "stop_reason": "evidence_complete",
+        "round_count": 1,
+        "retrieval_task_count": 1,
+        "llm_call_count": 1,
+        "input_tokens": 4213,
+        "output_tokens": 3451,
+        "latency_ms": 30665,
+        "degraded": false,
+        "errors": [],
+        "stages": []
+      }
+    }
+  ],
+  "checkpoint_at": "2026-08-20T04:51:22.761923+00:00",
+  "run_finished_at": "2026-08-20T04:53:42.224596+00:00"
+}

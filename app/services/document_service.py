@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core.exceptions import AppError, ErrorCode
+from app.core.index_versions import DEFAULT_INDEX_VERSION
 from app.core.logging import get_logger
 from app.providers.parsers.registry import validate_upload_extension
 from app.repositories.chunk_repository import ChunkRepository
@@ -99,7 +100,9 @@ class DocumentService:
             document.kb_id,
             tenant_id,
         )
-        index_version = knowledge_base.active_index_version if knowledge_base else "v1"
+        index_version = (
+            knowledge_base.active_index_version if knowledge_base else DEFAULT_INDEX_VERSION
+        )
         chunk_count = self.chunk_repository.count_by_document_id(document_id, index_version)
         return DocumentDetailData(
             document_id=document.id,
@@ -132,7 +135,9 @@ class DocumentService:
             document_id,
         )
 
-    async def reindex(self, tenant_id: str, document_id: str, *, reparse: bool = False) -> ReindexDocumentData:
+    async def reindex(
+        self, tenant_id: str, document_id: str, *, reparse: bool = False
+    ) -> ReindexDocumentData:
         document = self._get_document_or_raise(tenant_id, document_id)
         IndexVersionService(self.db).ensure_not_building(tenant_id, document.kb_id)
         if document.status == DocumentStatus.PROCESSING:
@@ -144,7 +149,11 @@ class DocumentService:
             raise AppError(
                 ErrorCode.PARAM_ERROR,
                 msg="仅索引成功或失败的文档可重建索引",
-                context={"tenant_id": tenant_id, "document_id": document_id, "status": document.status},
+                context={
+                    "tenant_id": tenant_id,
+                    "document_id": document_id,
+                    "status": document.status,
+                },
             )
 
         QuotaService(self.db).check_reindex(tenant_id)

@@ -5,6 +5,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from app.core.exceptions import AppError
+from app.core.index_versions import DEFAULT_INDEX_VERSION, LEGACY_INDEX_VERSION
 from app.services.index_version_service import IndexVersionService
 from app.services.rag_service import RagService
 
@@ -32,6 +33,22 @@ def make_service() -> IndexVersionService:
     service.chunk_repository = MagicMock()
     service.relation_repository = MagicMock()
     return service
+
+
+def test_initial_index_defaults_to_v2_and_can_explicitly_use_v1() -> None:
+    service = make_service()
+
+    service.create_initial(tenant_id="tenant", kb_id="kb")
+    default_item = service.version_repository.create.call_args.args[0]
+    assert default_item.version == DEFAULT_INDEX_VERSION == "v2"
+
+    service.create_initial(
+        tenant_id="tenant",
+        kb_id="legacy-kb",
+        version=LEGACY_INDEX_VERSION,
+    )
+    legacy_item = service.version_repository.create.call_args.args[0]
+    assert legacy_item.version == "v1"
 
 
 def test_next_version_uses_highest_existing_number() -> None:

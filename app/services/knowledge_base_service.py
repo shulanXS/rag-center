@@ -46,7 +46,7 @@ class KnowledgeBaseService:
             settings={},
         )
         self.repository.create(knowledge_base)
-        IndexVersionService(self.db).create_initial_v1(
+        IndexVersionService(self.db).create_initial(
             tenant_id=tenant_id,
             kb_id=knowledge_base.id,
         )
@@ -138,9 +138,7 @@ class KnowledgeBaseService:
         knowledge_bases = self.repository.list_for_tree(tenant_id, keyword)
         all_documents = [document for kb in knowledge_bases for document in kb.documents]
         success_document_ids = [
-            document.id
-            for document in all_documents
-            if document.status == DocumentStatus.SUCCESS
+            document.id for document in all_documents if document.status == DocumentStatus.SUCCESS
         ]
         chunk_counts = self.repository.get_chunk_counts_by_version(success_document_ids)
 

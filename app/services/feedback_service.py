@@ -3,7 +3,6 @@ from sqlalchemy.orm import Session
 from app.core.exceptions import AppError, ErrorCode
 from app.core.logging import get_logger
 from app.observability.langfuse_client import get_langfuse_client
-from app.repositories.retrieval_log_repository import RetrievalLogRepository
 from app.schemas.feedback import FeedbackData, FeedbackRequest
 from app.utils.id_generator import generate_uuid
 
@@ -15,7 +14,6 @@ FEEDBACK_SCORE_NAME = "user_feedback"
 class FeedbackService:
     def __init__(self, db: Session) -> None:
         self.db = db
-        self.retrieval_log_repository = RetrievalLogRepository(db)
 
     def submit_feedback(self, tenant_id: str, request: FeedbackRequest) -> FeedbackData:
         if request.score < 1 or request.score > 5:
@@ -24,18 +22,21 @@ class FeedbackService:
                 context={"score": request.score},
             )
 
-        if request.log_id:
-            retrieval_log = self.retrieval_log_repository.get_by_id_and_tenant(
-                request.log_id,
-                tenant_id,
-            )
-            if retrieval_log is None:
+        langfuse = get_langfuse_client()
+        if langfuse is None:
+            raise AppError(ErrorCode.FEEDBACK_FAILED, msg="Langfuse 未启用或不可用")
+
+        try:
+            trace = langfuse.fetch_trace(request.trace_id).data
+            metadata = getattr(trace, "metadata", None) or {}
+            if not isinstance(metadata, dict):
+                metadata = {}
+            if metadata.get("tenant_id") != tenant_id:
                 raise AppError(
-                    ErrorCode.NOT_FOUND,
-                    msg="检索记录不存在",
-                    context={"log_id": request.log_id},
+                    ErrorCode.FEEDBACK_LOG_MISMATCH,
+                    context={"trace_id": request.trace_id},
                 )
-            if retrieval_log.trace_id != request.trace_id:
+            if request.log_id and metadata.get("log_id") != request.log_id:
                 raise AppError(
                     ErrorCode.FEEDBACK_LOG_MISMATCH,
                     context={
@@ -43,10 +44,18 @@ class FeedbackService:
                         "trace_id": request.trace_id,
                     },
                 )
-
-        langfuse = get_langfuse_client()
-        if langfuse is None:
-            raise AppError(ErrorCode.FEEDBACK_FAILED, msg="Langfuse 未启用或不可用")
+        except AppError:
+            raise
+        except Exception as exc:
+            logger.warning(
+                "FEEDBACK_TRACE_VALIDATION_FAILED | trace_id=%s | error_type=%s",
+                request.trace_id,
+                type(exc).__name__,
+            )
+            raise AppError(
+                ErrorCode.FEEDBACK_LOG_MISMATCH,
+                context={"trace_id": request.trace_id},
+            ) from exc
 
         feedback_id = generate_uuid()
         try:

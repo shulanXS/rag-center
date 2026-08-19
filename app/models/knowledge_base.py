@@ -4,6 +4,7 @@ from sqlalchemy import DateTime, String, Text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app.core.index_versions import DEFAULT_INDEX_VERSION
 from app.db.base import Base
 
 
@@ -20,7 +21,10 @@ class KnowledgeBase(Base):
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     settings: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
     active_index_version: Mapped[str] = mapped_column(
-        String(32), nullable=False, default="v1", server_default="v1"
+        String(32),
+        nullable=False,
+        default=DEFAULT_INDEX_VERSION,
+        server_default=DEFAULT_INDEX_VERSION,
     )
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
     updated_at: Mapped[datetime] = mapped_column(

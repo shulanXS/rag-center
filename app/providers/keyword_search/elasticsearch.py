@@ -7,6 +7,7 @@ import httpx
 
 from app.core.config import settings
 from app.core.exceptions import AppError, ErrorCode
+from app.core.index_versions import DEFAULT_INDEX_VERSION, LEGACY_INDEX_VERSION
 from app.core.logging import get_logger, safe_json
 from app.providers.keyword_search.base import KeywordSearchProvider
 
@@ -46,7 +47,7 @@ class ElasticsearchKeywordSearchProvider(KeywordSearchProvider):
                 "title": chunk["title"],
                 "content": chunk["content"],
                 "retrieval_text": chunk.get("retrieval_text"),
-                "index_version": chunk.get("index_version", "v1"),
+                "index_version": chunk.get("index_version", DEFAULT_INDEX_VERSION),
                 "section_id": chunk.get("section_id"),
                 "parent_section_id": chunk.get("parent_section_id"),
                 "order_index": chunk.get("order_index"),
@@ -128,7 +129,11 @@ class ElasticsearchKeywordSearchProvider(KeywordSearchProvider):
         ]
         if index_version is not None:
             filters.append({"term": {"index_version": index_version}})
-        fields = ["retrieval_text"] if index_version and index_version != "v1" else ["title^2", "content"]
+        fields = (
+            ["retrieval_text"]
+            if index_version and index_version != LEGACY_INDEX_VERSION
+            else ["title^2", "content"]
+        )
         payload: dict[str, Any] = {
             "query": {
                 "bool": {
@@ -182,7 +187,7 @@ class ElasticsearchKeywordSearchProvider(KeywordSearchProvider):
                     "title": source.get("title", ""),
                     "content": source.get("content", ""),
                     "retrieval_text": source.get("retrieval_text"),
-                    "index_version": source.get("index_version", "v1"),
+                    "index_version": source.get("index_version", DEFAULT_INDEX_VERSION),
                     "section_id": source.get("section_id"),
                     "parent_section_id": source.get("parent_section_id"),
                     "order_index": source.get("order_index"),
@@ -237,9 +242,7 @@ class ElasticsearchKeywordSearchProvider(KeywordSearchProvider):
                 context={"index": self.index_name, "document_id": document_id},
             ) from exc
 
-    async def delete_by_kb_version(
-        self, *, tenant_id: str, kb_id: str, index_version: str
-    ) -> None:
+    async def delete_by_kb_version(self, *, tenant_id: str, kb_id: str, index_version: str) -> None:
         payload = {
             "query": {
                 "bool": {

@@ -6,6 +6,7 @@ from typing import Any
 
 from sqlalchemy.orm import Session
 
+from app.core.index_versions import LEGACY_INDEX_VERSION
 from app.core.logging import get_logger
 from app.models.chunk import Chunk
 from app.repositories.chunk_relation_repository import ChunkRelationRepository
@@ -45,13 +46,13 @@ class ContextExpansionService:
         supplemental_count = 0
         expanded_anchor_count = 0
         deduplicated_count = 0
-        executed = any(anchor.get("index_version") != "v1" for anchor in anchors)
+        executed = any(anchor.get("index_version") != LEGACY_INDEX_VERSION for anchor in anchors)
         try:
             allowed_kb_ids = set(kb_ids)
             contextual_anchors = [
                 anchor
                 for anchor in anchors
-                if anchor.get("index_version") != "v1"
+                if anchor.get("index_version") != LEGACY_INDEX_VERSION
                 and str(anchor.get("kb_id") or "") in allowed_kb_ids
             ]
             if not contextual_anchors:
@@ -66,8 +67,7 @@ class ContextExpansionService:
             neighbor_anchors = [
                 anchor
                 for anchor in contextual_anchors
-                if str((anchor.get("metadata") or {}).get("chunk_type") or "prose")
-                == "prose"
+                if str((anchor.get("metadata") or {}).get("chunk_type") or "prose") == "prose"
             ]
             neighbors = self.chunk_repository.find_neighbors_batch(
                 neighbor_anchors,
@@ -118,7 +118,7 @@ class ContextExpansionService:
                 )
             }
             for anchor in anchors:
-                if anchor.get("index_version") == "v1":
+                if anchor.get("index_version") == LEGACY_INDEX_VERSION:
                     expanded.append({**anchor, "context": None})
                     continue
                 item, added, deduplicated = self._expand_anchor(
@@ -213,9 +213,7 @@ class ContextExpansionService:
 
         parent_section_id = anchor.get("parent_section_id")
         if parent_section_id and self._needs_parent_context(anchor):
-            parent = parent_map.get(
-                (kb_id, document_id, index_version, str(parent_section_id))
-            )
+            parent = parent_map.get((kb_id, document_id, index_version, str(parent_section_id)))
             if parent is not None:
                 candidates.append(("parent_section", parent))
 

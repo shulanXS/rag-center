@@ -8,9 +8,14 @@ import { sanitizeChunkMarkdown } from "@/utils/markdown";
 interface MarkdownContentProps {
   content: string;
   className?: string;
+  openLinksInNewTab?: boolean;
 }
 
-export function MarkdownContent({ content, className }: MarkdownContentProps) {
+export function MarkdownContent({
+  content,
+  className,
+  openLinksInNewTab = true,
+}: MarkdownContentProps) {
   const normalized = sanitizeChunkMarkdown(content);
   return (
     <div
@@ -61,7 +66,12 @@ export function MarkdownContent({ content, className }: MarkdownContentProps) {
           ),
           strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
           a: ({ href, children }) => (
-            <a href={href} className="text-primary underline-offset-2 hover:underline" target="_blank" rel="noreferrer">
+            <a
+              href={href}
+              className="text-primary underline-offset-2 hover:underline"
+              target={openLinksInNewTab ? "_blank" : undefined}
+              rel={openLinksInNewTab ? "noreferrer" : undefined}
+            >
               {children}
             </a>
           ),

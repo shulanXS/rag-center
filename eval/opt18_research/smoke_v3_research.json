@@ -1,0 +1,1368 @@
+{
+  "run_id": "e5acb363f69e5bf8",
+  "run_started_at": "2026-08-19T05:54:18.858420+00:00",
+  "dataset_sha256": "9cd9f3ceecf77ac92f6c778fcd5109cc273923ffa0e0fb2f056be3253bab28b0",
+  "code_commit": "0e6c2284cb0dca7d7a25592153d43f4d1ff3ccfa",
+  "code_dirty": true,
+  "code_sha256": "afd49510b912e7ada45de690193c0b80ae0af74869a1e9200d59ebba68e7636a",
+  "mode": "research",
+  "provider": "openai_compatible",
+  "models": {
+    "fast": "deepseek-v4-flash",
+    "strong": "deepseek-v4-pro"
+  },
+  "prompt_sha256": {
+    "planner": "304ef3fe9d0b6fa2bf5a8b16b86a1ad0e5cb58a0308ed62e55c4c72ceaf6ba88",
+    "decider": "5694d163836e5209fbe0192d726ac8c05180c6c2dd4720fc2b0714575cd14cc3",
+    "finalizer": "623ea62053beac52b6d9946e6be5d2783051f7c7ad2cc06b1b22d3df9689689f"
+  },
+  "tenant_id": "tenant_ecom_pro",
+  "profile": "quality",
+  "kb_ids": [
+    "df1dad54-7bfd-4ec7-9116-cfe2448e9389"
+  ],
+  "index_versions": {
+    "df1dad54-7bfd-4ec7-9116-cfe2448e9389": "v2"
+  },
+  "case_timeout_seconds": 90,
+  "repeat": 1,
+  "warmup": 0,
+  "case_types": [
+    "dependent_multi_hop"
+  ],
+  "max_cases": null,
+  "cases": [
+    {
+      "case_id": "enterprise_points_refund_timing_chain",
+      "case_type": "dependent_multi_hop",
+      "question": "从企业购会员规则开始，沿“对公转账方式”再查看其中的“积分抵扣限制”；积分规则继续引用的第一项退款规则具体规定了什么？",
+      "success": true,
+      "degraded": false,
+      "error": null,
+      "elapsed_ms": 13482,
+      "query": "从企业购会员规则开始，沿“对公转账方式”再查看其中的“积分抵扣限制”；积分规则继续引用的第一项退款规则具体规定了什么？",
+      "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+      "kb_ids": [
+        "df1dad54-7bfd-4ec7-9116-cfe2448e9389"
+      ],
+      "answer": "企业购会员规则中，对公转账方式下的积分抵扣限制为：默认100积分=1元，单笔最多抵扣实付的20%（特殊活动除外）；积分不可用于充值类、虚拟卡密、部分国际站订单；积分自获取日起12个月有效，过期清零且不补偿。[E1]\n\n积分规则引用的第一项退款规则（《售后服务与退换货政策》第4节“售后时效 SLA”）具体规定：商家审核退货申请时限为24小时（超时系统自动同意）；买家寄回时限为审核通过后7天内须揽收，逾期关闭；商家签收质检时限为48小时内完成并同意/拒绝退款；退款到账时限为同意后1~3个工作日原路退回。[E2]",
+      "evidence_pack": {
+        "status": "complete",
+        "missing_aspects": [],
+        "groups": [
+          {
+            "aspect": "企业购会员规则中对公转账方式下的积分抵扣限制",
+            "evidence": [
+              {
+                "evidence_id": "E1",
+                "role": "core"
+              },
+              {
+                "evidence_id": "E3",
+                "role": "supporting"
+              },
+              {
+                "evidence_id": "E4",
+                "role": "supporting"
+              }
+            ],
+            "covered": true
+          },
+          {
+            "aspect": "积分规则引用的第一项退款规则的具体规定",
+            "evidence": [
+              {
+                "evidence_id": "E2",
+                "role": "core"
+              },
+              {
+                "evidence_id": "E1",
+                "role": "supporting"
+              }
+            ],
+            "covered": true
+          }
+        ],
+        "items": [
+          {
+            "evidence_id": "E1",
+            "chunk_id": "779b77ca-dcb0-4de1-9eaf-d2279a876f34",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "185b2ef5-15f7-4983-95ef-4a5a1875ae0a",
+            "title": "会员体系与积分权益说明.md",
+            "heading_path": "会员体系与积分权益说明/2. 积分规则/2.2 使用与有效期",
+            "index_version": "v2",
+            "content": "- **抵扣比例：** 默认 100 积分 = 1 元，单笔最多抵扣实付的 **20%**（特殊活动除外）；\n- **不可用于：** 充值类、虚拟卡密、部分国际站订单；\n- **有效期：** 自获取日起 **12 个月**，过期清零且不补偿；\n- 退款时：已使用积分按 **抵扣金额等值** 退回积分池（若积分已过期则不退）。\n\n> 关联规则：订单退款的审核及发起时限参见《售后服务与退换货政策》第 4 节“售后时效 SLA”；现金部分的到账路径参见《支付方式与资金安全规范》第 3 节“退款原路退回”。",
+            "source": "hybrid",
+            "retrieved_rank": 1,
+            "rounds": [
+              1
+            ],
+            "query_ids": [
+              "Q1",
+              "Q2"
+            ]
+          },
+          {
+            "evidence_id": "E2",
+            "chunk_id": "3644b62a-f3ef-41f6-a05e-22e028582565",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "71785118-9dcb-41cc-97bf-4e8dbf83c27b",
+            "title": "售后服务与退换货政策.md",
+            "heading_path": "售后服务与退换货政策/4. 售后时效 SLA",
+            "index_version": "v2",
+            "content": "【表头】环节 | 时限\n| 环节 | 时限 |\n|------|------|\n| 商家审核退货申请 | **24 小时**（超时系统自动同意） |\n| 买家寄回 | 审核通过后 **7 天**内须揽收，逾期关闭 |\n| 商家签收质检 | **48 小时**内完成并同意/拒绝退款 |\n| 退款到账 | 同意后 **1~3 个工作日**原路退回 |\n\n**自动同意规则：** 商家超时未处理的退货申请，系统按买家诉求自动通过，费用由商家承担。\n\n> 关联规则：本节规定售后处理和退款发起时限；退款发起后的原路退回路径及各支付渠道到账时间，参见《支付方式与资金安全规范》第 3 节“退款原路退回”。",
+            "source": "context:reference",
+            "retrieved_rank": 1,
+            "rounds": [
+              1
+            ],
+            "query_ids": [
+              "Q1",
+              "Q2"
+            ]
+          },
+          {
+            "evidence_id": "E3",
+            "chunk_id": "16c97ec5-40e0-4b0e-8fc6-b7b526dfe4ff",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "9b4bac02-5e6f-4d50-b6e2-83dde5ac5269",
+            "title": "支付方式与资金安全规范.md",
+            "heading_path": "支付方式与资金安全规范/1. 支持的支付方式",
+            "index_version": "v2",
+            "content": "【表头】方式 | 单笔限额（参考） | 说明\n| 方式 | 单笔限额（参考） | 说明 |\n|------|------------------|------|\n| 微信支付 | 按微信账户等级 | 支持分付/分期（以微信侧为准） |\n| 支付宝 | 按支付宝账户等级 | 支持花呗分期 |\n| 云闪付 / 银行卡 | 按发卡行 | 借记卡、信用卡 |\n| 平台余额 | 账户可用余额 | 不可透支 |\n| 礼品卡 / 购物卡 | 卡面余额 | 不找零、不兑现 |\n| 对公转账 | 企业购授信额度内 | 须备注订单号，人工核销 |\n\n**组合支付：** 余额/礼品卡可与第三方支付组合；优惠券抵扣优先于现金支付部分。\n\n> 关联规则：优惠券叠加顺序参见《促销活动与优惠券使用规则》第 3 节“叠加优先级（结算顺序）”；积分抵扣限制参见《会员体系与积分权益说明》第 2.2 节“使用与有效期”。",
+            "source": "hybrid",
+            "retrieved_rank": 2,
+            "rounds": [
+              1
+            ],
+            "query_ids": [
+              "Q1",
+              "Q2"
+            ]
+          },
+          {
+            "evidence_id": "E4",
+            "chunk_id": "6f6f5f85-e455-4d92-adb5-52b6a15d60ec",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "185b2ef5-15f7-4983-95ef-4a5a1875ae0a",
+            "title": "会员体系与积分权益说明.md",
+            "heading_path": "会员体系与积分权益说明/5. 企业购会员",
+            "index_version": "v2",
+            "content": "- 需企业认证（营业执照 + 授权经办人）；\n- 支持 **对公转账、月结账期**（授信审核通过后）；\n- 开票：支持按企业抬头批量开具增值税专用发票；\n- 积分与个人会员账户 **隔离**，不可互相转移。\n\n> 关联规则：对公转账方式参见《支付方式与资金安全规范》第 1 节“支持的支付方式”；企业发票规则参见《商家入驻结算与对账流程》第 6 节“发票与税务”。",
+            "source": "hybrid",
+            "retrieved_rank": 3,
+            "rounds": [
+              1
+            ],
+            "query_ids": [
+              "Q1",
+              "Q2"
+            ]
+          }
+        ]
+      },
+      "plan": {
+        "aspects": [
+          {
+            "aspect_id": "A1",
+            "description": "企业购会员规则中对公转账方式下的积分抵扣限制"
+          },
+          {
+            "aspect_id": "A2",
+            "description": "积分规则引用的第一项退款规则的具体规定"
+          }
+        ],
+        "initial_queries": [
+          {
+            "query_id": "Q1",
+            "query": "企业购会员规则 对公转账方式 积分抵扣限制",
+            "aspect_ids": [
+              "A1"
+            ]
+          },
+          {
+            "query_id": "Q2",
+            "query": "积分规则 第一项退款规则 具体规定",
+            "aspect_ids": [
+              "A2"
+            ]
+          }
+        ],
+        "degraded": false,
+        "error": null
+      },
+      "rounds": [
+        {
+          "round": 1,
+          "purpose": "initial",
+          "tasks": [
+            {
+              "query_id": "Q1",
+              "query": "企业购会员规则 对公转账方式 积分抵扣限制",
+              "aspect_ids": [
+                "A1"
+              ],
+              "success": true,
+              "chunk_count": 10,
+              "chunk_ids": [
+                "779b77ca-dcb0-4de1-9eaf-d2279a876f34",
+                "16c97ec5-40e0-4b0e-8fc6-b7b526dfe4ff",
+                "176c98b8-a7f5-4c86-a2f0-96752afbf776",
+                "6f6f5f85-e455-4d92-adb5-52b6a15d60ec",
+                "2e198acf-848b-41ea-9c16-92bf3035f163",
+                "68a004e5-c525-4ae7-8613-759d0568d893",
+                "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+                "eb5fa64f-3266-489d-8bc6-a6741fddcfe5",
+                "ce6921ae-91c2-457b-91c5-f88332079a08",
+                "c3079511-c7bc-4efe-bfe7-191199565b00"
+              ],
+              "new_chunk_count": 10,
+              "latency_ms": 1960,
+              "degraded": false,
+              "error": null
+            },
+            {
+              "query_id": "Q2",
+              "query": "积分规则 第一项退款规则 具体规定",
+              "aspect_ids": [
+                "A2"
+              ],
+              "success": true,
+              "chunk_count": 10,
+              "chunk_ids": [
+                "779b77ca-dcb0-4de1-9eaf-d2279a876f34",
+                "176c98b8-a7f5-4c86-a2f0-96752afbf776",
+                "6f6f5f85-e455-4d92-adb5-52b6a15d60ec",
+                "2e198acf-848b-41ea-9c16-92bf3035f163",
+                "68a004e5-c525-4ae7-8613-759d0568d893",
+                "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+                "eb5fa64f-3266-489d-8bc6-a6741fddcfe5",
+                "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+                "ce6921ae-91c2-457b-91c5-f88332079a08",
+                "c3079511-c7bc-4efe-bfe7-191199565b00"
+              ],
+              "new_chunk_count": 10,
+              "latency_ms": 1986,
+              "degraded": false,
+              "error": null
+            }
+          ],
+          "candidate_count": 15,
+          "new_chunk_count": 15,
+          "latency_ms": 1986
+        }
+      ],
+      "metadata": {
+        "research_id": "94aac885-8c37-4fc8-a3d7-bec739ba256d",
+        "log_id": "828f097a-9bf0-4f91-aebc-1653e9ed3743",
+        "trace_id": "5f0eeefb-5185-48ba-8316-84504e9376d0",
+        "profile": "quality",
+        "plan": "pro",
+        "index_versions": {
+          "df1dad54-7bfd-4ec7-9116-cfe2448e9389": "v2"
+        },
+        "round_count": 1,
+        "retrieval_task_count": 2,
+        "llm_call_count": 3,
+        "input_tokens": 8899,
+        "output_tokens": 605,
+        "latency_ms": 12352,
+        "initial_evidence_status": "complete",
+        "stop_reason": "evidence_complete",
+        "degraded": false,
+        "errors": [],
+        "stages": [
+          {
+            "stage": "planner",
+            "role": "fast",
+            "model": "deepseek-v4-flash",
+            "latency_ms": 2539,
+            "input_tokens": 337,
+            "output_tokens": 107,
+            "degraded": false
+          },
+          {
+            "stage": "decider",
+            "role": "fast",
+            "model": "deepseek-v4-flash",
+            "latency_ms": 2127,
+            "input_tokens": 4342,
+            "output_tokens": 124,
+            "degraded": false
+          },
+          {
+            "stage": "finalizer",
+            "role": "strong",
+            "model": "deepseek-v4-pro",
+            "latency_ms": 5697,
+            "input_tokens": 4220,
+            "output_tokens": 374,
+            "degraded": false
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "enterprise_points_cash_refund_chain",
+      "case_type": "dependent_multi_hop",
+      "question": "从企业购会员规则开始，沿“对公转账方式”再查看其中的“积分抵扣限制”；积分规则继续引用的第二项退款规则具体规定了什么？",
+      "success": true,
+      "degraded": false,
+      "error": null,
+      "elapsed_ms": 10288,
+      "query": "从企业购会员规则开始，沿“对公转账方式”再查看其中的“积分抵扣限制”；积分规则继续引用的第二项退款规则具体规定了什么？",
+      "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+      "kb_ids": [
+        "df1dad54-7bfd-4ec7-9116-cfe2448e9389"
+      ],
+      "answer": "企业购会员规则中，对公转账方式下的积分抵扣限制为：默认100积分=1元，单笔最多抵扣实付的20%（特殊活动除外）；积分不可用于充值类、虚拟卡密、部分国际站订单；积分自获取日起12个月有效，过期清零且不补偿。[E1]\n\n积分规则引用的第二项退款规则具体规定：退款时，已使用积分按抵扣金额等值退回积分池（若积分已过期则不退）。[E1]",
+      "evidence_pack": {
+        "status": "complete",
+        "missing_aspects": [],
+        "groups": [
+          {
+            "aspect": "企业购会员规则中对公转账方式下的积分抵扣限制",
+            "evidence": [
+              {
+                "evidence_id": "E1",
+                "role": "core"
+              },
+              {
+                "evidence_id": "E2",
+                "role": "supporting"
+              },
+              {
+                "evidence_id": "E3",
+                "role": "supporting"
+              }
+            ],
+            "covered": true
+          },
+          {
+            "aspect": "积分规则引用的第二项退款规则的具体规定",
+            "evidence": [
+              {
+                "evidence_id": "E4",
+                "role": "core"
+              },
+              {
+                "evidence_id": "E5",
+                "role": "supporting"
+              }
+            ],
+            "covered": true
+          }
+        ],
+        "items": [
+          {
+            "evidence_id": "E1",
+            "chunk_id": "779b77ca-dcb0-4de1-9eaf-d2279a876f34",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "185b2ef5-15f7-4983-95ef-4a5a1875ae0a",
+            "title": "会员体系与积分权益说明.md",
+            "heading_path": "会员体系与积分权益说明/2. 积分规则/2.2 使用与有效期",
+            "index_version": "v2",
+            "content": "- **抵扣比例：** 默认 100 积分 = 1 元，单笔最多抵扣实付的 **20%**（特殊活动除外）；\n- **不可用于：** 充值类、虚拟卡密、部分国际站订单；\n- **有效期：** 自获取日起 **12 个月**，过期清零且不补偿；\n- 退款时：已使用积分按 **抵扣金额等值** 退回积分池（若积分已过期则不退）。\n\n> 关联规则：订单退款的审核及发起时限参见《售后服务与退换货政策》第 4 节“售后时效 SLA”；现金部分的到账路径参见《支付方式与资金安全规范》第 3 节“退款原路退回”。",
+            "source": "hybrid",
+            "retrieved_rank": 1,
+            "rounds": [
+              1
+            ],
+            "query_ids": [
+              "Q1",
+              "Q2"
+            ]
+          },
+          {
+            "evidence_id": "E2",
+            "chunk_id": "16c97ec5-40e0-4b0e-8fc6-b7b526dfe4ff",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "9b4bac02-5e6f-4d50-b6e2-83dde5ac5269",
+            "title": "支付方式与资金安全规范.md",
+            "heading_path": "支付方式与资金安全规范/1. 支持的支付方式",
+            "index_version": "v2",
+            "content": "【表头】方式 | 单笔限额（参考） | 说明\n| 方式 | 单笔限额（参考） | 说明 |\n|------|------------------|------|\n| 微信支付 | 按微信账户等级 | 支持分付/分期（以微信侧为准） |\n| 支付宝 | 按支付宝账户等级 | 支持花呗分期 |\n| 云闪付 / 银行卡 | 按发卡行 | 借记卡、信用卡 |\n| 平台余额 | 账户可用余额 | 不可透支 |\n| 礼品卡 / 购物卡 | 卡面余额 | 不找零、不兑现 |\n| 对公转账 | 企业购授信额度内 | 须备注订单号，人工核销 |\n\n**组合支付：** 余额/礼品卡可与第三方支付组合；优惠券抵扣优先于现金支付部分。\n\n> 关联规则：优惠券叠加顺序参见《促销活动与优惠券使用规则》第 3 节“叠加优先级（结算顺序）”；积分抵扣限制参见《会员体系与积分权益说明》第 2.2 节“使用与有效期”。",
+            "source": "hybrid",
+            "retrieved_rank": 2,
+            "rounds": [
+              1
+            ],
+            "query_ids": [
+              "Q1",
+              "Q2"
+            ]
+          },
+          {
+            "evidence_id": "E3",
+            "chunk_id": "6f6f5f85-e455-4d92-adb5-52b6a15d60ec",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "185b2ef5-15f7-4983-95ef-4a5a1875ae0a",
+            "title": "会员体系与积分权益说明.md",
+            "heading_path": "会员体系与积分权益说明/5. 企业购会员",
+            "index_version": "v2",
+            "content": "- 需企业认证（营业执照 + 授权经办人）；\n- 支持 **对公转账、月结账期**（授信审核通过后）；\n- 开票：支持按企业抬头批量开具增值税专用发票；\n- 积分与个人会员账户 **隔离**，不可互相转移。\n\n> 关联规则：对公转账方式参见《支付方式与资金安全规范》第 1 节“支持的支付方式”；企业发票规则参见《商家入驻结算与对账流程》第 6 节“发票与税务”。",
+            "source": "hybrid",
+            "retrieved_rank": 3,
+            "rounds": [
+              1
+            ],
+            "query_ids": [
+              "Q1",
+              "Q2"
+            ]
+          },
+          {
+            "evidence_id": "E4",
+            "chunk_id": "3644b62a-f3ef-41f6-a05e-22e028582565",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "71785118-9dcb-41cc-97bf-4e8dbf83c27b",
+            "title": "售后服务与退换货政策.md",
+            "heading_path": "售后服务与退换货政策/4. 售后时效 SLA",
+            "index_version": "v2",
+            "content": "【表头】环节 | 时限\n| 环节 | 时限 |\n|------|------|\n| 商家审核退货申请 | **24 小时**（超时系统自动同意） |\n| 买家寄回 | 审核通过后 **7 天**内须揽收，逾期关闭 |\n| 商家签收质检 | **48 小时**内完成并同意/拒绝退款 |\n| 退款到账 | 同意后 **1~3 个工作日**原路退回 |\n\n**自动同意规则：** 商家超时未处理的退货申请，系统按买家诉求自动通过，费用由商家承担。\n\n> 关联规则：本节规定售后处理和退款发起时限；退款发起后的原路退回路径及各支付渠道到账时间，参见《支付方式与资金安全规范》第 3 节“退款原路退回”。",
+            "source": "context:reference",
+            "retrieved_rank": 1,
+            "rounds": [
+              1
+            ],
+            "query_ids": [
+              "Q1",
+              "Q2"
+            ]
+          },
+          {
+            "evidence_id": "E5",
+            "chunk_id": "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "9b4bac02-5e6f-4d50-b6e2-83dde5ac5269",
+            "title": "支付方式与资金安全规范.md",
+            "heading_path": "支付方式与资金安全规范/3. 退款原路退回",
+            "index_version": "v2",
+            "content": "【表头】原支付方式 | 退回路径 | 到账时效\n| 原支付方式 | 退回路径 | 到账时效 |\n|------------|----------|----------|\n| 微信 / 支付宝 | 原账户 | 即时~24 小时 |\n| 银行卡 | 原卡 | 1~3 工作日（节假日顺延） |\n| 平台余额 | 余额账户 | 即时 |\n| 礼品卡 | 原卡额度 | 即时（过期卡退回余额） |\n| 组合支付 | 按支付比例拆分退回 | 取各通道较长时效 |\n\n**部分退款：** 按商品行实付金额退，已用积分/券按促销与会员规则处理。\n\n> 关联规则：优惠券分类参见《促销活动与优惠券使用规则》第 2 节“优惠券分类”；优惠券能否退回参见《促销活动与优惠券使用规则》第 6 节“客服常见问题应答”；积分退回规则参见《会员体系与积分权益说明》第 2.2 节“使用与有效期”。",
+            "source": "context:reference",
+            "retrieved_rank": 1,
+            "rounds": [
+              1
+            ],
+            "query_ids": [
+              "Q1",
+              "Q2"
+            ]
+          }
+        ]
+      },
+      "plan": {
+        "aspects": [
+          {
+            "aspect_id": "A1",
+            "description": "企业购会员规则中对公转账方式下的积分抵扣限制"
+          },
+          {
+            "aspect_id": "A2",
+            "description": "积分规则引用的第二项退款规则的具体规定"
+          }
+        ],
+        "initial_queries": [
+          {
+            "query_id": "Q1",
+            "query": "企业购会员规则 对公转账方式 积分抵扣限制",
+            "aspect_ids": [
+              "A1"
+            ]
+          },
+          {
+            "query_id": "Q2",
+            "query": "积分规则 第二项退款规则 具体规定",
+            "aspect_ids": [
+              "A2"
+            ]
+          }
+        ],
+        "degraded": false,
+        "error": null
+      },
+      "rounds": [
+        {
+          "round": 1,
+          "purpose": "initial",
+          "tasks": [
+            {
+              "query_id": "Q1",
+              "query": "企业购会员规则 对公转账方式 积分抵扣限制",
+              "aspect_ids": [
+                "A1"
+              ],
+              "success": true,
+              "chunk_count": 10,
+              "chunk_ids": [
+                "779b77ca-dcb0-4de1-9eaf-d2279a876f34",
+                "16c97ec5-40e0-4b0e-8fc6-b7b526dfe4ff",
+                "176c98b8-a7f5-4c86-a2f0-96752afbf776",
+                "6f6f5f85-e455-4d92-adb5-52b6a15d60ec",
+                "2e198acf-848b-41ea-9c16-92bf3035f163",
+                "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+                "68a004e5-c525-4ae7-8613-759d0568d893",
+                "eb5fa64f-3266-489d-8bc6-a6741fddcfe5",
+                "ce6921ae-91c2-457b-91c5-f88332079a08",
+                "c3079511-c7bc-4efe-bfe7-191199565b00"
+              ],
+              "new_chunk_count": 10,
+              "latency_ms": 1556,
+              "degraded": false,
+              "error": null
+            },
+            {
+              "query_id": "Q2",
+              "query": "积分规则 第二项退款规则 具体规定",
+              "aspect_ids": [
+                "A2"
+              ],
+              "success": true,
+              "chunk_count": 10,
+              "chunk_ids": [
+                "779b77ca-dcb0-4de1-9eaf-d2279a876f34",
+                "176c98b8-a7f5-4c86-a2f0-96752afbf776",
+                "6f6f5f85-e455-4d92-adb5-52b6a15d60ec",
+                "2e198acf-848b-41ea-9c16-92bf3035f163",
+                "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+                "68a004e5-c525-4ae7-8613-759d0568d893",
+                "eb5fa64f-3266-489d-8bc6-a6741fddcfe5",
+                "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+                "ce6921ae-91c2-457b-91c5-f88332079a08",
+                "c3079511-c7bc-4efe-bfe7-191199565b00"
+              ],
+              "new_chunk_count": 10,
+              "latency_ms": 1571,
+              "degraded": false,
+              "error": null
+            }
+          ],
+          "candidate_count": 15,
+          "new_chunk_count": 15,
+          "latency_ms": 1572
+        }
+      ],
+      "metadata": {
+        "research_id": "01d49345-25ac-4247-bef7-fe9774db776c",
+        "log_id": "25731db9-78f7-484c-b043-85d1c84b7d97",
+        "trace_id": "f28ecc3b-5ccb-4aec-ab10-1ad124779fe0",
+        "profile": "quality",
+        "plan": "pro",
+        "index_versions": {
+          "df1dad54-7bfd-4ec7-9116-cfe2448e9389": "v2"
+        },
+        "round_count": 1,
+        "retrieval_task_count": 2,
+        "llm_call_count": 3,
+        "input_tokens": 8899,
+        "output_tokens": 547,
+        "latency_ms": 9824,
+        "initial_evidence_status": "complete",
+        "stop_reason": "evidence_complete",
+        "degraded": false,
+        "errors": [],
+        "stages": [
+          {
+            "stage": "planner",
+            "role": "fast",
+            "model": "deepseek-v4-flash",
+            "latency_ms": 1927,
+            "input_tokens": 337,
+            "output_tokens": 107,
+            "degraded": false
+          },
+          {
+            "stage": "decider",
+            "role": "fast",
+            "model": "deepseek-v4-flash",
+            "latency_ms": 1913,
+            "input_tokens": 4342,
+            "output_tokens": 124,
+            "degraded": false
+          },
+          {
+            "stage": "finalizer",
+            "role": "strong",
+            "model": "deepseek-v4-pro",
+            "latency_ms": 4408,
+            "input_tokens": 4220,
+            "output_tokens": 316,
+            "degraded": false
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "enterprise_points_coupon_refund_chain",
+      "case_type": "dependent_multi_hop",
+      "question": "从企业购会员规则开始，沿“对公转账方式”和“积分抵扣限制”找到现金退款规则；该规则继续引用的优惠券退回条件是什么？",
+      "success": true,
+      "degraded": false,
+      "error": null,
+      "elapsed_ms": 16540,
+      "query": "从企业购会员规则开始，沿“对公转账方式”和“积分抵扣限制”找到现金退款规则；该规则继续引用的优惠券退回条件是什么？",
+      "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+      "kb_ids": [
+        "df1dad54-7bfd-4ec7-9116-cfe2448e9389"
+      ],
+      "answer": "企业购会员支持对公转账（需授信审核通过），对公转账的现金退款规则未在给定材料中直接说明，仅提示参见《支付方式与资金安全规范》第3节“退款原路退回”。[E1][E2][E3]\n\n积分抵扣限制：单笔最多抵扣实付的20%，不可用于充值类、虚拟卡密、部分国际站订单；退款时已使用积分按抵扣金额等值退回积分池（若积分已过期则不退）。[E4]\n\n现金退款规则引用的优惠券退回条件：未过期且未使用的平台券一般退回；店铺券看商家规则。红包/礼金退款时未使用的退回账户，已抵扣的按比例扣回。[E5][E6]",
+      "evidence_pack": {
+        "status": "complete",
+        "missing_aspects": [],
+        "groups": [
+          {
+            "aspect": "企业购会员规则中对公转账方式的现金退款规则",
+            "evidence": [
+              {
+                "evidence_id": "E1",
+                "role": "core"
+              },
+              {
+                "evidence_id": "E2",
+                "role": "supporting"
+              },
+              {
+                "evidence_id": "E3",
+                "role": "supporting"
+              }
+            ],
+            "covered": true
+          },
+          {
+            "aspect": "企业购会员规则中积分抵扣限制相关的现金退款规则",
+            "evidence": [
+              {
+                "evidence_id": "E4",
+                "role": "core"
+              },
+              {
+                "evidence_id": "E3",
+                "role": "supporting"
+              }
+            ],
+            "covered": true
+          },
+          {
+            "aspect": "现金退款规则引用的优惠券退回条件",
+            "evidence": [
+              {
+                "evidence_id": "E5",
+                "role": "core"
+              },
+              {
+                "evidence_id": "E6",
+                "role": "supporting"
+              }
+            ],
+            "covered": true
+          }
+        ],
+        "items": [
+          {
+            "evidence_id": "E1",
+            "chunk_id": "6f6f5f85-e455-4d92-adb5-52b6a15d60ec",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "185b2ef5-15f7-4983-95ef-4a5a1875ae0a",
+            "title": "会员体系与积分权益说明.md",
+            "heading_path": "会员体系与积分权益说明/5. 企业购会员",
+            "index_version": "v2",
+            "content": "- 需企业认证（营业执照 + 授权经办人）；\n- 支持 **对公转账、月结账期**（授信审核通过后）；\n- 开票：支持按企业抬头批量开具增值税专用发票；\n- 积分与个人会员账户 **隔离**，不可互相转移。\n\n> 关联规则：对公转账方式参见《支付方式与资金安全规范》第 1 节“支持的支付方式”；企业发票规则参见《商家入驻结算与对账流程》第 6 节“发票与税务”。",
+            "source": "hybrid",
+            "retrieved_rank": 4,
+            "rounds": [
+              1,
+              2
+            ],
+            "query_ids": [
+              "Q1",
+              "Q2",
+              "Q4",
+              "Q5"
+            ]
+          },
+          {
+            "evidence_id": "E2",
+            "chunk_id": "16c97ec5-40e0-4b0e-8fc6-b7b526dfe4ff",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "9b4bac02-5e6f-4d50-b6e2-83dde5ac5269",
+            "title": "支付方式与资金安全规范.md",
+            "heading_path": "支付方式与资金安全规范/1. 支持的支付方式",
+            "index_version": "v2",
+            "content": "【表头】方式 | 单笔限额（参考） | 说明\n| 方式 | 单笔限额（参考） | 说明 |\n|------|------------------|------|\n| 微信支付 | 按微信账户等级 | 支持分付/分期（以微信侧为准） |\n| 支付宝 | 按支付宝账户等级 | 支持花呗分期 |\n| 云闪付 / 银行卡 | 按发卡行 | 借记卡、信用卡 |\n| 平台余额 | 账户可用余额 | 不可透支 |\n| 礼品卡 / 购物卡 | 卡面余额 | 不找零、不兑现 |\n| 对公转账 | 企业购授信额度内 | 须备注订单号，人工核销 |\n\n**组合支付：** 余额/礼品卡可与第三方支付组合；优惠券抵扣优先于现金支付部分。\n\n> 关联规则：优惠券叠加顺序参见《促销活动与优惠券使用规则》第 3 节“叠加优先级（结算顺序）”；积分抵扣限制参见《会员体系与积分权益说明》第 2.2 节“使用与有效期”。",
+            "source": "hybrid",
+            "retrieved_rank": 3,
+            "rounds": [
+              1,
+              2
+            ],
+            "query_ids": [
+              "Q1",
+              "Q2",
+              "Q3",
+              "Q4",
+              "Q5"
+            ]
+          },
+          {
+            "evidence_id": "E3",
+            "chunk_id": "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "9b4bac02-5e6f-4d50-b6e2-83dde5ac5269",
+            "title": "支付方式与资金安全规范.md",
+            "heading_path": "支付方式与资金安全规范/3. 退款原路退回",
+            "index_version": "v2",
+            "content": "【表头】原支付方式 | 退回路径 | 到账时效\n| 原支付方式 | 退回路径 | 到账时效 |\n|------------|----------|----------|\n| 微信 / 支付宝 | 原账户 | 即时~24 小时 |\n| 银行卡 | 原卡 | 1~3 工作日（节假日顺延） |\n| 平台余额 | 余额账户 | 即时 |\n| 礼品卡 | 原卡额度 | 即时（过期卡退回余额） |\n| 组合支付 | 按支付比例拆分退回 | 取各通道较长时效 |\n\n**部分退款：** 按商品行实付金额退，已用积分/券按促销与会员规则处理。\n\n> 关联规则：优惠券分类参见《促销活动与优惠券使用规则》第 2 节“优惠券分类”；优惠券能否退回参见《促销活动与优惠券使用规则》第 6 节“客服常见问题应答”；积分退回规则参见《会员体系与积分权益说明》第 2.2 节“使用与有效期”。",
+            "source": "context:reference",
+            "retrieved_rank": 1,
+            "rounds": [
+              1,
+              2
+            ],
+            "query_ids": [
+              "Q1",
+              "Q2",
+              "Q3",
+              "Q4",
+              "Q5"
+            ]
+          },
+          {
+            "evidence_id": "E4",
+            "chunk_id": "779b77ca-dcb0-4de1-9eaf-d2279a876f34",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "185b2ef5-15f7-4983-95ef-4a5a1875ae0a",
+            "title": "会员体系与积分权益说明.md",
+            "heading_path": "会员体系与积分权益说明/2. 积分规则/2.2 使用与有效期",
+            "index_version": "v2",
+            "content": "- **抵扣比例：** 默认 100 积分 = 1 元，单笔最多抵扣实付的 **20%**（特殊活动除外）；\n- **不可用于：** 充值类、虚拟卡密、部分国际站订单；\n- **有效期：** 自获取日起 **12 个月**，过期清零且不补偿；\n- 退款时：已使用积分按 **抵扣金额等值** 退回积分池（若积分已过期则不退）。\n\n> 关联规则：订单退款的审核及发起时限参见《售后服务与退换货政策》第 4 节“售后时效 SLA”；现金部分的到账路径参见《支付方式与资金安全规范》第 3 节“退款原路退回”。",
+            "source": "hybrid",
+            "retrieved_rank": 1,
+            "rounds": [
+              1,
+              2
+            ],
+            "query_ids": [
+              "Q1",
+              "Q2",
+              "Q3",
+              "Q4",
+              "Q5"
+            ]
+          },
+          {
+            "evidence_id": "E5",
+            "chunk_id": "3c6dfd3c-98f2-46cd-b4b1-639c6125f1c0",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "8b484755-a80d-44a2-85c0-0b21e53247bc",
+            "title": "促销活动与优惠券使用规则.md",
+            "heading_path": "促销活动与优惠券使用规则/6. 客服常见问题应答",
+            "index_version": "v2",
+            "content": "【表头】问题 | 要点\n| 问题 | 要点 |\n|------|------|\n| 券为什么不能用 | 查适用范围、门槛、有效期、是否与当前活动互斥 |\n| 满减没生效 | 确认是否跨店凑单、是否含排除类目 |\n| 退款后券退吗 | 未过期且未使用的平台券一般退回；店铺券看商家规则 |\n| 保价怎么算 | 以申请时刻页面价为准，需在同一 SKU 同一规格 |",
+            "source": "context:reference",
+            "retrieved_rank": 2,
+            "rounds": [
+              1,
+              2
+            ],
+            "query_ids": [
+              "Q1",
+              "Q2",
+              "Q3",
+              "Q4",
+              "Q5"
+            ]
+          },
+          {
+            "evidence_id": "E6",
+            "chunk_id": "68a004e5-c525-4ae7-8613-759d0568d893",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "8b484755-a80d-44a2-85c0-0b21e53247bc",
+            "title": "促销活动与优惠券使用规则.md",
+            "heading_path": "促销活动与优惠券使用规则/2. 优惠券分类/2.3 红包 / 礼金",
+            "index_version": "v2",
+            "content": "- 无门槛或低门槛，通常 **单笔限用 1 个**；\n- 退款时：未使用的退回账户；已抵扣的按 **比例扣回**。",
+            "source": "hybrid",
+            "retrieved_rank": 2,
+            "rounds": [
+              1,
+              2
+            ],
+            "query_ids": [
+              "Q2",
+              "Q3",
+              "Q4",
+              "Q5"
+            ]
+          }
+        ]
+      },
+      "plan": {
+        "aspects": [
+          {
+            "aspect_id": "A1",
+            "description": "企业购会员规则中对公转账方式的现金退款规则"
+          },
+          {
+            "aspect_id": "A2",
+            "description": "企业购会员规则中积分抵扣限制相关的现金退款规则"
+          },
+          {
+            "aspect_id": "A3",
+            "description": "现金退款规则引用的优惠券退回条件"
+          }
+        ],
+        "initial_queries": [
+          {
+            "query_id": "Q1",
+            "query": "企业购会员规则 对公转账方式 现金退款规则",
+            "aspect_ids": [
+              "A1"
+            ]
+          },
+          {
+            "query_id": "Q2",
+            "query": "企业购会员规则 积分抵扣限制 现金退款规则",
+            "aspect_ids": [
+              "A2"
+            ]
+          },
+          {
+            "query_id": "Q3",
+            "query": "现金退款规则 优惠券退回条件",
+            "aspect_ids": [
+              "A3"
+            ]
+          }
+        ],
+        "degraded": false,
+        "error": null
+      },
+      "rounds": [
+        {
+          "round": 1,
+          "purpose": "initial",
+          "tasks": [
+            {
+              "query_id": "Q1",
+              "query": "企业购会员规则 对公转账方式 现金退款规则",
+              "aspect_ids": [
+                "A1"
+              ],
+              "success": true,
+              "chunk_count": 10,
+              "chunk_ids": [
+                "779b77ca-dcb0-4de1-9eaf-d2279a876f34",
+                "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+                "16c97ec5-40e0-4b0e-8fc6-b7b526dfe4ff",
+                "6f6f5f85-e455-4d92-adb5-52b6a15d60ec",
+                "2e198acf-848b-41ea-9c16-92bf3035f163",
+                "3c6dfd3c-98f2-46cd-b4b1-639c6125f1c0",
+                "176c98b8-a7f5-4c86-a2f0-96752afbf776",
+                "eb5fa64f-3266-489d-8bc6-a6741fddcfe5",
+                "ce6921ae-91c2-457b-91c5-f88332079a08",
+                "c52e750f-a15a-421b-a0fd-2b05b7519ea9"
+              ],
+              "new_chunk_count": 10,
+              "latency_ms": 1732,
+              "degraded": false,
+              "error": null
+            },
+            {
+              "query_id": "Q2",
+              "query": "企业购会员规则 积分抵扣限制 现金退款规则",
+              "aspect_ids": [
+                "A2"
+              ],
+              "success": true,
+              "chunk_count": 10,
+              "chunk_ids": [
+                "779b77ca-dcb0-4de1-9eaf-d2279a876f34",
+                "68a004e5-c525-4ae7-8613-759d0568d893",
+                "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+                "16c97ec5-40e0-4b0e-8fc6-b7b526dfe4ff",
+                "6f6f5f85-e455-4d92-adb5-52b6a15d60ec",
+                "2e198acf-848b-41ea-9c16-92bf3035f163",
+                "3c6dfd3c-98f2-46cd-b4b1-639c6125f1c0",
+                "176c98b8-a7f5-4c86-a2f0-96752afbf776",
+                "94ee9080-0188-4591-a7f2-79ad4d3a0d6a",
+                "eb5fa64f-3266-489d-8bc6-a6741fddcfe5"
+              ],
+              "new_chunk_count": 10,
+              "latency_ms": 1748,
+              "degraded": false,
+              "error": null
+            },
+            {
+              "query_id": "Q3",
+              "query": "现金退款规则 优惠券退回条件",
+              "aspect_ids": [
+                "A3"
+              ],
+              "success": true,
+              "chunk_count": 10,
+              "chunk_ids": [
+                "779b77ca-dcb0-4de1-9eaf-d2279a876f34",
+                "68a004e5-c525-4ae7-8613-759d0568d893",
+                "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+                "16c97ec5-40e0-4b0e-8fc6-b7b526dfe4ff",
+                "3c6dfd3c-98f2-46cd-b4b1-639c6125f1c0",
+                "b4a6988d-d753-4e15-92b4-fed891002172",
+                "94ee9080-0188-4591-a7f2-79ad4d3a0d6a",
+                "ce6921ae-91c2-457b-91c5-f88332079a08",
+                "c52e750f-a15a-421b-a0fd-2b05b7519ea9",
+                "f0145698-8135-422b-a500-7fa9c106f0de"
+              ],
+              "new_chunk_count": 10,
+              "latency_ms": 1668,
+              "degraded": false,
+              "error": null
+            }
+          ],
+          "candidate_count": 16,
+          "new_chunk_count": 16,
+          "latency_ms": 1748
+        },
+        {
+          "round": 2,
+          "purpose": "supplement",
+          "tasks": [
+            {
+              "query_id": "Q4",
+              "query": "企业购会员规则 对公转账 现金退款 规则",
+              "aspect_ids": [
+                "A1"
+              ],
+              "success": true,
+              "chunk_count": 10,
+              "chunk_ids": [
+                "779b77ca-dcb0-4de1-9eaf-d2279a876f34",
+                "68a004e5-c525-4ae7-8613-759d0568d893",
+                "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+                "16c97ec5-40e0-4b0e-8fc6-b7b526dfe4ff",
+                "6f6f5f85-e455-4d92-adb5-52b6a15d60ec",
+                "2e198acf-848b-41ea-9c16-92bf3035f163",
+                "3c6dfd3c-98f2-46cd-b4b1-639c6125f1c0",
+                "176c98b8-a7f5-4c86-a2f0-96752afbf776",
+                "b4a6988d-d753-4e15-92b4-fed891002172",
+                "eb5fa64f-3266-489d-8bc6-a6741fddcfe5"
+              ],
+              "new_chunk_count": 10,
+              "latency_ms": 1837,
+              "degraded": false,
+              "error": null
+            },
+            {
+              "query_id": "Q5",
+              "query": "积分抵扣限制 现金退款 规则",
+              "aspect_ids": [
+                "A2"
+              ],
+              "success": true,
+              "chunk_count": 10,
+              "chunk_ids": [
+                "779b77ca-dcb0-4de1-9eaf-d2279a876f34",
+                "68a004e5-c525-4ae7-8613-759d0568d893",
+                "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+                "16c97ec5-40e0-4b0e-8fc6-b7b526dfe4ff",
+                "6f6f5f85-e455-4d92-adb5-52b6a15d60ec",
+                "2e198acf-848b-41ea-9c16-92bf3035f163",
+                "3c6dfd3c-98f2-46cd-b4b1-639c6125f1c0",
+                "176c98b8-a7f5-4c86-a2f0-96752afbf776",
+                "b4a6988d-d753-4e15-92b4-fed891002172",
+                "eb5fa64f-3266-489d-8bc6-a6741fddcfe5"
+              ],
+              "new_chunk_count": 10,
+              "latency_ms": 2010,
+              "degraded": false,
+              "error": null
+            }
+          ],
+          "candidate_count": 13,
+          "new_chunk_count": 0,
+          "latency_ms": 2011
+        }
+      ],
+      "metadata": {
+        "research_id": "f7bbeaf9-4adf-4e69-85dd-dc81b5312617",
+        "log_id": "bf9b7141-286a-4ca4-8972-9aed4f053000",
+        "trace_id": "87821147-cb92-4b0b-ab4c-968ff7c047e4",
+        "profile": "quality",
+        "plan": "pro",
+        "index_versions": {
+          "df1dad54-7bfd-4ec7-9116-cfe2448e9389": "v2"
+        },
+        "round_count": 2,
+        "retrieval_task_count": 5,
+        "llm_call_count": 3,
+        "input_tokens": 9567,
+        "output_tokens": 826,
+        "latency_ms": 16110,
+        "initial_evidence_status": "missing",
+        "stop_reason": "no_new_evidence",
+        "degraded": false,
+        "errors": [],
+        "stages": [
+          {
+            "stage": "planner",
+            "role": "fast",
+            "model": "deepseek-v4-flash",
+            "latency_ms": 2272,
+            "input_tokens": 338,
+            "output_tokens": 149,
+            "degraded": false
+          },
+          {
+            "stage": "decider",
+            "role": "fast",
+            "model": "deepseek-v4-flash",
+            "latency_ms": 3314,
+            "input_tokens": 4604,
+            "output_tokens": 228,
+            "degraded": false
+          },
+          {
+            "stage": "finalizer",
+            "role": "strong",
+            "model": "deepseek-v4-pro",
+            "latency_ms": 6757,
+            "input_tokens": 4625,
+            "output_tokens": 449,
+            "degraded": false
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "enterprise_points_refund_end_to_end_chain",
+      "case_type": "dependent_multi_hop",
+      "question": "从企业购会员规则开始，沿“对公转账方式”再查看其中的“积分抵扣限制”；积分订单退款时，积分规则继续引用的两项后续规则如何衔接？",
+      "success": true,
+      "degraded": true,
+      "error": null,
+      "elapsed_ms": 14760,
+      "query": "从企业购会员规则开始，沿“对公转账方式”再查看其中的“积分抵扣限制”；积分订单退款时，积分规则继续引用的两项后续规则如何衔接？",
+      "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+      "kb_ids": [
+        "df1dad54-7bfd-4ec7-9116-cfe2448e9389"
+      ],
+      "answer": null,
+      "evidence_pack": {
+        "status": "missing",
+        "missing_aspects": [
+          "企业购会员规则中对公转账方式的积分抵扣限制",
+          "积分订单退款时积分规则继续引用的两项后续规则的衔接方式"
+        ],
+        "groups": [
+          {
+            "aspect": "企业购会员规则中对公转账方式的积分抵扣限制",
+            "evidence": [
+              {
+                "evidence_id": "E1",
+                "role": "supporting"
+              },
+              {
+                "evidence_id": "E2",
+                "role": "supporting"
+              }
+            ],
+            "covered": false
+          },
+          {
+            "aspect": "积分订单退款时积分规则继续引用的两项后续规则的衔接方式",
+            "evidence": [
+              {
+                "evidence_id": "E3",
+                "role": "supporting"
+              },
+              {
+                "evidence_id": "E4",
+                "role": "supporting"
+              },
+              {
+                "evidence_id": "E5",
+                "role": "supporting"
+              }
+            ],
+            "covered": false
+          }
+        ],
+        "items": [
+          {
+            "evidence_id": "E1",
+            "chunk_id": "6f6f5f85-e455-4d92-adb5-52b6a15d60ec",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "185b2ef5-15f7-4983-95ef-4a5a1875ae0a",
+            "title": "会员体系与积分权益说明.md",
+            "heading_path": "会员体系与积分权益说明/5. 企业购会员",
+            "index_version": "v2",
+            "content": "- 需企业认证（营业执照 + 授权经办人）；\n- 支持 **对公转账、月结账期**（授信审核通过后）；\n- 开票：支持按企业抬头批量开具增值税专用发票；\n- 积分与个人会员账户 **隔离**，不可互相转移。\n\n> 关联规则：对公转账方式参见《支付方式与资金安全规范》第 1 节“支持的支付方式”；企业发票规则参见《商家入驻结算与对账流程》第 6 节“发票与税务”。",
+            "source": "hybrid",
+            "retrieved_rank": 3,
+            "rounds": [
+              1
+            ],
+            "query_ids": [
+              "Q1",
+              "Q2"
+            ]
+          },
+          {
+            "evidence_id": "E2",
+            "chunk_id": "16c97ec5-40e0-4b0e-8fc6-b7b526dfe4ff",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "9b4bac02-5e6f-4d50-b6e2-83dde5ac5269",
+            "title": "支付方式与资金安全规范.md",
+            "heading_path": "支付方式与资金安全规范/1. 支持的支付方式",
+            "index_version": "v2",
+            "content": "【表头】方式 | 单笔限额（参考） | 说明\n| 方式 | 单笔限额（参考） | 说明 |\n|------|------------------|------|\n| 微信支付 | 按微信账户等级 | 支持分付/分期（以微信侧为准） |\n| 支付宝 | 按支付宝账户等级 | 支持花呗分期 |\n| 云闪付 / 银行卡 | 按发卡行 | 借记卡、信用卡 |\n| 平台余额 | 账户可用余额 | 不可透支 |\n| 礼品卡 / 购物卡 | 卡面余额 | 不找零、不兑现 |\n| 对公转账 | 企业购授信额度内 | 须备注订单号，人工核销 |\n\n**组合支付：** 余额/礼品卡可与第三方支付组合；优惠券抵扣优先于现金支付部分。\n\n> 关联规则：优惠券叠加顺序参见《促销活动与优惠券使用规则》第 3 节“叠加优先级（结算顺序）”；积分抵扣限制参见《会员体系与积分权益说明》第 2.2 节“使用与有效期”。",
+            "source": "hybrid",
+            "retrieved_rank": 2,
+            "rounds": [
+              1
+            ],
+            "query_ids": [
+              "Q1",
+              "Q2"
+            ]
+          },
+          {
+            "evidence_id": "E3",
+            "chunk_id": "779b77ca-dcb0-4de1-9eaf-d2279a876f34",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "185b2ef5-15f7-4983-95ef-4a5a1875ae0a",
+            "title": "会员体系与积分权益说明.md",
+            "heading_path": "会员体系与积分权益说明/2. 积分规则/2.2 使用与有效期",
+            "index_version": "v2",
+            "content": "- **抵扣比例：** 默认 100 积分 = 1 元，单笔最多抵扣实付的 **20%**（特殊活动除外）；\n- **不可用于：** 充值类、虚拟卡密、部分国际站订单；\n- **有效期：** 自获取日起 **12 个月**，过期清零且不补偿；\n- 退款时：已使用积分按 **抵扣金额等值** 退回积分池（若积分已过期则不退）。\n\n> 关联规则：订单退款的审核及发起时限参见《售后服务与退换货政策》第 4 节“售后时效 SLA”；现金部分的到账路径参见《支付方式与资金安全规范》第 3 节“退款原路退回”。",
+            "source": "hybrid",
+            "retrieved_rank": 1,
+            "rounds": [
+              1
+            ],
+            "query_ids": [
+              "Q1",
+              "Q2"
+            ]
+          },
+          {
+            "evidence_id": "E4",
+            "chunk_id": "3644b62a-f3ef-41f6-a05e-22e028582565",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "71785118-9dcb-41cc-97bf-4e8dbf83c27b",
+            "title": "售后服务与退换货政策.md",
+            "heading_path": "售后服务与退换货政策/4. 售后时效 SLA",
+            "index_version": "v2",
+            "content": "【表头】环节 | 时限\n| 环节 | 时限 |\n|------|------|\n| 商家审核退货申请 | **24 小时**（超时系统自动同意） |\n| 买家寄回 | 审核通过后 **7 天**内须揽收，逾期关闭 |\n| 商家签收质检 | **48 小时**内完成并同意/拒绝退款 |\n| 退款到账 | 同意后 **1~3 个工作日**原路退回 |\n\n**自动同意规则：** 商家超时未处理的退货申请，系统按买家诉求自动通过，费用由商家承担。\n\n> 关联规则：本节规定售后处理和退款发起时限；退款发起后的原路退回路径及各支付渠道到账时间，参见《支付方式与资金安全规范》第 3 节“退款原路退回”。",
+            "source": "context:reference",
+            "retrieved_rank": 1,
+            "rounds": [
+              1
+            ],
+            "query_ids": [
+              "Q1",
+              "Q2"
+            ]
+          },
+          {
+            "evidence_id": "E5",
+            "chunk_id": "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "9b4bac02-5e6f-4d50-b6e2-83dde5ac5269",
+            "title": "支付方式与资金安全规范.md",
+            "heading_path": "支付方式与资金安全规范/3. 退款原路退回",
+            "index_version": "v2",
+            "content": "【表头】原支付方式 | 退回路径 | 到账时效\n| 原支付方式 | 退回路径 | 到账时效 |\n|------------|----------|----------|\n| 微信 / 支付宝 | 原账户 | 即时~24 小时 |\n| 银行卡 | 原卡 | 1~3 工作日（节假日顺延） |\n| 平台余额 | 余额账户 | 即时 |\n| 礼品卡 | 原卡额度 | 即时（过期卡退回余额） |\n| 组合支付 | 按支付比例拆分退回 | 取各通道较长时效 |\n\n**部分退款：** 按商品行实付金额退，已用积分/券按促销与会员规则处理。\n\n> 关联规则：优惠券分类参见《促销活动与优惠券使用规则》第 2 节“优惠券分类”；优惠券能否退回参见《促销活动与优惠券使用规则》第 6 节“客服常见问题应答”；积分退回规则参见《会员体系与积分权益说明》第 2.2 节“使用与有效期”。",
+            "source": "context:reference",
+            "retrieved_rank": 1,
+            "rounds": [
+              1
+            ],
+            "query_ids": [
+              "Q1",
+              "Q2"
+            ]
+          }
+        ]
+      },
+      "plan": {
+        "aspects": [
+          {
+            "aspect_id": "A1",
+            "description": "企业购会员规则中对公转账方式的积分抵扣限制"
+          },
+          {
+            "aspect_id": "A2",
+            "description": "积分订单退款时积分规则继续引用的两项后续规则的衔接方式"
+          }
+        ],
+        "initial_queries": [
+          {
+            "query_id": "Q1",
+            "query": "企业购会员规则 对公转账方式 积分抵扣限制",
+            "aspect_ids": [
+              "A1"
+            ]
+          },
+          {
+            "query_id": "Q2",
+            "query": "积分订单退款 积分规则 后续规则 衔接",
+            "aspect_ids": [
+              "A2"
+            ]
+          }
+        ],
+        "degraded": false,
+        "error": null
+      },
+      "rounds": [
+        {
+          "round": 1,
+          "purpose": "initial",
+          "tasks": [
+            {
+              "query_id": "Q1",
+              "query": "企业购会员规则 对公转账方式 积分抵扣限制",
+              "aspect_ids": [
+                "A1"
+              ],
+              "success": true,
+              "chunk_count": 10,
+              "chunk_ids": [
+                "779b77ca-dcb0-4de1-9eaf-d2279a876f34",
+                "16c97ec5-40e0-4b0e-8fc6-b7b526dfe4ff",
+                "6f6f5f85-e455-4d92-adb5-52b6a15d60ec",
+                "2e198acf-848b-41ea-9c16-92bf3035f163",
+                "176c98b8-a7f5-4c86-a2f0-96752afbf776",
+                "68a004e5-c525-4ae7-8613-759d0568d893",
+                "eb5fa64f-3266-489d-8bc6-a6741fddcfe5",
+                "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+                "c52e750f-a15a-421b-a0fd-2b05b7519ea9",
+                "ce6921ae-91c2-457b-91c5-f88332079a08"
+              ],
+              "new_chunk_count": 10,
+              "latency_ms": 1891,
+              "degraded": false,
+              "error": null
+            },
+            {
+              "query_id": "Q2",
+              "query": "积分订单退款 积分规则 后续规则 衔接",
+              "aspect_ids": [
+                "A2"
+              ],
+              "success": true,
+              "chunk_count": 10,
+              "chunk_ids": [
+                "779b77ca-dcb0-4de1-9eaf-d2279a876f34",
+                "16c97ec5-40e0-4b0e-8fc6-b7b526dfe4ff",
+                "6f6f5f85-e455-4d92-adb5-52b6a15d60ec",
+                "2e198acf-848b-41ea-9c16-92bf3035f163",
+                "176c98b8-a7f5-4c86-a2f0-96752afbf776",
+                "68a004e5-c525-4ae7-8613-759d0568d893",
+                "eb5fa64f-3266-489d-8bc6-a6741fddcfe5",
+                "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+                "c52e750f-a15a-421b-a0fd-2b05b7519ea9",
+                "ce6921ae-91c2-457b-91c5-f88332079a08"
+              ],
+              "new_chunk_count": 10,
+              "latency_ms": 2002,
+              "degraded": false,
+              "error": null
+            }
+          ],
+          "candidate_count": 13,
+          "new_chunk_count": 13,
+          "latency_ms": 2004
+        },
+        {
+          "round": 2,
+          "purpose": "supplement",
+          "tasks": [
+            {
+              "query_id": "Q3",
+              "query": "企业购会员 对公转账 积分抵扣限制",
+              "aspect_ids": [
+                "A1"
+              ],
+              "success": true,
+              "chunk_count": 10,
+              "chunk_ids": [
+                "779b77ca-dcb0-4de1-9eaf-d2279a876f34",
+                "16c97ec5-40e0-4b0e-8fc6-b7b526dfe4ff",
+                "6f6f5f85-e455-4d92-adb5-52b6a15d60ec",
+                "2e198acf-848b-41ea-9c16-92bf3035f163",
+                "176c98b8-a7f5-4c86-a2f0-96752afbf776",
+                "68a004e5-c525-4ae7-8613-759d0568d893",
+                "eb5fa64f-3266-489d-8bc6-a6741fddcfe5",
+                "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+                "c52e750f-a15a-421b-a0fd-2b05b7519ea9",
+                "96a00a78-248b-432c-b9d0-c262e93b883d"
+              ],
+              "new_chunk_count": 10,
+              "latency_ms": 1606,
+              "degraded": false,
+              "error": null
+            }
+          ],
+          "candidate_count": 13,
+          "new_chunk_count": 1,
+          "latency_ms": 1609
+        }
+      ],
+      "metadata": {
+        "research_id": "5c70b93c-4a64-4748-b708-6c792a7c6471",
+        "log_id": "a62e2628-803c-410a-92b5-0685d1c8954f",
+        "trace_id": "ddeb11eb-8951-4580-a32f-8d0b0b53b3a1",
+        "profile": "quality",
+        "plan": "pro",
+        "index_versions": {
+          "df1dad54-7bfd-4ec7-9116-cfe2448e9389": "v2"
+        },
+        "round_count": 2,
+        "retrieval_task_count": 3,
+        "llm_call_count": 3,
+        "input_tokens": 8459,
+        "output_tokens": 818,
+        "latency_ms": 14317,
+        "initial_evidence_status": "missing",
+        "stop_reason": "max_rounds",
+        "degraded": true,
+        "errors": [
+          "finalizer output schema is invalid"
+        ],
+        "stages": [
+          {
+            "stage": "planner",
+            "role": "fast",
+            "model": "deepseek-v4-flash",
+            "latency_ms": 2095,
+            "input_tokens": 340,
+            "output_tokens": 111,
+            "degraded": false
+          },
+          {
+            "stage": "decider",
+            "role": "fast",
+            "model": "deepseek-v4-flash",
+            "latency_ms": 2384,
+            "input_tokens": 4001,
+            "output_tokens": 231,
+            "degraded": false
+          },
+          {
+            "stage": "finalizer",
+            "role": "strong",
+            "model": "deepseek-v4-pro",
+            "latency_ms": 6211,
+            "input_tokens": 4118,
+            "output_tokens": 476,
+            "degraded": true
+          }
+        ]
+      }
+    }
+  ],
+  "checkpoint_at": "2026-08-19T05:55:14.049898+00:00",
+  "run_finished_at": "2026-08-19T05:55:14.052745+00:00"
+}

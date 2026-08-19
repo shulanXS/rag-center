@@ -5,11 +5,24 @@ import type {
   FeedbackRequest,
   RetrieveData,
   RetrieveRequest,
+  ResearchData,
+  ResearchRequest,
 } from "@/types/api";
 
 export async function retrieve(payload: RetrieveRequest) {
   const response = await http.post<ApiResponse<RetrieveData>>(
     "/api/v1/rag/retrieve",
+    payload,
+  );
+  if (response.data.code !== 0) {
+    throw new Error(response.data.msg);
+  }
+  return response.data.data;
+}
+
+export async function research(payload: ResearchRequest) {
+  const response = await http.post<ApiResponse<ResearchData>>(
+    "/api/v1/rag/research",
     payload,
   );
   if (response.data.code !== 0) {

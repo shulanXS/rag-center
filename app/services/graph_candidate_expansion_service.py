@@ -6,6 +6,7 @@ from typing import Any
 
 from sqlalchemy.orm import Session
 
+from app.core.index_versions import LEGACY_INDEX_VERSION
 from app.core.logging import get_logger
 from app.models.chunk import Chunk
 from app.repositories.chunk_relation_repository import ChunkRelationRepository
@@ -40,7 +41,7 @@ class GraphCandidateExpansionService:
         seeds: list[dict[str, Any]],
     ) -> GraphCandidateExpansionResult:
         started_at = perf_counter()
-        if not seeds or all(seed.get("index_version") == "v1" for seed in seeds):
+        if not seeds or all(seed.get("index_version") == LEGACY_INDEX_VERSION for seed in seeds):
             return GraphCandidateExpansionResult(
                 candidates=seeds,
                 metadata=RetrieveGraphInjectionMetadata(
@@ -55,7 +56,7 @@ class GraphCandidateExpansionService:
         contextual_seeds = [
             seed
             for seed in seeds
-            if seed.get("index_version") != "v1"
+            if seed.get("index_version") != LEGACY_INDEX_VERSION
             and str((seed.get("metadata") or {}).get("chunk_type") or "prose")
             != "reference_pointer"
         ]

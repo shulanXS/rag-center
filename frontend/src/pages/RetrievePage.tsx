@@ -16,12 +16,15 @@ import { MarkdownContent } from "@/components/MarkdownContent";
 import { cn } from "@/lib/utils";
 import { fetchAuthMe } from "@/services/authService";
 import { fetchTree } from "@/services/knowledgeBaseService";
-import { retrieve, submitFeedback } from "@/services/ragService";
+import { research, retrieve, submitFeedback } from "@/services/ragService";
 import type {
   AuthFeatures,
   EvidencePack,
   KnowledgeBaseTreeItem,
+  ResearchData,
+  ResearchRequest,
   RetrieveData,
+  RetrieveMode,
   RetrieveProfile,
   RetrieveRequest,
   RetrievalMode,
@@ -172,6 +175,43 @@ function buildRetrievePayload(
   return payload;
 }
 
+function buildResearchPayload(
+  selectedKbIds: string[],
+  form: Omit<RetrieveForm, "selectedKbIds">,
+  profile: RetrieveProfile,
+  features: AuthFeatures,
+): ResearchRequest {
+  const payload: ResearchRequest = {
+    user_id: "debug_user",
+    query: form.query.trim(),
+    index_version: form.index_version,
+    profile,
+  };
+  if (selectedKbIds.length === 1) {
+    payload.kb_id = selectedKbIds[0];
+  } else {
+    payload.kb_ids = selectedKbIds;
+  }
+  if (profile !== "custom") {
+    return payload;
+  }
+  payload.top_k = Math.min(form.top_k, 20);
+  payload.retrieval_options = { mode: form.mode };
+  if (form.mode === "hybrid") {
+    payload.retrieval_options = {
+      mode: form.mode,
+      vector_top_k: form.vector_top_k,
+      bm25_top_k: form.bm25_top_k,
+      rrf_k: form.rrf_k,
+    };
+  }
+  payload.rerank_options = {
+    enabled: form.rerank_enabled && features.rerank_allowed,
+    top_n: form.rerank_top_n,
+  };
+  return payload;
+}
+
 interface RetrieveForm {
   query: string;
   index_version: string;
@@ -228,6 +268,7 @@ export function RetrievePage() {
 
   const appliedQueryKbRef = useRef<string | null>(null);
   const [form, setForm] = useState<RetrieveForm>(() => defaultForm(initialIndexVersion));
+  const [retrieveMode, setRetrieveMode] = useState<RetrieveMode>("single");
   const [selectedKbIds, setSelectedKbIds] = useState<string[]>([]);
   const [profile, setProfile] = useState<RetrieveProfile>("balanced");
   const [paramsExpanded, setParamsExpanded] = useState(false);
@@ -272,6 +313,10 @@ export function RetrievePage() {
     mutationFn: retrieve,
   });
 
+  const researchMutation = useMutation({
+    mutationFn: research,
+  });
+
   const feedbackMutation = useMutation({
     mutationFn: submitFeedback,
     onSuccess: (data) => {
@@ -292,6 +337,23 @@ export function RetrievePage() {
       return;
     }
     setProfile(nextProfile);
+  }
+
+  function handleRetrieveModeChange(nextMode: RetrieveMode) {
+    if (nextMode === "research" && !tenantInfo?.features.research_allowed) {
+      return;
+    }
+    setRetrieveMode(nextMode);
+    if (nextMode === "research" && tenantInfo?.features.allowed_profiles.includes("quality")) {
+      setProfile("quality");
+    }
+    retrieveMutation.reset();
+    researchMutation.reset();
+    setFormError(null);
+    setFeedbackScore(null);
+    setFeedbackComment("");
+    setFeedbackSubmitted(false);
+    setFeedbackMessage(null);
   }
 
   function toggleKbSelection(kbId: string) {
@@ -340,11 +402,19 @@ export function RetrievePage() {
     setFeedbackComment("");
     setFeedbackSubmitted(false);
     setFeedbackMessage(null);
-    retrieveMutation.mutate(buildRetrievePayload(selectedKbIds, form, profile, tenantInfo.features));
+    if (retrieveMode === "research") {
+      researchMutation.mutate(
+        buildResearchPayload(selectedKbIds, form, profile, tenantInfo.features),
+      );
+    } else {
+      retrieveMutation.mutate(
+        buildRetrievePayload(selectedKbIds, form, profile, tenantInfo.features),
+      );
+    }
   }
 
   function handleFeedbackSubmit() {
-    if (!result?.metadata.trace_id) {
+    if (!activeResult?.metadata.trace_id) {
       return;
     }
     if (feedbackScore === null) {
@@ -353,14 +423,17 @@ export function RetrievePage() {
     }
     setFeedbackMessage(null);
     feedbackMutation.mutate({
-      trace_id: result.metadata.trace_id,
-      log_id: result.metadata.log_id,
+      trace_id: activeResult.metadata.trace_id,
+      log_id: activeResult.metadata.log_id,
       score: feedbackScore,
       comment: feedbackComment.trim() || undefined,
     });
   }
 
   const result = retrieveMutation.data;
+  const researchResult = researchMutation.data;
+  const activeResult = retrieveMode === "research" ? researchResult : result;
+  const activeMutation = retrieveMode === "research" ? researchMutation : retrieveMutation;
   const features = tenantInfo?.features;
   const showAdvanced = profile === "custom";
   const allowedModes: RetrievalMode[] = features?.hybrid_allowed
@@ -371,6 +444,39 @@ export function RetrievePage() {
     <main className="min-h-screen px-6 py-6">
       <div className="mx-auto flex max-w-7xl flex-col gap-6">
         <AppHeader />
+
+        <Card>
+          <CardHeader>
+            <CardTitle>检索模式</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-wrap gap-2">
+            <Button
+              type="button"
+              variant={retrieveMode === "single" ? "default" : "outline"}
+              onClick={() => handleRetrieveModeChange("single")}
+            >
+              单次检索
+            </Button>
+            <Button
+              type="button"
+              variant={retrieveMode === "research" ? "default" : "outline"}
+              disabled={!tenantInfo?.features.research_allowed}
+              title={
+                tenantInfo?.features.research_allowed
+                  ? "查询分解、并行检索与最多一次多跳补证"
+                  : "当前套餐不支持 Research，请使用专业套餐"
+              }
+              onClick={() => handleRetrieveModeChange("research")}
+            >
+              Research（多要点 / 多跳）
+            </Button>
+            <p className="w-full text-xs text-muted-foreground">
+              {retrieveMode === "single"
+                ? "一次检索，适合简单事实问题。"
+                : "受控执行查询规划、并行检索、证据判断和最多一次补证。"}
+            </p>
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -593,6 +699,7 @@ export function RetrievePage() {
                 </div>
               ) : null}
 
+              {retrieveMode === "single" ? (
               <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
                 <InlineField label="query 改写" tooltip={PARAM_TOOLTIPS.query_rewrite}>
                   <label
@@ -618,6 +725,7 @@ export function RetrievePage() {
                   </label>
                 </InlineField>
               </div>
+              ) : null}
 
               <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
                 <InlineField label="rerank" tooltip={PARAM_TOOLTIPS.rerank}>
@@ -657,6 +765,7 @@ export function RetrievePage() {
                   </InlineField>
                 ) : null}
               </div>
+              {retrieveMode === "single" ? (
               <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
                 <InlineField label="证据编排" tooltip={PARAM_TOOLTIPS.evidence}>
                   <label
@@ -697,6 +806,7 @@ export function RetrievePage() {
                   </InlineField>
                 ) : null}
               </div>
+              ) : null}
               </div>
               ) : null}
             </CardContent>
@@ -707,7 +817,13 @@ export function RetrievePage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>检索与召回</CardTitle>
-              {result ? <Badge>{result.retrieved_chunks.length} 条</Badge> : null}
+              {activeResult ? (
+                <Badge>
+                  {retrieveMode === "research"
+                    ? `${researchResult?.evidence_pack?.items.length ?? 0} 条证据`
+                    : `${result?.retrieved_chunks.length ?? 0} 条`}
+                </Badge>
+              ) : null}
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
               <InlineField label="query" htmlFor="retrieve-query" className="items-start">
@@ -721,30 +837,30 @@ export function RetrievePage() {
                 />
               </InlineField>
               {formError ? <p className="text-sm text-destructive">{formError}</p> : null}
-              {retrieveMutation.error ? (
+              {activeMutation.error ? (
                 <p className="text-sm text-destructive">
-                  {(retrieveMutation.error as Error).message}
+                  {(activeMutation.error as Error).message}
                 </p>
               ) : null}
               <div>
-                <Button type="submit" disabled={retrieveMutation.isPending}>
-                  {retrieveMutation.isPending ? (
+                <Button type="submit" disabled={activeMutation.isPending}>
+                  {activeMutation.isPending ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   ) : null}
-                  检索
+                  {retrieveMode === "research" ? "开始 Research" : "检索"}
                 </Button>
               </div>
 
-              {retrieveMutation.isPending ? (
+              {activeMutation.isPending ? (
                 <div className="flex items-center py-6 text-sm text-muted-foreground">
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  检索中...
+                  {retrieveMode === "research" ? "Research 执行中..." : "检索中..."}
                 </div>
               ) : null}
 
-              {result && !retrieveMutation.isPending ? (
+              {activeResult && !activeMutation.isPending ? (
                 <RetrieveFeedbackBar
-                  traceId={result.metadata.trace_id}
+                  traceId={activeResult.metadata.trace_id}
                   score={feedbackScore}
                   comment={feedbackComment}
                   submitted={feedbackSubmitted}
@@ -760,18 +876,23 @@ export function RetrievePage() {
                 />
               ) : null}
 
-              {result ? <RetrieveResultsList chunks={result.retrieved_chunks} /> : null}
-              {result ? (
+              {retrieveMode === "single" && result ? (
+                <RetrieveResultsList chunks={result.retrieved_chunks} />
+              ) : null}
+              {retrieveMode === "single" && result ? (
                 <EvidencePackCard
                   pack={result.evidence_pack ?? null}
                   metadata={result.metadata.evidence}
                 />
               ) : null}
+              {retrieveMode === "research" && researchResult ? (
+                <ResearchResults data={researchResult} />
+              ) : null}
             </CardContent>
           </Card>
         </form>
 
-        {result ? <RetrieveSummaryCard data={result} /> : null}
+        {retrieveMode === "single" && result ? <RetrieveSummaryCard data={result} /> : null}
       </div>
     </main>
   );
@@ -987,6 +1108,235 @@ function RetrieveFeedbackBar({
         ) : null}
       </div>
     </div>
+  );
+}
+
+const researchStopReasonLabels: Record<ResearchData["metadata"]["stop_reason"], string> = {
+  evidence_complete: "首轮证据已完整",
+  no_new_evidence: "补证未发现新证据",
+  max_rounds: "已达到两轮检索上限",
+  duplicate_query: "补证查询与已执行查询重复",
+  timeout: "达到 Research 时间上限",
+  budget_exhausted: "达到受控预算上限",
+  degraded: "链路降级停止",
+};
+
+function ResearchResults({ data }: { data: ResearchData }) {
+  const answerWithLinks = (data.answer ?? "").replace(
+    /\[(E\d+)\]/g,
+    "[$1](#evidence-$1)",
+  );
+  return (
+    <div className="space-y-4 border-t border-border pt-4">
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>1. 查询计划</CardTitle>
+          {data.plan.degraded ? <Badge>Planner 已降级</Badge> : <Badge>Planner 正常</Badge>}
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {data.plan.degraded && data.plan.error ? (
+            <p className="text-sm text-amber-700">{data.plan.error}</p>
+          ) : null}
+          <div className="grid gap-2 md:grid-cols-2">
+            {data.plan.aspects.map((aspect) => (
+              <div key={aspect.aspect_id} className="rounded-md border p-3 text-sm">
+                <Badge>{aspect.aspect_id}</Badge>
+                <span className="ml-2">{aspect.description}</span>
+              </div>
+            ))}
+          </div>
+          <div className="space-y-2">
+            {data.plan.initial_queries.map((query) => (
+              <div key={query.query_id} className="rounded-md bg-muted/40 p-3 text-sm">
+                <div className="mb-1 flex flex-wrap gap-2">
+                  <Badge>{query.query_id}</Badge>
+                  {query.aspect_ids.map((aspectId) => (
+                    <Badge key={aspectId}>{aspectId}</Badge>
+                  ))}
+                </div>
+                <p>{query.query}</p>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>2. 执行时间线</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {data.rounds.map((round) => (
+            <div key={round.round} className="rounded-md border p-3">
+              <div className="mb-3 flex flex-wrap items-center gap-2">
+                <span className="font-medium">
+                  第 {round.round} 轮：
+                  {round.purpose === "initial" ? "并行检索" : "缺失要点补证"}
+                </span>
+                <Badge>候选 {round.candidate_count}</Badge>
+                <Badge>新增 {round.new_chunk_count}</Badge>
+                <Badge>{round.latency_ms} ms</Badge>
+              </div>
+              <div className="space-y-2">
+                {round.tasks.map((task) => (
+                  <div key={task.query_id} className="rounded bg-muted/40 p-2 text-sm">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge>{task.query_id}</Badge>
+                      {task.aspect_ids.map((aspectId) => (
+                        <Badge key={aspectId}>{aspectId}</Badge>
+                      ))}
+                      <span>{task.success ? "成功" : "失败"}</span>
+                      <span>命中 {task.chunk_count}</span>
+                      <span>新增 {task.new_chunk_count}</span>
+                      <span>{task.latency_ms} ms</span>
+                      {task.degraded ? <span className="text-amber-700">已降级</span> : null}
+                    </div>
+                    <p className="mt-1 text-muted-foreground">{task.query}</p>
+                    {task.error ? <p className="text-destructive">{task.error}</p> : null}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+          {data.rounds.length === 1 ? (
+            <p className="text-sm text-muted-foreground">
+              {data.metadata.stop_reason === "evidence_complete"
+                ? "首轮证据已完整，未执行补证。"
+                : "本次未执行第二轮补证。"}
+            </p>
+          ) : null}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>3. 最终回答</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {data.answer ? (
+            <MarkdownContent content={answerWithLinks} openLinksInNewTab={false} />
+          ) : (
+            <p className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+              回答生成失败或证据不足，可继续查看已获得证据。
+            </p>
+          )}
+        </CardContent>
+      </Card>
+
+      <ResearchEvidencePackCard pack={data.evidence_pack ?? null} />
+
+      <Card>
+        <CardHeader>
+          <CardTitle>5. 用量与停止信息</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3 text-sm">
+          <div className="flex flex-wrap gap-2">
+            <Badge>轮数 {data.metadata.round_count}</Badge>
+            <Badge>检索任务 {data.metadata.retrieval_task_count}</Badge>
+            <Badge>LLM {data.metadata.llm_call_count} 次</Badge>
+            <Badge>输入 {data.metadata.input_tokens} Token</Badge>
+            <Badge>输出 {data.metadata.output_tokens} Token</Badge>
+            <Badge>总耗时 {data.metadata.latency_ms} ms</Badge>
+          </div>
+          <p>
+            停止原因：
+            <span className="font-medium">
+              {researchStopReasonLabels[data.metadata.stop_reason]}
+            </span>
+            <span className="ml-2 font-mono text-xs text-muted-foreground">
+              {data.metadata.stop_reason}
+            </span>
+          </p>
+          <p>运行状态：{data.metadata.degraded ? "已降级" : "正常"}</p>
+          {data.metadata.errors.length ? (
+            <p className="text-amber-700">{data.metadata.errors.join("；")}</p>
+          ) : null}
+          <p className="break-all text-xs text-muted-foreground">
+            trace_id：{data.metadata.trace_id ?? "未启用 Langfuse"}
+          </p>
+          <div className="grid gap-2 md:grid-cols-3">
+            {data.metadata.stages.map((stage) => (
+              <div key={stage.stage} className="rounded-md border p-2 text-xs">
+                <p className="font-medium">
+                  {stage.stage} / {stage.role}
+                </p>
+                <p className="truncate text-muted-foreground">{stage.model}</p>
+                <p>
+                  {stage.latency_ms} ms · {stage.input_tokens}/{stage.output_tokens} Token
+                </p>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function ResearchEvidencePackCard({ pack }: { pack: EvidencePack | null }) {
+  if (!pack) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>4. 证据包</CardTitle>
+        </CardHeader>
+        <CardContent className="text-sm text-muted-foreground">没有可用证据。</CardContent>
+      </Card>
+    );
+  }
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle>4. 证据包</CardTitle>
+        <Badge>{pack.status}</Badge>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {pack.missing_aspects.length ? (
+          <p className="text-sm text-amber-700">
+            缺失要点：{pack.missing_aspects.join("、")}
+          </p>
+        ) : null}
+        {pack.groups.map((group) => (
+          <div key={group.aspect} className="rounded-md border p-3 text-sm">
+            <span className="font-medium">{group.aspect}</span>
+            <Badge className="ml-2">{group.covered ? "已覆盖" : "未覆盖"}</Badge>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {group.evidence.map((reference) => (
+                <a
+                  key={`${group.aspect}-${reference.evidence_id}`}
+                  href={`#evidence-${reference.evidence_id}`}
+                  className="text-primary hover:underline"
+                >
+                  {reference.evidence_id} · {reference.role}
+                </a>
+              ))}
+            </div>
+          </div>
+        ))}
+        <div className="space-y-3">
+          {pack.items.map((item) => (
+            <div
+              id={`evidence-${item.evidence_id}`}
+              key={item.evidence_id}
+              className="scroll-mt-6 rounded-md border bg-muted/20 p-3"
+            >
+              <div className="mb-2 flex flex-wrap items-center gap-2 text-xs">
+                <Badge>{item.evidence_id}</Badge>
+                <span>{item.title}</span>
+                {item.heading_path ? <span>{item.heading_path}</span> : null}
+                <span>{item.source}</span>
+                {item.rounds?.length ? <span>第 {item.rounds.join("、")} 轮</span> : null}
+                {item.query_ids?.length ? <span>{item.query_ids.join("、")}</span> : null}
+              </div>
+              <MarkdownContent content={item.content} />
+              <p className="mt-2 break-all font-mono text-[11px] text-muted-foreground">
+                Chunk {item.chunk_id} · 索引 {item.index_version}
+              </p>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 

@@ -1,0 +1,288 @@
+{
+  "name": "opt18_hr_travel_dependent_multi_hop_v1",
+  "evaluation_scope": "smoke",
+  "created_at": "2026-08-19T08:39:56.270072+00:00",
+  "tenant_id": "tenant_ecom_pro",
+  "profile": "quality",
+  "top_k": 10,
+  "annotation": {
+    "status": "reviewed",
+    "method": "document_grounded_hr_travel_policy_review",
+    "annotator": "project_owner",
+    "reviewer": "optimization_18_dependency_chain_review",
+    "note": "四题覆盖人员身份、岗位职级、差旅等级、城市或风险分类及最终费用审批规则；所有证据均绑定人事与差旅知识库的真实v2 Chunk。"
+  },
+  "annotation_sha256": "10fe3d30f8c83ea07e4a441d62edffeca461938696db456bec368348eb83ad1e",
+  "cases": [
+    {
+      "id": "probation_senior_engineer_beijing",
+      "case_type": "dependent_multi_hop",
+      "question": "一名试用期资深工程师去北京出差3天，预计费用8500元，可以乘坐什么交通工具，酒店每晚上限多少，最低需要哪些人审批？",
+      "ground_truth": "资深工程师通常为P6，对应T2；北京为A+类。T2可乘高铁二等座、普通列车硬卧或软卧，铁路最快直达超过4小时可选经济舱；住宿上限650元/晚。3天且8500元常规最低由直属负责人审批，试用期还必须增加部门负责人审批。",
+      "required_aspects": [
+        {
+          "aspect_id": "A1",
+          "description": "资深工程师对应T2",
+          "acceptable_chunk_ids": [
+            "1bb20f02-8530-4ac7-983a-aca881ee9afa"
+          ]
+        },
+        {
+          "aspect_id": "A2",
+          "description": "T2可用的国内城际交通标准",
+          "acceptable_chunk_ids": [
+            "7caa5444-22fe-418d-8d06-0a29d4238dcc"
+          ]
+        },
+        {
+          "aspect_id": "A3",
+          "description": "T2在北京的住宿上限为650元",
+          "acceptable_chunk_ids": [
+            "c502f223-22f7-4e2d-b367-30b9059a1308"
+          ]
+        },
+        {
+          "aspect_id": "A4",
+          "description": "3天8500元及试用期的最低审批要求",
+          "acceptable_chunk_ids": [
+            "0b52462e-6429-4741-be9e-5c4ea0bcea75",
+            "7d4146cf-c9e4-4e91-9c65-7c00eb29c916"
+          ]
+        }
+      ],
+      "expected_documents": [
+        "705ba5dc-2302-4981-a9de-1fb9fbe2161b",
+        "b3815cd9-e636-485d-9250-2e6372e246c0",
+        "83df86d5-b9f3-49b4-bad2-effe4d35e572",
+        "b0b9273c-5faf-4d87-aa6a-bd04556df045"
+      ],
+      "expected_status": "complete",
+      "dependency": {
+        "discover_from_chunk_ids": [
+          "dde882be-0bf5-4cf2-9202-c3b57ab978c1"
+        ],
+        "intermediate_chunk_ids": [
+          "1bb20f02-8530-4ac7-983a-aca881ee9afa",
+          "7288f730-ea3c-463b-8037-67ad46a6b1ef"
+        ],
+        "target_chunk_ids": [
+          "7caa5444-22fe-418d-8d06-0a29d4238dcc",
+          "c502f223-22f7-4e2d-b367-30b9059a1308",
+          "0b52462e-6429-4741-be9e-5c4ea0bcea75",
+          "7d4146cf-c9e4-4e91-9c65-7c00eb29c916"
+        ]
+      },
+      "kb_ids": [
+        "524146da-ad39-4c93-bee0-12b299d63af6"
+      ],
+      "index_versions": {
+        "524146da-ad39-4c93-bee0-12b299d63af6": "v2"
+      },
+      "requires_multi_hop": true,
+      "review_status": "reviewed"
+    },
+    {
+      "id": "intern_wuhan_emergency_solo_trip",
+      "case_type": "dependent_multi_hop",
+      "question": "一名实习生需要单独去武汉处理2天生产故障，这种情况是否允许，交通和住宿按什么标准，来不及事前走完审批该怎么办？",
+      "ground_truth": "实习生统一按T0，原则上不得单独出差；确需单独出差须HRBP和部门负责人共同批准。武汉为B类，T0可乘高铁二等座、普通列车硬座或硬卧，原则上不乘飞机；经批准可乘经济舱，住宿上限380元/晚。生产故障可先取得直属负责人即时确认后出发，并在1个工作日内补齐审批。",
+      "required_aspects": [
+        {
+          "aspect_id": "A1",
+          "description": "实习生统一按T0",
+          "acceptable_chunk_ids": [
+            "29f3de37-0667-4c7b-bf10-342d3b869a0f",
+            "b211a933-380c-44d1-8859-c6592d897897"
+          ]
+        },
+        {
+          "aspect_id": "A2",
+          "description": "实习生单独出差的限制与审批",
+          "acceptable_chunk_ids": [
+            "b211a933-380c-44d1-8859-c6592d897897",
+            "7d4146cf-c9e4-4e91-9c65-7c00eb29c916"
+          ]
+        },
+        {
+          "aspect_id": "A3",
+          "description": "T0国内城际交通标准",
+          "acceptable_chunk_ids": [
+            "7caa5444-22fe-418d-8d06-0a29d4238dcc"
+          ]
+        },
+        {
+          "aspect_id": "A4",
+          "description": "T0在武汉的住宿上限为380元",
+          "acceptable_chunk_ids": [
+            "c502f223-22f7-4e2d-b367-30b9059a1308"
+          ]
+        },
+        {
+          "aspect_id": "A5",
+          "description": "生产故障紧急出差的确认与补批时限",
+          "acceptable_chunk_ids": [
+            "62c4a19b-d6a9-42dd-b3e9-adf0fd869e30",
+            "94719d4a-f0cf-4ee6-ab54-36b97c225e39"
+          ]
+        }
+      ],
+      "expected_documents": [
+        "77e778b0-d96a-4d30-9b5d-3879639cbf60",
+        "e8e7154e-b7bb-4b2f-84d6-8d6cf96f9d05",
+        "b3815cd9-e636-485d-9250-2e6372e246c0",
+        "83df86d5-b9f3-49b4-bad2-effe4d35e572",
+        "b0b9273c-5faf-4d87-aa6a-bd04556df045"
+      ],
+      "expected_status": "complete",
+      "dependency": {
+        "discover_from_chunk_ids": [
+          "29f3de37-0667-4c7b-bf10-342d3b869a0f"
+        ],
+        "intermediate_chunk_ids": [
+          "1bb20f02-8530-4ac7-983a-aca881ee9afa",
+          "d1d7a092-e6ad-4350-ae49-4ee6d924c7af"
+        ],
+        "target_chunk_ids": [
+          "b211a933-380c-44d1-8859-c6592d897897",
+          "7caa5444-22fe-418d-8d06-0a29d4238dcc",
+          "c502f223-22f7-4e2d-b367-30b9059a1308",
+          "62c4a19b-d6a9-42dd-b3e9-adf0fd869e30"
+        ]
+      },
+      "kb_ids": [
+        "524146da-ad39-4c93-bee0-12b299d63af6"
+      ],
+      "index_versions": {
+        "524146da-ad39-4c93-bee0-12b299d63af6": "v2"
+      },
+      "requires_multi_hop": true,
+      "review_status": "reviewed"
+    },
+    {
+      "id": "research_manager_suzhou_late_arrival",
+      "case_type": "dependent_multi_hop",
+      "question": "一名研发经理去苏州工业园区出差，晚上23:30到站，他的差旅等级是什么，酒店每晚上限多少，从车站打车到酒店的单程上限多少？",
+      "ground_truth": "研发经理通常对应M2，映射为T2；苏州工业园区按A类。T2在A类城市住宿上限600元/晚；23:30属于深夜到达，A类城市车站到住宿地的必要接驳单程不超过250元。",
+      "required_aspects": [
+        {
+          "aspect_id": "A1",
+          "description": "研发经理M2对应T2",
+          "acceptable_chunk_ids": [
+            "1bb20f02-8530-4ac7-983a-aca881ee9afa"
+          ]
+        },
+        {
+          "aspect_id": "A2",
+          "description": "T2在苏州工业园区住宿上限600元",
+          "acceptable_chunk_ids": [
+            "c502f223-22f7-4e2d-b367-30b9059a1308"
+          ]
+        },
+        {
+          "aspect_id": "A3",
+          "description": "A类城市深夜车站接驳单程上限250元",
+          "acceptable_chunk_ids": [
+            "00c23298-261b-4c1e-b468-127dc91b16c5"
+          ]
+        }
+      ],
+      "expected_documents": [
+        "705ba5dc-2302-4981-a9de-1fb9fbe2161b",
+        "83df86d5-b9f3-49b4-bad2-effe4d35e572",
+        "e8e7154e-b7bb-4b2f-84d6-8d6cf96f9d05"
+      ],
+      "expected_status": "complete",
+      "dependency": {
+        "discover_from_chunk_ids": [
+          "51830cf8-0700-42f6-9797-e920a75b1d31"
+        ],
+        "intermediate_chunk_ids": [
+          "1bb20f02-8530-4ac7-983a-aca881ee9afa",
+          "2cfb8c24-de2f-4e97-b99b-3e73a08f8f63"
+        ],
+        "target_chunk_ids": [
+          "c502f223-22f7-4e2d-b367-30b9059a1308",
+          "00c23298-261b-4c1e-b468-127dc91b16c5"
+        ]
+      },
+      "kb_ids": [
+        "524146da-ad39-4c93-bee0-12b299d63af6"
+      ],
+      "index_versions": {
+        "524146da-ad39-4c93-bee0-12b299d63af6": "v2"
+      },
+      "requires_multi_hop": true,
+      "review_status": "reviewed"
+    },
+    {
+      "id": "technical_expert_singapore_long_flight",
+      "case_type": "dependent_multi_hop",
+      "question": "一名技术专家去新加坡出差，单段计划飞行9小时，他的差旅等级是什么，最低需要哪些人审批，可以坐什么舱位，酒店每晚上限多少？",
+      "ground_truth": "技术专家通常对应P7，映射为T3。新加坡属于R1和G1；最低由部门负责人、国际业务负责人审批。T3单段飞行超过8小时可乘超级经济舱，G1住宿上限为1800元/晚。",
+      "required_aspects": [
+        {
+          "aspect_id": "A1",
+          "description": "技术专家P7对应T3",
+          "acceptable_chunk_ids": [
+            "1bb20f02-8530-4ac7-983a-aca881ee9afa"
+          ]
+        },
+        {
+          "aspect_id": "A2",
+          "description": "新加坡属于R1常规风险地区",
+          "acceptable_chunk_ids": [
+            "1dac2058-f6f9-4ecd-bd35-9702b0fc5a02"
+          ]
+        },
+        {
+          "aspect_id": "A3",
+          "description": "R1国际出差的最低审批人",
+          "acceptable_chunk_ids": [
+            "ae7897a0-2018-42fb-aef9-6690e8be90ef"
+          ]
+        },
+        {
+          "aspect_id": "A4",
+          "description": "T3单段飞行超过8小时可乘超级经济舱",
+          "acceptable_chunk_ids": [
+            "9c2272d9-4edc-4aa7-a4a6-2f773f2110d4"
+          ]
+        },
+        {
+          "aspect_id": "A5",
+          "description": "T3在新加坡G1地区住宿上限1800元",
+          "acceptable_chunk_ids": [
+            "6864207d-325b-4180-b065-8487993136d2"
+          ]
+        }
+      ],
+      "expected_documents": [
+        "705ba5dc-2302-4981-a9de-1fb9fbe2161b",
+        "f3bbb3a9-dbde-4a6d-a189-ec7aa7b48f91"
+      ],
+      "expected_status": "complete",
+      "dependency": {
+        "discover_from_chunk_ids": [
+          "dde882be-0bf5-4cf2-9202-c3b57ab978c1"
+        ],
+        "intermediate_chunk_ids": [
+          "1bb20f02-8530-4ac7-983a-aca881ee9afa",
+          "1dac2058-f6f9-4ecd-bd35-9702b0fc5a02"
+        ],
+        "target_chunk_ids": [
+          "ae7897a0-2018-42fb-aef9-6690e8be90ef",
+          "9c2272d9-4edc-4aa7-a4a6-2f773f2110d4",
+          "6864207d-325b-4180-b065-8487993136d2"
+        ]
+      },
+      "kb_ids": [
+        "524146da-ad39-4c93-bee0-12b299d63af6"
+      ],
+      "index_versions": {
+        "524146da-ad39-4c93-bee0-12b299d63af6": "v2"
+      },
+      "requires_multi_hop": true,
+      "review_status": "reviewed"
+    }
+  ]
+}

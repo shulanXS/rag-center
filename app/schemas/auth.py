@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class AuthFeatures(BaseModel):
@@ -7,6 +7,7 @@ class AuthFeatures(BaseModel):
     rerank_allowed: bool
     evidence_allowed: bool
     query_rewrite_allowed: bool
+    research_allowed: bool
 
 
 class AuthLimits(BaseModel):

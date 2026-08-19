@@ -3,7 +3,9 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core.exceptions import AppError, ErrorCode
+from app.core.index_versions import LEGACY_INDEX_VERSION
 from app.core.logging import get_logger
+from app.models.chunk import Chunk
 from app.models.document import Document
 from app.providers.embedding.base import EmbeddingProvider
 from app.providers.embedding.openai_compatible import OpenAICompatibleEmbeddingProvider
@@ -11,7 +13,6 @@ from app.providers.keyword_search.base import KeywordSearchProvider
 from app.providers.keyword_search.elasticsearch import ElasticsearchKeywordSearchProvider
 from app.providers.vectorstores.base import VectorStore
 from app.providers.vectorstores.pgvector import PgVectorStore
-from app.models.chunk import Chunk
 from app.repositories.chunk_repository import ChunkRepository
 from app.repositories.document_repository import DocumentRepository
 from app.repositories.index_version_repository import IndexVersionRepository
@@ -299,7 +300,7 @@ class IndexingService:
             len(pieces),
         )
 
-        is_contextual_index = index_version != "v1"
+        is_contextual_index = index_version != LEGACY_INDEX_VERSION
         searchable_pieces: list[SplitPiece] = []
         pointer_pieces: list[SplitPiece] = []
         for piece in pieces:
@@ -316,10 +317,10 @@ class IndexingService:
             )
             for piece in searchable_pieces
         ]
-        texts = retrieval_texts if is_contextual_index else [piece.text for piece in searchable_pieces]
-        embeddings = (
-            await self.embedding_provider.embed_texts(texts) if searchable_pieces else []
+        texts = (
+            retrieval_texts if is_contextual_index else [piece.text for piece in searchable_pieces]
         )
+        embeddings = await self.embedding_provider.embed_texts(texts) if searchable_pieces else []
 
         searchable_chunks: list[dict] = []
         for index, piece in enumerate(searchable_pieces):

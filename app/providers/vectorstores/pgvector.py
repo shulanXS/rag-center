@@ -1,6 +1,7 @@
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
+from app.core.index_versions import DEFAULT_INDEX_VERSION
 from app.models.chunk import Chunk
 from app.providers.vectorstores.base import VectorStore
 from app.repositories.chunk_repository import ChunkRepository
@@ -23,7 +24,7 @@ class PgVectorStore(VectorStore):
                 title=chunk["title"],
                 content=chunk["content"],
                 retrieval_text=chunk.get("retrieval_text"),
-                index_version=chunk.get("index_version", "v1"),
+                index_version=chunk.get("index_version", DEFAULT_INDEX_VERSION),
                 section_id=chunk.get("section_id"),
                 parent_section_id=chunk.get("parent_section_id"),
                 order_index=chunk.get("order_index"),
@@ -44,9 +45,7 @@ class PgVectorStore(VectorStore):
         top_k: int = 5,
     ) -> list[dict]:
         distance = Chunk.embedding.cosine_distance(query_vector).label("distance")
-        stmt = select(Chunk, distance).where(
-            Chunk.tenant_id == tenant_id, Chunk.kb_id == kb_id
-        )
+        stmt = select(Chunk, distance).where(Chunk.tenant_id == tenant_id, Chunk.kb_id == kb_id)
         if index_version is not None:
             stmt = stmt.where(Chunk.index_version == index_version)
         stmt = stmt.where(

@@ -7,8 +7,10 @@ from app.db.session import get_db
 from app.schemas.common import success_response
 from app.schemas.feedback import FeedbackRequest
 from app.schemas.rag import RetrieveRequest
+from app.schemas.research import ResearchRequest
 from app.services.feedback_service import FeedbackService
 from app.services.rag_service import RagService
+from app.services.research_service import ResearchService
 
 router = APIRouter(prefix="/rag", tags=["rag"])
 
@@ -20,6 +22,16 @@ async def retrieve(
     tenant: TenantContext = Depends(get_current_tenant),
 ) -> dict:
     data = await RagService(db).retrieve(tenant.tenant_id, request)
+    return success_response(data.model_dump(mode="json"))
+
+
+@router.post("/research")
+async def research(
+    request: ResearchRequest,
+    db: Session = Depends(get_db),
+    tenant: TenantContext = Depends(get_current_tenant),
+) -> dict:
+    data = await ResearchService(db).research(tenant.tenant_id, request)
     return success_response(data.model_dump(mode="json"))
 
 

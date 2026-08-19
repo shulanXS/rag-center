@@ -8,17 +8,17 @@ from typing import Any
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
+from app.core.index_versions import DEFAULT_INDEX_VERSION
 from app.providers.llm.base import LLMProvider
 from app.providers.llm.openai_compatible import OpenAICompatibleLLMProvider
 from app.repositories.chunk_repository import ChunkRepository
 from app.schemas.rag import (
-    EvidenceGroup,
-    EvidenceGroupItem,
-    EvidenceItem,
     EvidenceOptions,
     EvidencePack,
     RetrieveEvidenceMetadata,
 )
+from app.schemas.research import ResearchAspect, ResearchCandidate
+from app.services.evidence_pack_builder import EvidencePackBuilder, EvidenceReference
 
 MAX_EVIDENCE_CANDIDATES = 20
 MIN_BASE_POOL_CANDIDATES = 6
@@ -98,9 +98,7 @@ class EvidenceOrchestrationService:
                         "title": candidate["title"],
                         "heading_path": candidate.get("heading_path"),
                         "text": str(
-                            candidate.get("retrieval_text")
-                            or candidate.get("content")
-                            or ""
+                            candidate.get("retrieval_text") or candidate.get("content") or ""
                         )[:MAX_EVIDENCE_TEXT_CHARS],
                         "retrieved_rank": candidate.get("retrieved_rank"),
                         "source": candidate["source"],
@@ -120,19 +118,50 @@ class EvidenceOrchestrationService:
                 candidate_count=len(evidence_candidates),
                 max_items=max_items,
             )
-            selected_candidates = [evidence_candidates[index] for index in selected_indexes]
-            reloaded = self._reload_selected(
-                selected_candidates,
+            research_aspects = [
+                ResearchAspect(aspect_id=f"A{index + 1}", description=item["aspect"])
+                for index, item in enumerate(aspects)
+            ]
+            research_candidates = [
+                ResearchCandidate(
+                    candidate_id=f"C{index + 1}",
+                    chunk_id=str(candidate["chunk_id"]),
+                    kb_id=str(candidate.get("kb_id") or ""),
+                    document_id=str(candidate.get("document_id") or ""),
+                    index_version=str(candidate.get("index_version") or DEFAULT_INDEX_VERSION),
+                    title=str(candidate.get("title") or ""),
+                    heading_path=candidate.get("heading_path"),
+                    content=str(candidate.get("content") or ""),
+                    retrieval_text=candidate.get("retrieval_text"),
+                    source=str(candidate["source"]),
+                    best_rank=candidate.get("retrieved_rank"),
+                )
+                for index, candidate in enumerate(evidence_candidates)
+            ]
+            selections = {
+                research_aspects[index].aspect_id: [
+                    EvidenceReference(
+                        candidate_index=reference["index"],
+                        role=reference["role"],
+                    )
+                    for reference in item["evidence"]
+                ]
+                for index, item in enumerate(aspects)
+            }
+            build_result = EvidencePackBuilder(self.chunk_repository).build(
                 tenant_id=tenant_id,
-                kb_ids=kb_ids,
-                index_versions=index_versions,
+                index_versions={
+                    kb_id: index_versions[kb_id] for kb_id in kb_ids if kb_id in index_versions
+                },
+                aspects=research_aspects,
+                selections=selections,
+                candidates=research_candidates,
+                evidence_order=selected_indexes,
+                max_items=max_items,
+                max_output_chars=MAX_EVIDENCE_OUTPUT_CHARS,
             )
-            pack, budget_exceeded = self._build_pack(
-                aspects=aspects,
-                selected_indexes=selected_indexes,
-                candidates=evidence_candidates,
-                reloaded=reloaded,
-            )
+            pack = build_result.pack
+            budget_exceeded = build_result.budget_exceeded
             metadata.evidence_count = len(pack.items)
             metadata.output_chars = sum(len(item.content) for item in pack.items)
             metadata.budget_exceeded = budget_exceeded
@@ -273,108 +302,6 @@ class EvidenceOrchestrationService:
         if len(selected) > max_items:
             raise ValueError("selected evidence exceeds max_items")
         return validated, selected
-
-    def _reload_selected(
-        self,
-        selected: list[dict[str, Any]],
-        *,
-        tenant_id: str,
-        kb_ids: list[str],
-        index_versions: dict[str, str],
-    ) -> dict[str, Any]:
-        selected_ids = [str(item["chunk_id"]) for item in selected]
-        chunks = self.chunk_repository.get_by_ids_in_versioned_scope(
-            selected_ids,
-            tenant_id=tenant_id,
-            index_versions={
-                kb_id: index_versions[kb_id]
-                for kb_id in kb_ids
-                if kb_id in index_versions
-            },
-        )
-        by_id = {chunk.id: chunk for chunk in chunks}
-        if len(by_id) != len(selected_ids) or any(chunk_id not in by_id for chunk_id in selected_ids):
-            raise PermissionError("selected evidence failed tenant, kb, or index validation")
-        return by_id
-
-    @classmethod
-    def _build_pack(
-        cls,
-        *,
-        aspects: list[dict[str, Any]],
-        selected_indexes: list[int],
-        candidates: list[dict[str, Any]],
-        reloaded: dict[str, Any],
-    ) -> tuple[EvidencePack, bool]:
-        evidence_id_by_index: dict[int, str] = {}
-        items: list[EvidenceItem] = []
-        output_chars = 0
-        budget_exceeded = False
-        for index in selected_indexes:
-            candidate = candidates[index]
-            chunk = reloaded[str(candidate["chunk_id"])]
-            content = chunk.content
-            if output_chars + len(content) > MAX_EVIDENCE_OUTPUT_CHARS:
-                budget_exceeded = True
-                continue
-            evidence_id = f"E{len(items) + 1}"
-            evidence_id_by_index[index] = evidence_id
-            metadata = chunk.metadata_ or {}
-            items.append(
-                EvidenceItem(
-                    evidence_id=evidence_id,
-                    chunk_id=chunk.id,
-                    kb_id=chunk.kb_id,
-                    document_id=chunk.document_id,
-                    title=chunk.title,
-                    heading_path=cls._heading_path(metadata),
-                    index_version=chunk.index_version,
-                    content=content,
-                    source=str(candidate["source"]),
-                    retrieved_rank=candidate.get("retrieved_rank"),
-                )
-            )
-            output_chars += len(content)
-
-        groups: list[EvidenceGroup] = []
-        missing_aspects: list[str] = []
-        for aspect in aspects:
-            references = [
-                EvidenceGroupItem(
-                    evidence_id=evidence_id_by_index[reference["index"]],
-                    role=reference["role"],
-                )
-                for reference in aspect["evidence"]
-                if reference["index"] in evidence_id_by_index
-            ]
-            covered = any(reference.role == "core" for reference in references)
-            if not covered:
-                missing_aspects.append(aspect["aspect"])
-            groups.append(
-                EvidenceGroup(
-                    aspect=aspect["aspect"],
-                    evidence=references,
-                    covered=covered,
-                )
-            )
-
-        covered_count = sum(group.covered for group in groups)
-        status = (
-            "complete"
-            if covered_count == len(groups)
-            else "missing"
-            if covered_count == 0
-            else "partial"
-        )
-        return (
-            EvidencePack(
-                status=status,
-                missing_aspects=missing_aspects,
-                groups=groups,
-                items=items,
-            ),
-            budget_exceeded,
-        )
 
 
 def prompt_sha256() -> str:

@@ -1,0 +1,1973 @@
+{
+  "run_id": "bd028bac872a62e4",
+  "run_started_at": "2026-08-19T04:24:59.731391+00:00",
+  "dataset_sha256": "bcd3f342daa91c8a40da5d09b1394c6d4ff107e944f9ed1510b11d2da625c4f9",
+  "code_commit": "0e6c2284cb0dca7d7a25592153d43f4d1ff3ccfa",
+  "code_dirty": true,
+  "code_sha256": "0d3f233f18a3a7d84121d47340c4de9bd04a308ef785ba8ce3cd35caed03d78a",
+  "mode": "single",
+  "provider": "openai_compatible",
+  "models": {
+    "fast": "deepseek-v4-flash",
+    "strong": "deepseek-v4-pro"
+  },
+  "prompt_sha256": {
+    "planner": "304ef3fe9d0b6fa2bf5a8b16b86a1ad0e5cb58a0308ed62e55c4c72ceaf6ba88",
+    "decider": "a34d34756dce64de3b188ced1bda43e1de9d905f7335ef8a3b22528ecf279825",
+    "finalizer": "efc2c1d7b90de737f6799a0efe721423536cad2af0c59c417ad7ffcc9de59d81"
+  },
+  "tenant_id": "tenant_ecom_pro",
+  "profile": "quality",
+  "kb_ids": [
+    "df1dad54-7bfd-4ec7-9116-cfe2448e9389"
+  ],
+  "index_versions": {
+    "df1dad54-7bfd-4ec7-9116-cfe2448e9389": "v2"
+  },
+  "case_timeout_seconds": 90,
+  "repeat": 1,
+  "warmup": 0,
+  "cases": [
+    {
+      "case_id": "payment_duplicate_charge",
+      "case_type": "simple",
+      "question": "同一个订单被重复扣款，多余的钱多久退回？",
+      "success": true,
+      "degraded": false,
+      "error": null,
+      "elapsed_ms": 31494,
+      "answer": null,
+      "plan": null,
+      "rounds": [
+        {
+          "round": 1,
+          "purpose": "initial",
+          "tasks": [
+            {
+              "query_id": "Q1",
+              "query": "同一个订单被重复扣款，多余的钱多久退回？",
+              "aspect_ids": [],
+              "success": true,
+              "chunk_ids": [
+                "e3bd1467-f992-48f9-9483-47f14ff49c4c",
+                "61f394fc-ceb2-44b6-b1e6-ae4c7bc1527e",
+                "ff032376-059e-4150-8e75-3ea6d7f60851",
+                "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+                "6cf4b54b-2675-418f-8ed1-88cabd6bb592",
+                "ce6921ae-91c2-457b-91c5-f88332079a08",
+                "37389834-a3a1-432a-9484-691f17cd397c",
+                "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+                "68a004e5-c525-4ae7-8613-759d0568d893",
+                "c5bbdec9-bfdb-4cb7-ac6f-e7eddcabce4d"
+              ],
+              "new_chunk_count": 10,
+              "latency_ms": 2326
+            }
+          ],
+          "candidate_count": 10,
+          "new_chunk_count": 10,
+          "latency_ms": 2326
+        }
+      ],
+      "evidence_pack": {
+        "status": "complete",
+        "missing_aspects": [],
+        "groups": [
+          {
+            "aspect": "重复扣款自动退款时限",
+            "evidence": [
+              {
+                "evidence_id": "E1",
+                "role": "core"
+              }
+            ],
+            "covered": true
+          }
+        ],
+        "items": [
+          {
+            "evidence_id": "E1",
+            "chunk_id": "e3bd1467-f992-48f9-9483-47f14ff49c4c",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "9b4bac02-5e6f-4d50-b6e2-83dde5ac5269",
+            "title": "支付方式与资金安全规范.md",
+            "heading_path": "支付方式与资金安全规范/2. 支付流程与超时",
+            "index_version": "v2",
+            "content": "```\n创建订单 → 调起收银台 → 支付成功回调 → 订单变为待发货\n```\n\n- **待付款超时：** 普通订单 **30 分钟**未支付自动关闭；大促可缩短为 **15 分钟**；\n- **重复支付：** 系统识别同一订单多次成功扣款，**自动退回**多余款项（1~3 工作日）；\n- **支付中状态：** 银行处理中超过 **2 小时**未终态，客服可协助查询，禁止引导用户重复下单支付。",
+            "source": "hybrid",
+            "retrieved_rank": 1,
+            "rounds": [],
+            "query_ids": []
+          }
+        ]
+      },
+      "metadata": {
+        "trace_id": "823d39e6-6583-43b3-a34b-f94660ff75dd",
+        "log_id": "2626bd37-21fe-4a0e-b3be-d54667b42de5",
+        "initial_evidence_status": "complete",
+        "stop_reason": "evidence_complete",
+        "round_count": 1,
+        "retrieval_task_count": 1,
+        "llm_call_count": 1,
+        "input_tokens": 4247,
+        "output_tokens": 3065,
+        "latency_ms": 30516,
+        "degraded": false,
+        "errors": [],
+        "stages": []
+      }
+    },
+    {
+      "case_id": "member_plus_cancel",
+      "case_type": "simple",
+      "question": "Plus年卡买后7天内可以全额退款吗？",
+      "success": true,
+      "degraded": false,
+      "error": null,
+      "elapsed_ms": 14260,
+      "answer": null,
+      "plan": null,
+      "rounds": [
+        {
+          "round": 1,
+          "purpose": "initial",
+          "tasks": [
+            {
+              "query_id": "Q1",
+              "query": "Plus年卡买后7天内可以全额退款吗？",
+              "aspect_ids": [],
+              "success": true,
+              "chunk_ids": [
+                "d143f7a0-889b-448c-b446-6314cf970dc7",
+                "eb5fa64f-3266-489d-8bc6-a6741fddcfe5",
+                "8e274390-4b66-4695-a946-f86570388c01",
+                "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+                "3644b62a-f3ef-41f6-a05e-22e028582565",
+                "0fb81e95-1221-40af-b4b7-8c6ec4d4919a",
+                "37389834-a3a1-432a-9484-691f17cd397c",
+                "4e509ae5-5c32-4312-8556-dd65f0316165",
+                "73703d96-4fda-4cab-a2da-7be08461020b",
+                "c5bbdec9-bfdb-4cb7-ac6f-e7eddcabce4d"
+              ],
+              "new_chunk_count": 10,
+              "latency_ms": 2220
+            }
+          ],
+          "candidate_count": 10,
+          "new_chunk_count": 10,
+          "latency_ms": 2220
+        }
+      ],
+      "evidence_pack": {
+        "status": "complete",
+        "missing_aspects": [],
+        "groups": [
+          {
+            "aspect": "7天内全额退款条件",
+            "evidence": [
+              {
+                "evidence_id": "E1",
+                "role": "core"
+              }
+            ],
+            "covered": true
+          },
+          {
+            "aspect": "已使用权益时的折算规则",
+            "evidence": [
+              {
+                "evidence_id": "E1",
+                "role": "core"
+              },
+              {
+                "evidence_id": "E2",
+                "role": "supporting"
+              }
+            ],
+            "covered": true
+          }
+        ],
+        "items": [
+          {
+            "evidence_id": "E1",
+            "chunk_id": "d143f7a0-889b-448c-b446-6314cf970dc7",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "185b2ef5-15f7-4983-95ef-4a5a1875ae0a",
+            "title": "会员体系与积分权益说明.md",
+            "heading_path": "会员体系与积分权益说明/3. 付费会员（Plus）",
+            "index_version": "v2",
+            "content": "【表头】权益 | 说明\n| 权益 | 说明 |\n|------|------|\n| 包邮券包 | 每月发放 N 张（面额与门槛见当期） |\n| 专属价 | 标注 Plus 价的 SKU 额外优惠 |\n| 退换加速 | 售后审核优先队列 |\n| 积分加速 | 确认收货积分 ×1.5（可与等级倍率择优，不叠乘） |\n| 免费试用 | 部分新品试用名额 |\n\n**订阅：** 月卡 / 年卡；年卡到期前 **7 天**提醒，默认 **不自动续费**（须用户主动开启）。\n\n**退订：** 未使用任何 Plus 专属权益可 **7 日内全额退**；已使用按剩余天数折算（已领券包视作已使用当月权益）。",
+            "source": "hybrid",
+            "retrieved_rank": 1,
+            "rounds": [],
+            "query_ids": []
+          },
+          {
+            "evidence_id": "E2",
+            "chunk_id": "eb5fa64f-3266-489d-8bc6-a6741fddcfe5",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "185b2ef5-15f7-4983-95ef-4a5a1875ae0a",
+            "title": "会员体系与积分权益说明.md",
+            "heading_path": "会员体系与积分权益说明/7. 客服常见问题应答",
+            "index_version": "v2",
+            "content": "【表头】问题 | 要点\n| 问题 | 要点 |\n|------|------|\n| 积分为什么少了 | 查退款扣回、过期、是否用于抵扣 |\n| 等级怎么掉了 | 滚动 12 个月实付不足，有 1 个月缓冲 |\n| Plus 能退吗 | 看是否已用专属权益，按退订规则折算 |\n| 积分能转给别人吗 | 不支持转让、提现 |",
+            "source": "hybrid",
+            "retrieved_rank": 2,
+            "rounds": [],
+            "query_ids": []
+          }
+        ]
+      },
+      "metadata": {
+        "trace_id": "d7b99b9a-7267-4063-81e7-c31522b9eba8",
+        "log_id": "e4c51988-56f6-4e72-82ff-1027eda4bba7",
+        "initial_evidence_status": "complete",
+        "stop_reason": "evidence_complete",
+        "round_count": 1,
+        "retrieval_task_count": 1,
+        "llm_call_count": 1,
+        "input_tokens": 4481,
+        "output_tokens": 1145,
+        "latency_ms": 14076,
+        "degraded": false,
+        "errors": [],
+        "stages": []
+      }
+    },
+    {
+      "case_id": "live_order_responsibility",
+      "case_type": "simple",
+      "question": "直播间下单后由主播还是店铺商家承担售后和发票义务？",
+      "success": true,
+      "degraded": false,
+      "error": null,
+      "elapsed_ms": 27818,
+      "answer": null,
+      "plan": null,
+      "rounds": [
+        {
+          "round": 1,
+          "purpose": "initial",
+          "tasks": [
+            {
+              "query_id": "Q1",
+              "query": "直播间下单后由主播还是店铺商家承担售后和发票义务？",
+              "aspect_ids": [],
+              "success": true,
+              "chunk_ids": [
+                "c1898591-8556-45fc-a8f5-14b24dc525ca",
+                "1ed0393c-580a-4a3f-b98c-ead0d0a9e010",
+                "8a2b087d-c82a-4ee5-b8a0-5cdf8c4bf5a0",
+                "0fb81e95-1221-40af-b4b7-8c6ec4d4919a",
+                "dd35b70f-2716-4b45-907d-e9b93562f0fa",
+                "cb269192-7e36-4a31-9832-174fee8ad306",
+                "96a00a78-248b-432c-b9d0-c262e93b883d",
+                "3fee85dd-ace3-43da-abf2-4ae9e1a2b4dc",
+                "008fc2ce-e5d7-4895-bbc3-c38d047745e2",
+                "9feabcb9-b32f-4409-a23c-fc8ebde99408"
+              ],
+              "new_chunk_count": 10,
+              "latency_ms": 2907
+            }
+          ],
+          "candidate_count": 10,
+          "new_chunk_count": 10,
+          "latency_ms": 2907
+        }
+      ],
+      "evidence_pack": {
+        "status": "complete",
+        "missing_aspects": [],
+        "groups": [
+          {
+            "aspect": "直播间成交订单的售后义务主体",
+            "evidence": [
+              {
+                "evidence_id": "E1",
+                "role": "core"
+              },
+              {
+                "evidence_id": "E2",
+                "role": "supporting"
+              },
+              {
+                "evidence_id": "E3",
+                "role": "supporting"
+              }
+            ],
+            "covered": true
+          },
+          {
+            "aspect": "直播间成交订单的发票义务主体",
+            "evidence": [
+              {
+                "evidence_id": "E1",
+                "role": "core"
+              },
+              {
+                "evidence_id": "E4",
+                "role": "supporting"
+              }
+            ],
+            "covered": true
+          },
+          {
+            "aspect": "消费者与店铺商家建立买卖合同，达人非合同卖方",
+            "evidence": [
+              {
+                "evidence_id": "E1",
+                "role": "core"
+              },
+              {
+                "evidence_id": "E3",
+                "role": "supporting"
+              }
+            ],
+            "covered": true
+          }
+        ],
+        "items": [
+          {
+            "evidence_id": "E1",
+            "chunk_id": "c1898591-8556-45fc-a8f5-14b24dc525ca",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "bdf47657-fec9-4112-a059-08abc6431696",
+            "title": "直播带货与内容营销合规.md",
+            "heading_path": "直播带货与内容营销合规/1. 角色与责任",
+            "index_version": "v2",
+            "content": "【表头】角色 | 责任\n| 角色 | 责任 |\n|------|------|\n| 商家自播 | 对商品真实性、库存、发货、售后负主责 |\n| 达人 / 机构 | 对口播内容真实性、广告法合规负责；选品尽职调查 |\n| 平台 | 提供交易与结算能力，对违规内容处置、消费者保障兜底规则 |\n| 消费者 | 下单即与商家建立买卖合同，达人非合同卖方（另有说明除外） |\n\n**订单归属：** 通过直播间/短视频挂车成交的订单，售后与发票义务主体为 **店铺商家**。",
+            "source": "hybrid",
+            "retrieved_rank": 1,
+            "rounds": [],
+            "query_ids": []
+          },
+          {
+            "evidence_id": "E2",
+            "chunk_id": "1ed0393c-580a-4a3f-b98c-ead0d0a9e010",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "bdf47657-fec9-4112-a059-08abc6431696",
+            "title": "直播带货与内容营销合规.md",
+            "heading_path": "直播带货与内容营销合规/8. 客服常见问题应答",
+            "index_version": "v2",
+            "content": "【表头】问题 | 要点\n| 问题 | 要点 |\n|------|------|\n| 直播买贵了怎么办 | 查价保是否适用；专享价一般以成交价为准 |\n| 达人承诺和页面不一致 | 以订单快照/商品页为准，可举证口播录屏申请协商 |\n| 佣金为什么被扣 | 对应订单退款或风控判定无效成交 |\n| 能否要求主播退款 | 售后走店铺订单，主播非退款执行方 |\n\n> 关联规则：直播订单能否申请价保，参见《促销活动与优惠券使用规则》第 4 节“价格保护（价保）”；不同会员等级的价保周期参见《会员体系与积分权益说明》第 4 节“价保与会员专属服务”。",
+            "source": "hybrid",
+            "retrieved_rank": 2,
+            "rounds": [],
+            "query_ids": []
+          },
+          {
+            "evidence_id": "E3",
+            "chunk_id": "8a2b087d-c82a-4ee5-b8a0-5cdf8c4bf5a0",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "24993327-2205-43a9-877f-4f4237c95d68",
+            "title": "平台交易规则与买家保障.md",
+            "heading_path": "平台交易规则与买家保障/1. 交易主体与合同成立",
+            "index_version": "v2",
+            "content": "- **卖家**：平台入驻商家或自营主体；\n- **买家**：完成实名/手机号注册的平台用户；\n- **合同成立**：买家下单并完成支付，卖家接单（或系统自动接单）时成立。\n\n**订单快照**（商品标题、价格、规格、促销规则）为争议处理依据，优先于商家后台后续修改。",
+            "source": "vector",
+            "retrieved_rank": 3,
+            "rounds": [],
+            "query_ids": []
+          },
+          {
+            "evidence_id": "E4",
+            "chunk_id": "cb269192-7e36-4a31-9832-174fee8ad306",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "d3049f5c-5617-4fe0-98fb-e18a37d45cb7",
+            "title": "商家入驻结算与对账流程.md",
+            "heading_path": "商家入驻结算与对账流程/6. 发票与税务",
+            "index_version": "v2",
+            "content": "- **商家向消费者：** 须按订单金额开具 **电子普通/专用发票**（类目要求专票的商品除外）；\n- **平台向商家：** 佣金、广告费等开具 **6% 技术服务费** 发票；\n- 商家须自行完成 **增值税、所得税** 申报，平台依法报送交易数据。",
+            "source": "hybrid",
+            "retrieved_rank": 6,
+            "rounds": [],
+            "query_ids": []
+          }
+        ]
+      },
+      "metadata": {
+        "trace_id": "70ad5a0a-9e6a-464a-97af-d378e9406007",
+        "log_id": "d08dab21-9080-4026-aff6-5e31d88479fd",
+        "initial_evidence_status": "complete",
+        "stop_reason": "evidence_complete",
+        "round_count": 1,
+        "retrieval_task_count": 1,
+        "llm_call_count": 1,
+        "input_tokens": 4354,
+        "output_tokens": 2647,
+        "latency_ms": 27364,
+        "degraded": false,
+        "errors": [],
+        "stages": []
+      }
+    },
+    {
+      "case_id": "search_personalization_off",
+      "case_type": "simple",
+      "question": "关闭个性化推荐后是不是就完全看不到推荐和广告了？",
+      "success": true,
+      "degraded": false,
+      "error": null,
+      "elapsed_ms": 13721,
+      "answer": null,
+      "plan": null,
+      "rounds": [
+        {
+          "round": 1,
+          "purpose": "initial",
+          "tasks": [
+            {
+              "query_id": "Q1",
+              "query": "关闭个性化推荐后是不是就完全看不到推荐和广告了？",
+              "aspect_ids": [],
+              "success": true,
+              "chunk_ids": [
+                "ab9b5fc7-dde5-4d38-a5c6-92d34d57d90c",
+                "8e64a13d-b431-4e8a-81ee-a0018a91199c",
+                "57acaa1c-5141-4126-932e-33f2fbccfb75",
+                "5142e91c-eb33-4e8a-a88a-2e4a910ca807",
+                "2f9a4281-d35d-471a-a18b-6654a62b1013",
+                "5b92e1de-d0dd-4b3d-bd07-1c2c61cd80bc",
+                "458e0ad6-7256-432d-bb46-4bc7cf86f650",
+                "079529f9-bae4-48d6-8917-8d3582ed77da",
+                "15eedd26-ba03-4665-aa67-0768afece9d9",
+                "31f92d37-9698-4d7a-a75a-9f670bf1a6d5"
+              ],
+              "new_chunk_count": 10,
+              "latency_ms": 2413
+            }
+          ],
+          "candidate_count": 10,
+          "new_chunk_count": 10,
+          "latency_ms": 2413
+        }
+      ],
+      "evidence_pack": {
+        "status": "complete",
+        "missing_aspects": [],
+        "groups": [
+          {
+            "aspect": "关闭个性化推荐后推荐内容是否会完全消失",
+            "evidence": [
+              {
+                "evidence_id": "E1",
+                "role": "core"
+              }
+            ],
+            "covered": true
+          },
+          {
+            "aspect": "关闭个性化推荐后广告是否会完全消失",
+            "evidence": [
+              {
+                "evidence_id": "E1",
+                "role": "core"
+              }
+            ],
+            "covered": true
+          }
+        ],
+        "items": [
+          {
+            "evidence_id": "E1",
+            "chunk_id": "ab9b5fc7-dde5-4d38-a5c6-92d34d57d90c",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "872cc351-513b-490f-ac35-c5485de799b1",
+            "title": "搜索推荐与广告投放规则.md",
+            "heading_path": "搜索推荐与广告投放规则/7. 消费者侧透明度",
+            "index_version": "v2",
+            "content": "- 用户可在「隐私设置」中管理 **个性化推荐** 开关；\n- 关闭后仍展示热门/编辑精选，但减少基于个人行为的定向；\n- 广告偏好：可减少某类广告展示（不保证完全消失）。",
+            "source": "hybrid",
+            "retrieved_rank": 1,
+            "rounds": [],
+            "query_ids": []
+          }
+        ]
+      },
+      "metadata": {
+        "trace_id": "6f880139-75ed-4ade-965e-d8af8ee7fbac",
+        "log_id": "f703c7d9-be53-4144-94bc-28da9ea8028b",
+        "initial_evidence_status": "complete",
+        "stop_reason": "evidence_complete",
+        "round_count": 1,
+        "retrieval_task_count": 1,
+        "llm_call_count": 1,
+        "input_tokens": 4330,
+        "output_tokens": 1124,
+        "latency_ms": 13482,
+        "degraded": false,
+        "errors": [],
+        "stages": []
+      }
+    },
+    {
+      "case_id": "payment_combined_refund",
+      "case_type": "independent_multi_aspect",
+      "question": "组合支付发生部分退款后，银行卡、优惠券和积分分别怎么退？",
+      "success": true,
+      "degraded": false,
+      "error": null,
+      "elapsed_ms": 30842,
+      "answer": null,
+      "plan": null,
+      "rounds": [
+        {
+          "round": 1,
+          "purpose": "initial",
+          "tasks": [
+            {
+              "query_id": "Q1",
+              "query": "组合支付发生部分退款后，银行卡、优惠券和积分分别怎么退？",
+              "aspect_ids": [],
+              "success": true,
+              "chunk_ids": [
+                "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+                "16c97ec5-40e0-4b0e-8fc6-b7b526dfe4ff",
+                "61f394fc-ceb2-44b6-b1e6-ae4c7bc1527e",
+                "68a004e5-c525-4ae7-8613-759d0568d893",
+                "779b77ca-dcb0-4de1-9eaf-d2279a876f34",
+                "ce6921ae-91c2-457b-91c5-f88332079a08",
+                "3c6dfd3c-98f2-46cd-b4b1-639c6125f1c0",
+                "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+                "b4a6988d-d753-4e15-92b4-fed891002172",
+                "94ee9080-0188-4591-a7f2-79ad4d3a0d6a"
+              ],
+              "new_chunk_count": 10,
+              "latency_ms": 1503
+            }
+          ],
+          "candidate_count": 10,
+          "new_chunk_count": 10,
+          "latency_ms": 1503
+        }
+      ],
+      "evidence_pack": {
+        "status": "complete",
+        "missing_aspects": [],
+        "groups": [
+          {
+            "aspect": "银行卡部分：组合支付按支付比例拆分退回原卡",
+            "evidence": [
+              {
+                "evidence_id": "E1",
+                "role": "core"
+              }
+            ],
+            "covered": true
+          },
+          {
+            "aspect": "优惠券部分：未过期且未使用的平台券退回，店铺券依商家规则；红包/礼金已抵扣的按比例扣回",
+            "evidence": [
+              {
+                "evidence_id": "E2",
+                "role": "core"
+              },
+              {
+                "evidence_id": "E1",
+                "role": "supporting"
+              },
+              {
+                "evidence_id": "E3",
+                "role": "supporting"
+              }
+            ],
+            "covered": true
+          },
+          {
+            "aspect": "积分部分：已使用积分按抵扣金额等值退回积分池，若已过期不退",
+            "evidence": [
+              {
+                "evidence_id": "E4",
+                "role": "core"
+              },
+              {
+                "evidence_id": "E1",
+                "role": "supporting"
+              }
+            ],
+            "covered": true
+          }
+        ],
+        "items": [
+          {
+            "evidence_id": "E1",
+            "chunk_id": "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "9b4bac02-5e6f-4d50-b6e2-83dde5ac5269",
+            "title": "支付方式与资金安全规范.md",
+            "heading_path": "支付方式与资金安全规范/3. 退款原路退回",
+            "index_version": "v2",
+            "content": "【表头】原支付方式 | 退回路径 | 到账时效\n| 原支付方式 | 退回路径 | 到账时效 |\n|------------|----------|----------|\n| 微信 / 支付宝 | 原账户 | 即时~24 小时 |\n| 银行卡 | 原卡 | 1~3 工作日（节假日顺延） |\n| 平台余额 | 余额账户 | 即时 |\n| 礼品卡 | 原卡额度 | 即时（过期卡退回余额） |\n| 组合支付 | 按支付比例拆分退回 | 取各通道较长时效 |\n\n**部分退款：** 按商品行实付金额退，已用积分/券按促销与会员规则处理。\n\n> 关联规则：优惠券分类参见《促销活动与优惠券使用规则》第 2 节“优惠券分类”；优惠券能否退回参见《促销活动与优惠券使用规则》第 6 节“客服常见问题应答”；积分退回规则参见《会员体系与积分权益说明》第 2.2 节“使用与有效期”。",
+            "source": "hybrid",
+            "retrieved_rank": 1,
+            "rounds": [],
+            "query_ids": []
+          },
+          {
+            "evidence_id": "E2",
+            "chunk_id": "3c6dfd3c-98f2-46cd-b4b1-639c6125f1c0",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "8b484755-a80d-44a2-85c0-0b21e53247bc",
+            "title": "促销活动与优惠券使用规则.md",
+            "heading_path": "促销活动与优惠券使用规则/6. 客服常见问题应答",
+            "index_version": "v2",
+            "content": "【表头】问题 | 要点\n| 问题 | 要点 |\n|------|------|\n| 券为什么不能用 | 查适用范围、门槛、有效期、是否与当前活动互斥 |\n| 满减没生效 | 确认是否跨店凑单、是否含排除类目 |\n| 退款后券退吗 | 未过期且未使用的平台券一般退回；店铺券看商家规则 |\n| 保价怎么算 | 以申请时刻页面价为准，需在同一 SKU 同一规格 |",
+            "source": "context:reference",
+            "retrieved_rank": null,
+            "rounds": [],
+            "query_ids": []
+          },
+          {
+            "evidence_id": "E3",
+            "chunk_id": "68a004e5-c525-4ae7-8613-759d0568d893",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "8b484755-a80d-44a2-85c0-0b21e53247bc",
+            "title": "促销活动与优惠券使用规则.md",
+            "heading_path": "促销活动与优惠券使用规则/2. 优惠券分类/2.3 红包 / 礼金",
+            "index_version": "v2",
+            "content": "- 无门槛或低门槛，通常 **单笔限用 1 个**；\n- 退款时：未使用的退回账户；已抵扣的按 **比例扣回**。",
+            "source": "hybrid",
+            "retrieved_rank": 4,
+            "rounds": [],
+            "query_ids": []
+          },
+          {
+            "evidence_id": "E4",
+            "chunk_id": "779b77ca-dcb0-4de1-9eaf-d2279a876f34",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "185b2ef5-15f7-4983-95ef-4a5a1875ae0a",
+            "title": "会员体系与积分权益说明.md",
+            "heading_path": "会员体系与积分权益说明/2. 积分规则/2.2 使用与有效期",
+            "index_version": "v2",
+            "content": "- **抵扣比例：** 默认 100 积分 = 1 元，单笔最多抵扣实付的 **20%**（特殊活动除外）；\n- **不可用于：** 充值类、虚拟卡密、部分国际站订单；\n- **有效期：** 自获取日起 **12 个月**，过期清零且不补偿；\n- 退款时：已使用积分按 **抵扣金额等值** 退回积分池（若积分已过期则不退）。\n\n> 关联规则：订单退款的审核及发起时限参见《售后服务与退换货政策》第 4 节“售后时效 SLA”；现金部分的到账路径参见《支付方式与资金安全规范》第 3 节“退款原路退回”。",
+            "source": "context:reference",
+            "retrieved_rank": null,
+            "rounds": [],
+            "query_ids": []
+          }
+        ]
+      },
+      "metadata": {
+        "trace_id": "18b943a7-1f41-4f3d-bd41-827681ff4577",
+        "log_id": "8332cd53-ef97-49a8-b6e3-3e2dbd483670",
+        "initial_evidence_status": "complete",
+        "stop_reason": "evidence_complete",
+        "round_count": 1,
+        "retrieval_task_count": 1,
+        "llm_call_count": 1,
+        "input_tokens": 4550,
+        "output_tokens": 3650,
+        "latency_ms": 30364,
+        "degraded": false,
+        "errors": [],
+        "stages": []
+      }
+    },
+    {
+      "case_id": "payment_risk_appeal",
+      "case_type": "independent_multi_aspect",
+      "question": "异地登录后大额支付被风控拦截，怎么申诉，多久复核？",
+      "success": true,
+      "degraded": false,
+      "error": null,
+      "elapsed_ms": 15733,
+      "answer": null,
+      "plan": null,
+      "rounds": [
+        {
+          "round": 1,
+          "purpose": "initial",
+          "tasks": [
+            {
+              "query_id": "Q1",
+              "query": "异地登录后大额支付被风控拦截，怎么申诉，多久复核？",
+              "aspect_ids": [],
+              "success": true,
+              "chunk_ids": [
+                "aa81a2e2-a349-4946-8cbd-d3bdd40f078f",
+                "c5bbdec9-bfdb-4cb7-ac6f-e7eddcabce4d",
+                "61f394fc-ceb2-44b6-b1e6-ae4c7bc1527e",
+                "37389834-a3a1-432a-9484-691f17cd397c",
+                "ce6921ae-91c2-457b-91c5-f88332079a08",
+                "6cf4b54b-2675-418f-8ed1-88cabd6bb592",
+                "58b5ab7f-8897-492d-8e38-a1d677a9e2db",
+                "5142e91c-eb33-4e8a-a88a-2e4a910ca807",
+                "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+                "83be732f-48b4-44ca-aca9-5f592fa09b04"
+              ],
+              "new_chunk_count": 10,
+              "latency_ms": 1522
+            }
+          ],
+          "candidate_count": 10,
+          "new_chunk_count": 10,
+          "latency_ms": 1522
+        }
+      ],
+      "evidence_pack": {
+        "status": "complete",
+        "missing_aspects": [],
+        "groups": [
+          {
+            "aspect": "异地登录后大额支付被风控拦截的处理方式",
+            "evidence": [
+              {
+                "evidence_id": "E1",
+                "role": "core"
+              }
+            ],
+            "covered": true
+          },
+          {
+            "aspect": "误杀申诉渠道",
+            "evidence": [
+              {
+                "evidence_id": "E1",
+                "role": "core"
+              }
+            ],
+            "covered": true
+          },
+          {
+            "aspect": "申诉复核时长",
+            "evidence": [
+              {
+                "evidence_id": "E1",
+                "role": "core"
+              }
+            ],
+            "covered": true
+          }
+        ],
+        "items": [
+          {
+            "evidence_id": "E1",
+            "chunk_id": "aa81a2e2-a349-4946-8cbd-d3bdd40f078f",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "9b4bac02-5e6f-4d50-b6e2-83dde5ac5269",
+            "title": "支付方式与资金安全规范.md",
+            "heading_path": "支付方式与资金安全规范/5. 风控拦截场景",
+            "index_version": "v2",
+            "content": "系统或人工可能触发支付/提现拦截：\n\n【表头】场景 | 处理\n| 场景 | 处理 |\n|------|------|\n| 异地异常登录后大额支付 | 短信/人脸二次验证 |\n| 短时高频下单退款 | 限流、人工审核 |\n| 涉嫌信用卡套现 | 拒绝支付或冻结订单 |\n| 收款账户与主体不符 | 禁止结算直至更正 |\n| 钓鱼链接诱导付款 | 阻断并安全提示 |\n\n**误杀申诉：** 用户通过「支付安全申诉」提交材料，风控 **48 小时内**复核。",
+            "source": "hybrid",
+            "retrieved_rank": 1,
+            "rounds": [],
+            "query_ids": []
+          }
+        ]
+      },
+      "metadata": {
+        "trace_id": "75bb1a6a-7f44-428d-add5-c529dde1c3e6",
+        "log_id": "601ded31-d582-449e-80d0-65e4430b781c",
+        "initial_evidence_status": "complete",
+        "stop_reason": "evidence_complete",
+        "round_count": 1,
+        "retrieval_task_count": 1,
+        "llm_call_count": 1,
+        "input_tokens": 4409,
+        "output_tokens": 1250,
+        "latency_ms": 15166,
+        "degraded": false,
+        "errors": [],
+        "stages": []
+      }
+    },
+    {
+      "case_id": "member_points_refund",
+      "case_type": "independent_multi_aspect",
+      "question": "积分抵扣订单退款后，积分和现金分别怎么退？",
+      "success": true,
+      "degraded": false,
+      "error": null,
+      "elapsed_ms": 12740,
+      "answer": null,
+      "plan": null,
+      "rounds": [
+        {
+          "round": 1,
+          "purpose": "initial",
+          "tasks": [
+            {
+              "query_id": "Q1",
+              "query": "积分抵扣订单退款后，积分和现金分别怎么退？",
+              "aspect_ids": [],
+              "success": true,
+              "chunk_ids": [
+                "779b77ca-dcb0-4de1-9eaf-d2279a876f34",
+                "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+                "68a004e5-c525-4ae7-8613-759d0568d893",
+                "176c98b8-a7f5-4c86-a2f0-96752afbf776",
+                "ce6921ae-91c2-457b-91c5-f88332079a08",
+                "3c6dfd3c-98f2-46cd-b4b1-639c6125f1c0",
+                "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+                "31f92d37-9698-4d7a-a75a-9f670bf1a6d5",
+                "96a00a78-248b-432c-b9d0-c262e93b883d",
+                "2e198acf-848b-41ea-9c16-92bf3035f163"
+              ],
+              "new_chunk_count": 10,
+              "latency_ms": 1536
+            }
+          ],
+          "candidate_count": 10,
+          "new_chunk_count": 10,
+          "latency_ms": 1536
+        }
+      ],
+      "evidence_pack": {
+        "status": "complete",
+        "missing_aspects": [],
+        "groups": [
+          {
+            "aspect": "积分退回规则",
+            "evidence": [
+              {
+                "evidence_id": "E1",
+                "role": "core"
+              }
+            ],
+            "covered": true
+          },
+          {
+            "aspect": "现金退回路径",
+            "evidence": [
+              {
+                "evidence_id": "E2",
+                "role": "core"
+              }
+            ],
+            "covered": true
+          }
+        ],
+        "items": [
+          {
+            "evidence_id": "E1",
+            "chunk_id": "779b77ca-dcb0-4de1-9eaf-d2279a876f34",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "185b2ef5-15f7-4983-95ef-4a5a1875ae0a",
+            "title": "会员体系与积分权益说明.md",
+            "heading_path": "会员体系与积分权益说明/2. 积分规则/2.2 使用与有效期",
+            "index_version": "v2",
+            "content": "- **抵扣比例：** 默认 100 积分 = 1 元，单笔最多抵扣实付的 **20%**（特殊活动除外）；\n- **不可用于：** 充值类、虚拟卡密、部分国际站订单；\n- **有效期：** 自获取日起 **12 个月**，过期清零且不补偿；\n- 退款时：已使用积分按 **抵扣金额等值** 退回积分池（若积分已过期则不退）。\n\n> 关联规则：订单退款的审核及发起时限参见《售后服务与退换货政策》第 4 节“售后时效 SLA”；现金部分的到账路径参见《支付方式与资金安全规范》第 3 节“退款原路退回”。",
+            "source": "hybrid",
+            "retrieved_rank": 1,
+            "rounds": [],
+            "query_ids": []
+          },
+          {
+            "evidence_id": "E2",
+            "chunk_id": "2af0bac1-6126-4d91-bc42-774ca90d9d4d",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "9b4bac02-5e6f-4d50-b6e2-83dde5ac5269",
+            "title": "支付方式与资金安全规范.md",
+            "heading_path": "支付方式与资金安全规范/3. 退款原路退回",
+            "index_version": "v2",
+            "content": "【表头】原支付方式 | 退回路径 | 到账时效\n| 原支付方式 | 退回路径 | 到账时效 |\n|------------|----------|----------|\n| 微信 / 支付宝 | 原账户 | 即时~24 小时 |\n| 银行卡 | 原卡 | 1~3 工作日（节假日顺延） |\n| 平台余额 | 余额账户 | 即时 |\n| 礼品卡 | 原卡额度 | 即时（过期卡退回余额） |\n| 组合支付 | 按支付比例拆分退回 | 取各通道较长时效 |\n\n**部分退款：** 按商品行实付金额退，已用积分/券按促销与会员规则处理。\n\n> 关联规则：优惠券分类参见《促销活动与优惠券使用规则》第 2 节“优惠券分类”；优惠券能否退回参见《促销活动与优惠券使用规则》第 6 节“客服常见问题应答”；积分退回规则参见《会员体系与积分权益说明》第 2.2 节“使用与有效期”。",
+            "source": "context:reference",
+            "retrieved_rank": null,
+            "rounds": [],
+            "query_ids": []
+          }
+        ]
+      },
+      "metadata": {
+        "trace_id": "4f18e9b1-97bb-4f66-bd5c-2dc90b0ce156",
+        "log_id": "d6831a3a-a45b-4b62-a94d-cf6e29293c0c",
+        "initial_evidence_status": "complete",
+        "stop_reason": "evidence_complete",
+        "round_count": 1,
+        "retrieval_task_count": 1,
+        "llm_call_count": 1,
+        "input_tokens": 4265,
+        "output_tokens": 1094,
+        "latency_ms": 12446,
+        "degraded": false,
+        "errors": [],
+        "stages": []
+      }
+    },
+    {
+      "case_id": "aftersales_seven_day_freight",
+      "case_type": "independent_multi_aspect",
+      "question": "七天无理由退货要满足哪些条件，退货运费由谁出？",
+      "success": true,
+      "degraded": false,
+      "error": null,
+      "elapsed_ms": 11695,
+      "answer": null,
+      "plan": null,
+      "rounds": [
+        {
+          "round": 1,
+          "purpose": "initial",
+          "tasks": [
+            {
+              "query_id": "Q1",
+              "query": "七天无理由退货要满足哪些条件，退货运费由谁出？",
+              "aspect_ids": [],
+              "success": true,
+              "chunk_ids": [
+                "8e274390-4b66-4695-a946-f86570388c01",
+                "dd35b70f-2716-4b45-907d-e9b93562f0fa",
+                "6c454b32-af30-4937-9087-9e924de60f13",
+                "a4102a62-a707-4857-bd54-c2fe257e917b",
+                "31f92d37-9698-4d7a-a75a-9f670bf1a6d5",
+                "44d9f1c9-99b3-47b0-8a89-927da0bbb9c0",
+                "ff032376-059e-4150-8e75-3ea6d7f60851",
+                "c5bbdec9-bfdb-4cb7-ac6f-e7eddcabce4d",
+                "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+                "87e6cbec-5499-4f38-b9cf-a13551e90ca4"
+              ],
+              "new_chunk_count": 10,
+              "latency_ms": 1455
+            }
+          ],
+          "candidate_count": 10,
+          "new_chunk_count": 10,
+          "latency_ms": 1455
+        }
+      ],
+      "evidence_pack": {
+        "status": "complete",
+        "missing_aspects": [],
+        "groups": [
+          {
+            "aspect": "七天无理由退货的适用条件",
+            "evidence": [
+              {
+                "evidence_id": "E1",
+                "role": "core"
+              },
+              {
+                "evidence_id": "E2",
+                "role": "supporting"
+              }
+            ],
+            "covered": true
+          },
+          {
+            "aspect": "退货运费由谁承担",
+            "evidence": [
+              {
+                "evidence_id": "E3",
+                "role": "core"
+              },
+              {
+                "evidence_id": "E4",
+                "role": "supporting"
+              }
+            ],
+            "covered": true
+          }
+        ],
+        "items": [
+          {
+            "evidence_id": "E1",
+            "chunk_id": "8e274390-4b66-4695-a946-f86570388c01",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "71785118-9dcb-41cc-97bf-4e8dbf83c27b",
+            "title": "售后服务与退换货政策.md",
+            "heading_path": "售后服务与退换货政策/2. 七天无理由退货/2.1 适用条件",
+            "index_version": "v2",
+            "content": "- 确认收货后 **7 个自然日**内发起（以物流签收日或系统确认收货日较早者为准）；\n- 商品完好：**不影响二次销售**（吊牌未拆、塑封未破、试用装未开封等按类目细则）；\n- 须附带原包装、说明书、赠品（赠品缺失可按价值扣款后退款）。",
+            "source": "hybrid",
+            "retrieved_rank": 1,
+            "rounds": [],
+            "query_ids": []
+          },
+          {
+            "evidence_id": "E2",
+            "chunk_id": "6c454b32-af30-4937-9087-9e924de60f13",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "71785118-9dcb-41cc-97bf-4e8dbf83c27b",
+            "title": "售后服务与退换货政策.md",
+            "heading_path": "售后服务与退换货政策/2. 七天无理由退货/2.2 不适用类目（节选）",
+            "index_version": "v2",
+            "content": "- 鲜活易腐、订制商品、数字化商品、报纸期刊；\n- 拆封后易影响卫生的商品（贴身衣物、内衣裤、化妆品拆封等，页面须标注）；\n- 已激活的软件/会员卡密。",
+            "source": "hybrid",
+            "retrieved_rank": 3,
+            "rounds": [],
+            "query_ids": []
+          },
+          {
+            "evidence_id": "E3",
+            "chunk_id": "dd35b70f-2716-4b45-907d-e9b93562f0fa",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "71785118-9dcb-41cc-97bf-4e8dbf83c27b",
+            "title": "售后服务与退换货政策.md",
+            "heading_path": "售后服务与退换货政策/2. 七天无理由退货/2.3 运费承担",
+            "index_version": "v2",
+            "content": "【表头】原因 | 运费\n| 原因 | 运费 |\n|------|------|\n| 无理由退货 | 买家承担（有运费险则理赔首重） |\n| 质量问题 / 错发漏发 | 商家承担往返运费 |\n| 描述严重不符 | 商家承担 |\n\n> 关联规则：运费险的保障范围、理赔条件和到账方式参见《平台交易规则与买家保障》第 3.3 节“运费险”。",
+            "source": "hybrid",
+            "retrieved_rank": 2,
+            "rounds": [],
+            "query_ids": []
+          },
+          {
+            "evidence_id": "E4",
+            "chunk_id": "e10d97a9-4bbb-4f4a-8ae3-aa925dfb3500",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "24993327-2205-43a9-877f-4f4237c95d68",
+            "title": "平台交易规则与买家保障.md",
+            "heading_path": "平台交易规则与买家保障/3. 买家保障服务/3.3 运费险",
+            "index_version": "v2",
+            "content": "- 买家购买或商家赠送运费险的订单，退货时 **首重运费**按保单理赔（通常 8~12 元）；\n- 理赔与退款 **独立**，到账可能有 1~3 天差异。",
+            "source": "context:reference",
+            "retrieved_rank": null,
+            "rounds": [],
+            "query_ids": []
+          }
+        ]
+      },
+      "metadata": {
+        "trace_id": "dc26bf0c-a246-43a5-abae-7c5aeba905ae",
+        "log_id": "590c23fd-5612-4d08-ab06-e28b218616b4",
+        "initial_evidence_status": "complete",
+        "stop_reason": "evidence_complete",
+        "round_count": 1,
+        "retrieval_task_count": 1,
+        "llm_call_count": 1,
+        "input_tokens": 4312,
+        "output_tokens": 986,
+        "latency_ms": 11313,
+        "degraded": false,
+        "errors": [],
+        "stages": []
+      }
+    },
+    {
+      "case_id": "live_category_qualification",
+      "case_type": "dependent_multi_hop",
+      "question": "直播带货美妆或医疗器械需要哪些额外资质？",
+      "success": true,
+      "degraded": false,
+      "error": null,
+      "elapsed_ms": 44966,
+      "answer": null,
+      "plan": null,
+      "rounds": [
+        {
+          "round": 1,
+          "purpose": "initial",
+          "tasks": [
+            {
+              "query_id": "Q1",
+              "query": "直播带货美妆或医疗器械需要哪些额外资质？",
+              "aspect_ids": [],
+              "success": true,
+              "chunk_ids": [
+                "6400b836-5cf1-43fc-89b8-a2f57e5629d2",
+                "337710fc-63a7-4067-b301-851de1291994",
+                "9feabcb9-b32f-4409-a23c-fc8ebde99408",
+                "15eedd26-ba03-4665-aa67-0768afece9d9",
+                "1f1f99df-69ed-41f9-a72b-0235b88991ee",
+                "bfc4aae9-b04b-482a-a649-f53ca0496e39",
+                "7d395c15-ea03-4bfb-b004-aaa64b6ce640",
+                "ed03f32b-c86e-44de-ad34-38aaeb6908c1",
+                "c1898591-8556-45fc-a8f5-14b24dc525ca",
+                "3fee85dd-ace3-43da-abf2-4ae9e1a2b4dc"
+              ],
+              "new_chunk_count": 10,
+              "latency_ms": 1509
+            }
+          ],
+          "candidate_count": 10,
+          "new_chunk_count": 10,
+          "latency_ms": 1509
+        }
+      ],
+      "evidence_pack": {
+        "status": "complete",
+        "missing_aspects": [],
+        "groups": [
+          {
+            "aspect": "美妆（化妆品）类目的额外资质",
+            "evidence": [
+              {
+                "evidence_id": "E1",
+                "role": "core"
+              },
+              {
+                "evidence_id": "E2",
+                "role": "supporting"
+              }
+            ],
+            "covered": true
+          },
+          {
+            "aspect": "医疗器械类目的额外资质",
+            "evidence": [
+              {
+                "evidence_id": "E3",
+                "role": "core"
+              },
+              {
+                "evidence_id": "E2",
+                "role": "supporting"
+              },
+              {
+                "evidence_id": "E4",
+                "role": "supporting"
+              }
+            ],
+            "covered": true
+          }
+        ],
+        "items": [
+          {
+            "evidence_id": "E1",
+            "chunk_id": "44159d28-676b-40c1-a84f-34b8e4ac6c18",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "4b932e57-a65e-46c8-b8c9-fa9637fd40cd",
+            "title": "商品上架与类目合规规范.md",
+            "heading_path": "商品上架与类目合规规范/3. 类目资质对照（示例）",
+            "index_version": "v2",
+            "content": "【表头】类目 | 必备资质\n| 类目 | 必备资质 |\n|------|----------|\n| 食品 | SC 编号、生产许可证、质检报告 |\n| 3C 数码 | CCC 认证（目录内产品） |\n| 化妆品 | 备案/注册凭证、成分表 |\n| 婴幼儿配方乳粉 | 配方注册证书 |\n| 出版物 | ISBN、出版许可证 |\n\n资质到期前 **30 天**系统提醒，过期 **自动下架** 相关 SKU。",
+            "source": "context:reference",
+            "retrieved_rank": null,
+            "rounds": [],
+            "query_ids": []
+          },
+          {
+            "evidence_id": "E2",
+            "chunk_id": "6400b836-5cf1-43fc-89b8-a2f57e5629d2",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "bdf47657-fec9-4112-a059-08abc6431696",
+            "title": "直播带货与内容营销合规.md",
+            "heading_path": "直播带货与内容营销合规/2. 开播与账号要求",
+            "index_version": "v2",
+            "content": "- 实名认证；商家直播须绑定已入驻店铺；\n- 达人带货须完成 **带货权限** 申请，部分类目需额外资质（食品、美妆、医疗器械宣传等）；\n- 未成年人 **不得**作为直播带货主播或诱导消费对象进行营销话术。\n\n> 关联规则：部分类目所需资质，参见《商品上架与类目合规规范》第 3 节“类目资质对照（示例）”。",
+            "source": "hybrid",
+            "retrieved_rank": 1,
+            "rounds": [],
+            "query_ids": []
+          },
+          {
+            "evidence_id": "E3",
+            "chunk_id": "bfc4aae9-b04b-482a-a649-f53ca0496e39",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "4b932e57-a65e-46c8-b8c9-fa9637fd40cd",
+            "title": "商品上架与类目合规规范.md",
+            "heading_path": "商品上架与类目合规规范/1. 上架准入",
+            "index_version": "v2",
+            "content": "商家须完成：\n\n1. **企业/个体资质**审核（营业执照、法人身份证、对公账户）；\n2. **类目授权**：品牌需提供商标注册证或授权链（二级以内）；\n3. **保证金**：按类目缴纳 1000~50000 元不等，关店无纠纷可退。\n\n**禁售清单（节选）：**\n\n- 枪支弹药、管制刀具、毒品及制毒工具；\n- 假币、发票、窃听窃照器材；\n- 未取得批号的药品、医疗器械（除平台白名单）；\n- 侵犯知识产权的仿品；\n- 活体动物（除合规宠物类目）。",
+            "source": "hybrid",
+            "retrieved_rank": 6,
+            "rounds": [],
+            "query_ids": []
+          },
+          {
+            "evidence_id": "E4",
+            "chunk_id": "76883ec0-5112-4605-9640-84c7fd751c9a",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "4b932e57-a65e-46c8-b8c9-fa9637fd40cd",
+            "title": "商品上架与类目合规规范.md",
+            "heading_path": "商品上架与类目合规规范/4. 审核流程",
+            "index_version": "v2",
+            "content": "```\n商家提交 → 机审（违禁词、图片 OCR）→ 人审（类目、资质）→ 上架 / 驳回\n```\n\n- 普通类目：**24 小时**内完成；\n- 敏感类目（医疗、金融）：**72 小时**；\n- 驳回须给出 **可修改的具体原因**，商家修改后可重新提交。",
+            "source": "hybrid",
+            "retrieved_rank": null,
+            "rounds": [],
+            "query_ids": []
+          }
+        ]
+      },
+      "metadata": {
+        "trace_id": "7b5abfa0-e867-4739-bd9d-5386aaa84cf9",
+        "log_id": "be7347f8-d3e0-4e4f-b4e6-c41cecfa6513",
+        "initial_evidence_status": "complete",
+        "stop_reason": "evidence_complete",
+        "round_count": 1,
+        "retrieval_task_count": 1,
+        "llm_call_count": 1,
+        "input_tokens": 4876,
+        "output_tokens": 4619,
+        "latency_ms": 44862,
+        "degraded": false,
+        "errors": [],
+        "stages": []
+      }
+    },
+    {
+      "case_id": "live_campaign_shipping",
+      "case_type": "dependent_multi_hop",
+      "question": "大场直播产生的大促订单多久要发货，超时如何处理？",
+      "success": true,
+      "degraded": false,
+      "error": null,
+      "elapsed_ms": 18232,
+      "answer": null,
+      "plan": null,
+      "rounds": [
+        {
+          "round": 1,
+          "purpose": "initial",
+          "tasks": [
+            {
+              "query_id": "Q1",
+              "query": "大场直播产生的大促订单多久要发货，超时如何处理？",
+              "aspect_ids": [],
+              "success": true,
+              "chunk_ids": [
+                "c4c6be7a-ef36-4a1d-99e9-eff07b442873",
+                "413ec4ca-4474-4c54-a97e-ee642182aa66",
+                "be592533-2534-499a-ad02-ed0888908d52",
+                "c44a8d38-d8ca-46c0-9522-f5813d672e17",
+                "0fb81e95-1221-40af-b4b7-8c6ec4d4919a",
+                "ee706ab5-427f-4b64-8305-fe44b1be564b",
+                "0b95c45f-923f-4e80-b630-46e0f944b615",
+                "e9bd1ce2-1db6-48b7-b29b-72db63e3369c",
+                "87e6cbec-5499-4f38-b9cf-a13551e90ca4",
+                "d02e1d0e-e54c-4ec5-8a1a-082c7e68432d"
+              ],
+              "new_chunk_count": 10,
+              "latency_ms": 2788
+            }
+          ],
+          "candidate_count": 10,
+          "new_chunk_count": 10,
+          "latency_ms": 2788
+        }
+      ],
+      "evidence_pack": {
+        "status": "complete",
+        "missing_aspects": [],
+        "groups": [
+          {
+            "aspect": "大场直播大促订单的发货时限",
+            "evidence": [
+              {
+                "evidence_id": "E1",
+                "role": "core"
+              },
+              {
+                "evidence_id": "E2",
+                "role": "supporting"
+              },
+              {
+                "evidence_id": "E3",
+                "role": "supporting"
+              }
+            ],
+            "covered": true
+          },
+          {
+            "aspect": "延迟发货的超时处理与赔付",
+            "evidence": [
+              {
+                "evidence_id": "E2",
+                "role": "core"
+              },
+              {
+                "evidence_id": "E3",
+                "role": "supporting"
+              }
+            ],
+            "covered": true
+          }
+        ],
+        "items": [
+          {
+            "evidence_id": "E1",
+            "chunk_id": "413ec4ca-4474-4c54-a97e-ee642182aa66",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "ba5cb3bc-e642-4d39-926f-e9736d80d6c4",
+            "title": "仓储物流与发货履约SLA.md",
+            "heading_path": "仓储物流与发货履约 SLA/2. 发货 SLA",
+            "index_version": "v2",
+            "content": "【表头】订单类型 | 承诺揽收时效 | 备注\n| 订单类型 | 承诺揽收时效 | 备注 |\n|----------|--------------|------|\n| 现货普通订单 | 付款后 **24 小时** | 不含预售 |\n| 大促订单 | **48 小时** | 活动页公示 |\n| 预售订单 | 按 **预售发货日** | 提前 3 天提醒消费者 |\n| 定制订单 | 按 SKU 标注 **7~15 天** | 超时可取消 |\n\n**揽收定义：** 快递公司扫描 **揽收** 节点，非仅电子面单生成。",
+            "source": "context:reference",
+            "retrieved_rank": null,
+            "rounds": [],
+            "query_ids": []
+          },
+          {
+            "evidence_id": "E2",
+            "chunk_id": "be592533-2534-499a-ad02-ed0888908d52",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "8b484755-a80d-44a2-85c0-0b21e53247bc",
+            "title": "促销活动与优惠券使用规则.md",
+            "heading_path": "促销活动与优惠券使用规则/5. 大促商家规则（节选）",
+            "index_version": "v2",
+            "content": "**报名门槛：**\n\n- 店铺 DSR ≥4.6，近 30 天纠纷率 ≤1%；\n- 活动价须低于近 **30 天**最低成交价（部分类目要求 60 天）；\n- 库存须 ≥活动承诺量，**虚假库存**处罚下架。\n\n**发货要求：**\n\n- 大促订单 **48 小时内**揽收（特殊类目 72 小时）；\n- 延迟发货按 **订单金额 5%** 向买家赔付券（上限 30 元/单）。",
+            "source": "context:reference",
+            "retrieved_rank": null,
+            "rounds": [],
+            "query_ids": []
+          },
+          {
+            "evidence_id": "E3",
+            "chunk_id": "c4c6be7a-ef36-4a1d-99e9-eff07b442873",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "bdf47657-fec9-4112-a059-08abc6431696",
+            "title": "直播带货与内容营销合规.md",
+            "heading_path": "直播带货与内容营销合规/5. 直播间交易特殊规则",
+            "index_version": "v2",
+            "content": "- **秒杀库存：** 独立库存，售罄须立即下架挂车，禁止继续收款后拒单；\n- **讲解优惠：** 直播专享券须设置正确门槛与有效期，避免「口播有券、下单无券」；\n- **延迟发货：** 大场直播订单适用活动发货 SLA；超时按平台规则赔付；\n- **翻车处置：** 严重货不对板，平台可 **全员退款**、暂停直播权限，并追溯佣金。\n\n> 关联规则：普通及预售订单的履约时限参见《仓储物流与发货履约 SLA》第 2 节“发货 SLA”；大促订单另参见《促销活动与优惠券使用规则》第 5 节“大促商家规则（节选）”。",
+            "source": "hybrid",
+            "retrieved_rank": 1,
+            "rounds": [],
+            "query_ids": []
+          }
+        ]
+      },
+      "metadata": {
+        "trace_id": "4b6d6a8f-77a4-451d-b3cb-c648484665c9",
+        "log_id": "ce9a04ab-2677-4803-8d5c-2dc2d00c9021",
+        "initial_evidence_status": "complete",
+        "stop_reason": "evidence_complete",
+        "round_count": 1,
+        "retrieval_task_count": 1,
+        "llm_call_count": 1,
+        "input_tokens": 4408,
+        "output_tokens": 1522,
+        "latency_ms": 17999,
+        "degraded": false,
+        "errors": [],
+        "stages": []
+      }
+    },
+    {
+      "case_id": "search_ad_invoice_reconciliation",
+      "case_type": "dependent_multi_hop",
+      "question": "广告费账单有差异怎么申诉，广告费发票由谁开？",
+      "success": true,
+      "degraded": false,
+      "error": null,
+      "elapsed_ms": 11178,
+      "answer": null,
+      "plan": null,
+      "rounds": [
+        {
+          "round": 1,
+          "purpose": "initial",
+          "tasks": [
+            {
+              "query_id": "Q1",
+              "query": "广告费账单有差异怎么申诉，广告费发票由谁开？",
+              "aspect_ids": [],
+              "success": true,
+              "chunk_ids": [
+                "079529f9-bae4-48d6-8917-8d3582ed77da",
+                "5142e91c-eb33-4e8a-a88a-2e4a910ca807",
+                "cb269192-7e36-4a31-9832-174fee8ad306",
+                "96a00a78-248b-432c-b9d0-c262e93b883d",
+                "008fc2ce-e5d7-4895-bbc3-c38d047745e2",
+                "da6c6060-b3d8-4966-bc72-129292455044",
+                "57acaa1c-5141-4126-932e-33f2fbccfb75",
+                "83be732f-48b4-44ca-aca9-5f592fa09b04",
+                "d99d8982-fd43-4716-a4d0-6fbe1477f1a6",
+                "61f394fc-ceb2-44b6-b1e6-ae4c7bc1527e"
+              ],
+              "new_chunk_count": 10,
+              "latency_ms": 1517
+            }
+          ],
+          "candidate_count": 10,
+          "new_chunk_count": 10,
+          "latency_ms": 1517
+        }
+      ],
+      "evidence_pack": {
+        "status": "complete",
+        "missing_aspects": [],
+        "groups": [
+          {
+            "aspect": "广告费账单差异申诉",
+            "evidence": [
+              {
+                "evidence_id": "E1",
+                "role": "core"
+              },
+              {
+                "evidence_id": "E2",
+                "role": "supporting"
+              },
+              {
+                "evidence_id": "E3",
+                "role": "supporting"
+              }
+            ],
+            "covered": true
+          },
+          {
+            "aspect": "广告费发票开具方",
+            "evidence": [
+              {
+                "evidence_id": "E4",
+                "role": "core"
+              },
+              {
+                "evidence_id": "E1",
+                "role": "supporting"
+              }
+            ],
+            "covered": true
+          }
+        ],
+        "items": [
+          {
+            "evidence_id": "E1",
+            "chunk_id": "079529f9-bae4-48d6-8917-8d3582ed77da",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "872cc351-513b-490f-ac35-c5485de799b1",
+            "title": "搜索推荐与广告投放规则.md",
+            "heading_path": "搜索推荐与广告投放规则/5. 出价、预算与结算",
+            "index_version": "v2",
+            "content": "- 日预算用尽后当日广告 **停投**，次日预算重置后恢复；\n- 点击异常（机器人、连点）由反作弊判定，**无效点击不计费**；\n- 账单：T+1 可查，异议须在账单日后 **7 天内**提出；\n- 发票：广告费按 **6% 或合同税率** 开具，与货款结算分离。\n\n> 关联规则：商家对账流程参见《商家入驻结算与对账流程》第 4 节“对账与提现”；广告费发票参见《商家入驻结算与对账流程》第 6 节“发票与税务”。",
+            "source": "hybrid",
+            "retrieved_rank": 1,
+            "rounds": [],
+            "query_ids": []
+          },
+          {
+            "evidence_id": "E2",
+            "chunk_id": "da6c6060-b3d8-4966-bc72-129292455044",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "d3049f5c-5617-4fe0-98fb-e18a37d45cb7",
+            "title": "商家入驻结算与对账流程.md",
+            "heading_path": "商家入驻结算与对账流程/4. 对账与提现",
+            "index_version": "v2",
+            "content": "- 商家后台 **每日**生成《交易明细》《结算单》；\n- 差异申诉：**结算单发布后 7 天内**提交，逾期视为确认；\n- 提现：结算金额进入 **可提现余额**，商家发起提现，**1~3 个工作日**到账；\n- 最低提现：100 元。\n\n**冻结情形：**\n\n- 保证金不足；\n- 存在未完结纠纷或监管调查；\n- 涉嫌售假、套现。",
+            "source": "context:reference",
+            "retrieved_rank": null,
+            "rounds": [],
+            "query_ids": []
+          },
+          {
+            "evidence_id": "E3",
+            "chunk_id": "5142e91c-eb33-4e8a-a88a-2e4a910ca807",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "872cc351-513b-490f-ac35-c5485de799b1",
+            "title": "搜索推荐与广告投放规则.md",
+            "heading_path": "搜索推荐与广告投放规则/8. 客服 / 商家运营常见问题",
+            "index_version": "v2",
+            "content": "【表头】问题 | 要点\n| 问题 | 要点 |\n|------|------|\n| 为什么搜不到我的商品 | 查下架、类目错放、严重降权、无库存 |\n| 广告费扣了没展现 | 依次检查本文件第 4 节“投放准入与素材规范”和第 5 节“出价、预算与结算” |\n| 自然流量是不是被广告挤掉 | 广告位与自然位分区，质量差仍难获自然流 |\n| 如何申诉无效点击 | 商业化后台提交，附异常时段与证据 |",
+            "source": "hybrid",
+            "retrieved_rank": 2,
+            "rounds": [],
+            "query_ids": []
+          },
+          {
+            "evidence_id": "E4",
+            "chunk_id": "cb269192-7e36-4a31-9832-174fee8ad306",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "d3049f5c-5617-4fe0-98fb-e18a37d45cb7",
+            "title": "商家入驻结算与对账流程.md",
+            "heading_path": "商家入驻结算与对账流程/6. 发票与税务",
+            "index_version": "v2",
+            "content": "- **商家向消费者：** 须按订单金额开具 **电子普通/专用发票**（类目要求专票的商品除外）；\n- **平台向商家：** 佣金、广告费等开具 **6% 技术服务费** 发票；\n- 商家须自行完成 **增值税、所得税** 申报，平台依法报送交易数据。",
+            "source": "context:reference",
+            "retrieved_rank": null,
+            "rounds": [],
+            "query_ids": []
+          }
+        ]
+      },
+      "metadata": {
+        "trace_id": "df9e8602-c693-421e-9dac-4d5e97099fa3",
+        "log_id": "e0f00c31-eef9-49dd-b187-17f9e5eaa618",
+        "initial_evidence_status": "complete",
+        "stop_reason": "evidence_complete",
+        "round_count": 1,
+        "retrieval_task_count": 1,
+        "llm_call_count": 1,
+        "input_tokens": 4414,
+        "output_tokens": 954,
+        "latency_ms": 10727,
+        "degraded": false,
+        "errors": [],
+        "stages": []
+      }
+    },
+    {
+      "case_id": "aftersales_intercept_refund",
+      "case_type": "dependent_multi_hop",
+      "question": "商品已经发货但未签收，拦截成功后怎么退款，失败怎么办？",
+      "success": true,
+      "degraded": false,
+      "error": null,
+      "elapsed_ms": 42470,
+      "answer": null,
+      "plan": null,
+      "rounds": [
+        {
+          "round": 1,
+          "purpose": "initial",
+          "tasks": [
+            {
+              "query_id": "Q1",
+              "query": "商品已经发货但未签收，拦截成功后怎么退款，失败怎么办？",
+              "aspect_ids": [],
+              "success": true,
+              "chunk_ids": [
+                "73703d96-4fda-4cab-a2da-7be08461020b",
+                "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+                "6cf4b54b-2675-418f-8ed1-88cabd6bb592",
+                "31f92d37-9698-4d7a-a75a-9f670bf1a6d5",
+                "37389834-a3a1-432a-9484-691f17cd397c",
+                "ce6921ae-91c2-457b-91c5-f88332079a08",
+                "aa81a2e2-a349-4946-8cbd-d3bdd40f078f",
+                "87e6cbec-5499-4f38-b9cf-a13551e90ca4",
+                "c44a8d38-d8ca-46c0-9522-f5813d672e17",
+                "61f394fc-ceb2-44b6-b1e6-ae4c7bc1527e"
+              ],
+              "new_chunk_count": 10,
+              "latency_ms": 1492
+            }
+          ],
+          "candidate_count": 10,
+          "new_chunk_count": 10,
+          "latency_ms": 1492
+        }
+      ],
+      "evidence_pack": {
+        "status": "complete",
+        "missing_aspects": [],
+        "groups": [
+          {
+            "aspect": "拦截成功后的退款处理",
+            "evidence": [
+              {
+                "evidence_id": "E1",
+                "role": "core"
+              },
+              {
+                "evidence_id": "E2",
+                "role": "supporting"
+              }
+            ],
+            "covered": true
+          },
+          {
+            "aspect": "拦截失败后的处理",
+            "evidence": [
+              {
+                "evidence_id": "E1",
+                "role": "core"
+              },
+              {
+                "evidence_id": "E3",
+                "role": "supporting"
+              }
+            ],
+            "covered": true
+          }
+        ],
+        "items": [
+          {
+            "evidence_id": "E1",
+            "chunk_id": "73703d96-4fda-4cab-a2da-7be08461020b",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "71785118-9dcb-41cc-97bf-4e8dbf83c27b",
+            "title": "售后服务与退换货政策.md",
+            "heading_path": "售后服务与退换货政策/6. 拒收与拦截",
+            "index_version": "v2",
+            "content": "- **未签收拒收：** 按退货退款处理，运费由责任方承担（无理由拒收通常买家承担）；\n- **快递拦截：** 已发货未签收可申请拦截，成功则退款；失败须按退货流程；\n- 商家不得以「已出库无法拦截」为由拒绝 **未发货仅退款**（以系统揽收节点为准）。\n\n> 关联规则：退货入库、仓库质检和退款触发流程参见《仓储物流与发货履约 SLA》第 6 节“逆向物流（退货）”；未发货订单的极速退款时限参见《平台交易规则与买家保障》第 3.2 节“极速退款”。",
+            "source": "hybrid",
+            "retrieved_rank": 1,
+            "rounds": [],
+            "query_ids": []
+          },
+          {
+            "evidence_id": "E2",
+            "chunk_id": "95d5e2be-30c0-48da-ae16-df407fbb53d7",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "24993327-2205-43a9-877f-4f4237c95d68",
+            "title": "平台交易规则与买家保障.md",
+            "heading_path": "平台交易规则与买家保障/3. 买家保障服务/3.2 极速退款",
+            "index_version": "v2",
+            "content": "- **未发货**订单：申请后 **2 小时内**原路退款；\n- **已发货未签收**：部分类目支持「拦截退款」，失败则按退货流程。",
+            "source": "context:reference",
+            "retrieved_rank": null,
+            "rounds": [],
+            "query_ids": []
+          },
+          {
+            "evidence_id": "E3",
+            "chunk_id": "44d9f1c9-99b3-47b0-8a89-927da0bbb9c0",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "ba5cb3bc-e642-4d39-926f-e9736d80d6c4",
+            "title": "仓储物流与发货履约SLA.md",
+            "heading_path": "仓储物流与发货履约 SLA/6. 逆向物流（退货）",
+            "index_version": "v2",
+            "content": "- 消费者寄回：**上门取件**（会员/高价值）或 **自行寄回**（运费险/责任方承担）；\n- 仓库 **签收后 48 小时**内完成质检并触发退款流程；\n- 退货商品 **良品** 重新上架，**残次** 入残品区或销毁（美妆等一次性拆封除外）。",
+            "source": "context:reference",
+            "retrieved_rank": null,
+            "rounds": [],
+            "query_ids": []
+          }
+        ]
+      },
+      "metadata": {
+        "trace_id": "544aff6a-df01-419b-b329-d5282e5b1e02",
+        "log_id": "3d15ef56-39b2-4637-b3b2-b758127a587e",
+        "initial_evidence_status": "complete",
+        "stop_reason": "evidence_complete",
+        "round_count": 1,
+        "retrieval_task_count": 1,
+        "llm_call_count": 1,
+        "input_tokens": 4269,
+        "output_tokens": 4335,
+        "latency_ms": 42319,
+        "degraded": false,
+        "errors": [],
+        "stages": []
+      }
+    },
+    {
+      "case_id": "control_no_answer_offline_parking",
+      "case_type": "control",
+      "question": "线下门店停车费可以用平台积分抵扣吗？",
+      "success": true,
+      "degraded": false,
+      "error": null,
+      "elapsed_ms": 8176,
+      "answer": null,
+      "plan": null,
+      "rounds": [
+        {
+          "round": 1,
+          "purpose": "initial",
+          "tasks": [
+            {
+              "query_id": "Q1",
+              "query": "线下门店停车费可以用平台积分抵扣吗？",
+              "aspect_ids": [],
+              "success": true,
+              "chunk_ids": [
+                "c52e750f-a15a-421b-a0fd-2b05b7519ea9",
+                "2e198acf-848b-41ea-9c16-92bf3035f163",
+                "b4a6988d-d753-4e15-92b4-fed891002172",
+                "16c97ec5-40e0-4b0e-8fc6-b7b526dfe4ff",
+                "3c6dfd3c-98f2-46cd-b4b1-639c6125f1c0",
+                "176c98b8-a7f5-4c86-a2f0-96752afbf776",
+                "eb5fa64f-3266-489d-8bc6-a6741fddcfe5",
+                "c3079511-c7bc-4efe-bfe7-191199565b00",
+                "4e509ae5-5c32-4312-8556-dd65f0316165",
+                "68a004e5-c525-4ae7-8613-759d0568d893"
+              ],
+              "new_chunk_count": 10,
+              "latency_ms": 1799
+            }
+          ],
+          "candidate_count": 10,
+          "new_chunk_count": 10,
+          "latency_ms": 1799
+        }
+      ],
+      "evidence_pack": {
+        "status": "missing",
+        "missing_aspects": [
+          "线下门店停车费是否可用平台积分抵扣"
+        ],
+        "groups": [
+          {
+            "aspect": "线下门店停车费是否可用平台积分抵扣",
+            "evidence": [],
+            "covered": false
+          }
+        ],
+        "items": []
+      },
+      "metadata": {
+        "trace_id": "ef36b817-1675-441f-8be0-769cdbb5147c",
+        "log_id": "aedb9e17-c06e-4be8-88a8-a58c02c83346",
+        "initial_evidence_status": "missing",
+        "stop_reason": "max_rounds",
+        "round_count": 1,
+        "retrieval_task_count": 1,
+        "llm_call_count": 1,
+        "input_tokens": 4487,
+        "output_tokens": 567,
+        "latency_ms": 7720,
+        "degraded": false,
+        "errors": [],
+        "stages": []
+      }
+    },
+    {
+      "case_id": "control_partial_plus_family",
+      "case_type": "control",
+      "question": "Plus年卡7天内怎么退，家庭成员共享后还能全额退吗？",
+      "success": true,
+      "degraded": false,
+      "error": null,
+      "elapsed_ms": 17238,
+      "answer": null,
+      "plan": null,
+      "rounds": [
+        {
+          "round": 1,
+          "purpose": "initial",
+          "tasks": [
+            {
+              "query_id": "Q1",
+              "query": "Plus年卡7天内怎么退，家庭成员共享后还能全额退吗？",
+              "aspect_ids": [],
+              "success": true,
+              "chunk_ids": [
+                "d143f7a0-889b-448c-b446-6314cf970dc7",
+                "eb5fa64f-3266-489d-8bc6-a6741fddcfe5",
+                "6c454b32-af30-4937-9087-9e924de60f13",
+                "ff032376-059e-4150-8e75-3ea6d7f60851",
+                "8e274390-4b66-4695-a946-f86570388c01",
+                "31f92d37-9698-4d7a-a75a-9f670bf1a6d5",
+                "2e198acf-848b-41ea-9c16-92bf3035f163",
+                "3c6dfd3c-98f2-46cd-b4b1-639c6125f1c0",
+                "4e509ae5-5c32-4312-8556-dd65f0316165",
+                "b4a6988d-d753-4e15-92b4-fed891002172"
+              ],
+              "new_chunk_count": 10,
+              "latency_ms": 1445
+            }
+          ],
+          "candidate_count": 10,
+          "new_chunk_count": 10,
+          "latency_ms": 1445
+        }
+      ],
+      "evidence_pack": {
+        "status": "partial",
+        "missing_aspects": [
+          "家庭成员共享后是否影响全额退款"
+        ],
+        "groups": [
+          {
+            "aspect": "Plus年卡7日内退订规则",
+            "evidence": [
+              {
+                "evidence_id": "E1",
+                "role": "core"
+              }
+            ],
+            "covered": true
+          },
+          {
+            "aspect": "家庭成员共享后是否影响全额退款",
+            "evidence": [],
+            "covered": false
+          }
+        ],
+        "items": [
+          {
+            "evidence_id": "E1",
+            "chunk_id": "d143f7a0-889b-448c-b446-6314cf970dc7",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "185b2ef5-15f7-4983-95ef-4a5a1875ae0a",
+            "title": "会员体系与积分权益说明.md",
+            "heading_path": "会员体系与积分权益说明/3. 付费会员（Plus）",
+            "index_version": "v2",
+            "content": "【表头】权益 | 说明\n| 权益 | 说明 |\n|------|------|\n| 包邮券包 | 每月发放 N 张（面额与门槛见当期） |\n| 专属价 | 标注 Plus 价的 SKU 额外优惠 |\n| 退换加速 | 售后审核优先队列 |\n| 积分加速 | 确认收货积分 ×1.5（可与等级倍率择优，不叠乘） |\n| 免费试用 | 部分新品试用名额 |\n\n**订阅：** 月卡 / 年卡；年卡到期前 **7 天**提醒，默认 **不自动续费**（须用户主动开启）。\n\n**退订：** 未使用任何 Plus 专属权益可 **7 日内全额退**；已使用按剩余天数折算（已领券包视作已使用当月权益）。",
+            "source": "hybrid",
+            "retrieved_rank": 1,
+            "rounds": [],
+            "query_ids": []
+          }
+        ]
+      },
+      "metadata": {
+        "trace_id": "71856167-eec4-4d3b-8bbf-874aab0d5ea6",
+        "log_id": "97e24acf-d874-483f-8fbe-734bf7a21746",
+        "initial_evidence_status": "partial",
+        "stop_reason": "max_rounds",
+        "round_count": 1,
+        "retrieval_task_count": 1,
+        "llm_call_count": 1,
+        "input_tokens": 4277,
+        "output_tokens": 1439,
+        "latency_ms": 17093,
+        "degraded": false,
+        "errors": [],
+        "stages": []
+      }
+    },
+    {
+      "case_id": "control_shipping_scope_conflict",
+      "case_type": "control",
+      "question": "普通现货订单和大促订单分别多久揽收，两个时限冲突吗？",
+      "success": true,
+      "degraded": false,
+      "error": null,
+      "elapsed_ms": 14852,
+      "answer": null,
+      "plan": null,
+      "rounds": [
+        {
+          "round": 1,
+          "purpose": "initial",
+          "tasks": [
+            {
+              "query_id": "Q1",
+              "query": "普通现货订单和大促订单分别多久揽收，两个时限冲突吗？",
+              "aspect_ids": [],
+              "success": true,
+              "chunk_ids": [
+                "413ec4ca-4474-4c54-a97e-ee642182aa66",
+                "be592533-2534-499a-ad02-ed0888908d52",
+                "c44a8d38-d8ca-46c0-9522-f5813d672e17",
+                "c4c6be7a-ef36-4a1d-99e9-eff07b442873",
+                "ee706ab5-427f-4b64-8305-fe44b1be564b",
+                "87e6cbec-5499-4f38-b9cf-a13551e90ca4",
+                "e3bd1467-f992-48f9-9483-47f14ff49c4c",
+                "0fb81e95-1221-40af-b4b7-8c6ec4d4919a",
+                "f0145698-8135-422b-a500-7fa9c106f0de",
+                "5c92d23b-c1a4-4791-80b4-ddb8b817ae90"
+              ],
+              "new_chunk_count": 10,
+              "latency_ms": 1405
+            }
+          ],
+          "candidate_count": 10,
+          "new_chunk_count": 10,
+          "latency_ms": 1405
+        }
+      ],
+      "evidence_pack": {
+        "status": "complete",
+        "missing_aspects": [],
+        "groups": [
+          {
+            "aspect": "普通现货订单揽收时限",
+            "evidence": [
+              {
+                "evidence_id": "E1",
+                "role": "core"
+              }
+            ],
+            "covered": true
+          },
+          {
+            "aspect": "大促订单揽收时限",
+            "evidence": [
+              {
+                "evidence_id": "E1",
+                "role": "core"
+              }
+            ],
+            "covered": true
+          },
+          {
+            "aspect": "两个时限是否冲突",
+            "evidence": [
+              {
+                "evidence_id": "E1",
+                "role": "core"
+              }
+            ],
+            "covered": true
+          }
+        ],
+        "items": [
+          {
+            "evidence_id": "E1",
+            "chunk_id": "413ec4ca-4474-4c54-a97e-ee642182aa66",
+            "kb_id": "df1dad54-7bfd-4ec7-9116-cfe2448e9389",
+            "document_id": "ba5cb3bc-e642-4d39-926f-e9736d80d6c4",
+            "title": "仓储物流与发货履约SLA.md",
+            "heading_path": "仓储物流与发货履约 SLA/2. 发货 SLA",
+            "index_version": "v2",
+            "content": "【表头】订单类型 | 承诺揽收时效 | 备注\n| 订单类型 | 承诺揽收时效 | 备注 |\n|----------|--------------|------|\n| 现货普通订单 | 付款后 **24 小时** | 不含预售 |\n| 大促订单 | **48 小时** | 活动页公示 |\n| 预售订单 | 按 **预售发货日** | 提前 3 天提醒消费者 |\n| 定制订单 | 按 SKU 标注 **7~15 天** | 超时可取消 |\n\n**揽收定义：** 快递公司扫描 **揽收** 节点，非仅电子面单生成。",
+            "source": "hybrid",
+            "retrieved_rank": 1,
+            "rounds": [],
+            "query_ids": []
+          }
+        ]
+      },
+      "metadata": {
+        "trace_id": "a31f5fd0-7839-4f9d-84c0-0af71947c6f4",
+        "log_id": "07d04916-4edd-4c41-8b4c-245c3e1fb1ed",
+        "initial_evidence_status": "complete",
+        "stop_reason": "evidence_complete",
+        "round_count": 1,
+        "retrieval_task_count": 1,
+        "llm_call_count": 1,
+        "input_tokens": 4481,
+        "output_tokens": 1321,
+        "latency_ms": 14507,
+        "degraded": false,
+        "errors": [],
+        "stages": []
+      }
+    },
+    {
+      "case_id": "control_permission_version_boundary",
+      "case_type": "control",
+      "question": "候选人背调一般需要几天，必须先取得什么授权？",
+      "success": true,
+      "degraded": false,
+      "error": null,
+      "elapsed_ms": 6226,
+      "answer": null,
+      "plan": null,
+      "rounds": [
+        {
+          "round": 1,
+          "purpose": "initial",
+          "tasks": [
+            {
+              "query_id": "Q1",
+              "query": "候选人背调一般需要几天，必须先取得什么授权？",
+              "aspect_ids": [],
+              "success": true,
+              "chunk_ids": [
+                "e9e6d7a8-cc63-4f92-80cd-90b42cafc5bd",
+                "c5bbdec9-bfdb-4cb7-ac6f-e7eddcabce4d",
+                "37389834-a3a1-432a-9484-691f17cd397c",
+                "96a00a78-248b-432c-b9d0-c262e93b883d",
+                "6f6f5f85-e455-4d92-adb5-52b6a15d60ec",
+                "76883ec0-5112-4605-9640-84c7fd751c9a",
+                "0b95c45f-923f-4e80-b630-46e0f944b615",
+                "6cf4b54b-2675-418f-8ed1-88cabd6bb592",
+                "ce6921ae-91c2-457b-91c5-f88332079a08",
+                "2f9a4281-d35d-471a-a18b-6654a62b1013"
+              ],
+              "new_chunk_count": 10,
+              "latency_ms": 1785
+            }
+          ],
+          "candidate_count": 10,
+          "new_chunk_count": 10,
+          "latency_ms": 1785
+        }
+      ],
+      "evidence_pack": {
+        "status": "missing",
+        "missing_aspects": [
+          "背调所需天数",
+          "背调前必须取得的授权"
+        ],
+        "groups": [
+          {
+            "aspect": "背调所需天数",
+            "evidence": [],
+            "covered": false
+          },
+          {
+            "aspect": "背调前必须取得的授权",
+            "evidence": [],
+            "covered": false
+          }
+        ],
+        "items": []
+      },
+      "metadata": {
+        "trace_id": "2df5288c-76c1-4da7-94bf-4431fa7005ff",
+        "log_id": "aacac60d-8546-44da-bfd4-b785900f2447",
+        "initial_evidence_status": "missing",
+        "stop_reason": "max_rounds",
+        "round_count": 1,
+        "retrieval_task_count": 1,
+        "llm_call_count": 1,
+        "input_tokens": 4275,
+        "output_tokens": 345,
+        "latency_ms": 6073,
+        "degraded": false,
+        "errors": [],
+        "stages": []
+      }
+    }
+  ],
+  "checkpoint_at": "2026-08-19T04:30:21.500109+00:00",
+  "run_finished_at": "2026-08-19T04:30:21.503506+00:00"
+}

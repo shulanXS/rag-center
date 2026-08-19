@@ -31,6 +31,7 @@ class AuthMeService:
                     rerank_allowed=False,
                     evidence_allowed=False,
                     query_rewrite_allowed=False,
+                    research_allowed=False,
                 ),
                 limits=AuthLimits(
                     retrieve_qps=3,
@@ -60,6 +61,7 @@ class AuthMeService:
                 rerank_allowed=features.rerank_allowed,
                 evidence_allowed=features.evidence_allowed,
                 query_rewrite_allowed=features.query_rewrite_allowed,
+                research_allowed=features.research_allowed,
             ),
             limits=AuthLimits(
                 retrieve_qps=limits.retrieve_qps,

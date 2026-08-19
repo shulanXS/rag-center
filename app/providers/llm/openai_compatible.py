@@ -1,5 +1,6 @@
 import json
 import time
+from typing import Literal
 
 import httpx
 
@@ -31,6 +32,8 @@ class OpenAICompatibleLLMProvider(LLMProvider):
         temperature: float = 0.0,
         timeout_seconds: int | None = None,
         log_payload: bool = True,
+        max_tokens: int | None = None,
+        thinking: Literal["enabled", "disabled"] | None = None,
     ) -> dict:
         payload = {
             "model": self.model,
@@ -44,6 +47,10 @@ class OpenAICompatibleLLMProvider(LLMProvider):
             ],
             "response_format": {"type": "json_object"},
         }
+        if max_tokens is not None:
+            payload["max_tokens"] = max_tokens
+        if thinking is not None:
+            payload["thinking"] = {"type": thinking}
         headers = {"Authorization": f"Bearer {self.api_key}"}
         started_at = time.perf_counter()
         candidates = user_payload.get("candidates")

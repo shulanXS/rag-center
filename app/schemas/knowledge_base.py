@@ -2,6 +2,8 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field, model_validator
 
+from app.core.index_versions import DEFAULT_INDEX_VERSION
+
 
 class CreateKnowledgeBaseRequest(BaseModel):
     name: str = Field(min_length=1, max_length=255)
@@ -33,7 +35,7 @@ class KnowledgeBaseDetailData(BaseModel):
     name: str
     description: str | None
     settings: dict
-    active_index_version: str = "v1"
+    active_index_version: str = DEFAULT_INDEX_VERSION
     document_count: int
     created_at: datetime
     updated_at: datetime
@@ -63,7 +65,7 @@ class KnowledgeBaseTreeItem(BaseModel):
     kb_id: str
     name: str
     description: str | None
-    active_index_version: str = "v1"
+    active_index_version: str = DEFAULT_INDEX_VERSION
     created_at: datetime
     documents: list[DocumentTreeItem]
     index_versions: list[IndexVersionTreeItem] = Field(default_factory=list)

@@ -3,6 +3,7 @@ from typing import Literal, Self
 from pydantic import BaseModel, Field, model_validator
 
 from app.core.config import settings
+from app.core.index_versions import DEFAULT_INDEX_VERSION
 
 RetrieveProfile = Literal["speed", "balanced", "quality", "custom"]
 
@@ -29,18 +30,13 @@ class QueryOptions(BaseModel):
     strategy: str | None = Field(default=None, pattern="^(noop|rewrite)$")
 
 
-class RetrieveRequest(BaseModel):
+class RetrievalScopeRequest(BaseModel):
     kb_id: str | None = Field(default=None, min_length=1, max_length=36)
     kb_ids: list[str] | None = Field(default=None, min_length=1)
     user_id: str = Field(min_length=1, max_length=128)
     query: str = Field(min_length=1)
     index_version: str | None = Field(default=None, pattern=r"^v[1-9][0-9]*$")
     profile: RetrieveProfile | None = None
-    top_k: int | None = Field(default=None, ge=1, le=50)
-    retrieval_options: RetrievalOptions | None = None
-    rerank_options: RerankOptions | None = None
-    evidence_options: EvidenceOptions | None = None
-    query_options: QueryOptions | None = None
 
     @model_validator(mode="after")
     def normalize_kb_scope(self) -> Self:
@@ -80,6 +76,14 @@ class RetrieveRequest(BaseModel):
         return self
 
 
+class RetrieveRequest(RetrievalScopeRequest):
+    top_k: int | None = Field(default=None, ge=1, le=50)
+    retrieval_options: RetrievalOptions | None = None
+    rerank_options: RerankOptions | None = None
+    evidence_options: EvidenceOptions | None = None
+    query_options: QueryOptions | None = None
+
+
 class TenantPolicyMetadata(BaseModel):
     plan: str
     retrieve_profile: str
@@ -99,7 +103,7 @@ class RetrievedChunkData(BaseModel):
     title: str
     content: str
     retrieval_text: str | None = None
-    index_version: str = "v1"
+    index_version: str = DEFAULT_INDEX_VERSION
     section_id: str | None = None
     parent_section_id: str | None = None
     order_index: int | None = None
@@ -116,9 +120,7 @@ class RetrievedChunkData(BaseModel):
 
 class RetrievedChunkContextSource(BaseModel):
     chunk_id: str
-    relation: Literal[
-        "anchor", "previous", "next", "same_section", "parent_section", "reference"
-    ]
+    relation: Literal["anchor", "previous", "next", "same_section", "parent_section", "reference"]
     content: str | None = None
     document_id: str | None = None
     title: str | None = None
@@ -196,6 +198,8 @@ class EvidenceItem(BaseModel):
     content: str
     source: str
     retrieved_rank: int | None = None
+    rounds: list[int] = Field(default_factory=list)
+    query_ids: list[str] = Field(default_factory=list)
 
 
 class EvidenceGroupItem(BaseModel):

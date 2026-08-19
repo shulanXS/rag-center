@@ -75,6 +75,7 @@ export interface AuthFeatures {
   rerank_allowed: boolean;
   evidence_allowed: boolean;
   query_rewrite_allowed: boolean;
+  research_allowed: boolean;
 }
 
 export interface AuthLimits {
@@ -322,6 +323,8 @@ export interface EvidenceItem {
   content: string;
   source: string;
   retrieved_rank?: number | null;
+  rounds?: number[];
+  query_ids?: string[];
 }
 
 export interface EvidenceGroup {
@@ -364,4 +367,109 @@ export interface FeedbackData {
   trace_id: string;
   log_id?: string | null;
   score: number;
+}
+
+export type RetrieveMode = "single" | "research";
+
+export interface ResearchRequest {
+  kb_id?: string;
+  kb_ids?: string[];
+  user_id: string;
+  query: string;
+  index_version?: string;
+  profile?: RetrieveProfile;
+  top_k?: number;
+  retrieval_options?: RetrievalOptions;
+  rerank_options?: RerankOptions;
+}
+
+export interface ResearchAspect {
+  aspect_id: string;
+  description: string;
+}
+
+export interface PlannedQuery {
+  query_id: string;
+  query: string;
+  aspect_ids: string[];
+}
+
+export interface ResearchPlanData {
+  aspects: ResearchAspect[];
+  initial_queries: PlannedQuery[];
+  degraded: boolean;
+  error?: string | null;
+}
+
+export interface ResearchTaskMetadata {
+  query_id: string;
+  query: string;
+  aspect_ids: string[];
+  success: boolean;
+  chunk_count: number;
+  chunk_ids: string[];
+  new_chunk_count: number;
+  latency_ms: number;
+  degraded: boolean;
+  error?: string | null;
+}
+
+export interface ResearchRoundMetadata {
+  round: number;
+  purpose: "initial" | "supplement";
+  tasks: ResearchTaskMetadata[];
+  candidate_chunk_ids: string[];
+  candidate_count: number;
+  new_chunk_count: number;
+  latency_ms: number;
+}
+
+export type ResearchStopReason =
+  | "evidence_complete"
+  | "no_new_evidence"
+  | "max_rounds"
+  | "duplicate_query"
+  | "timeout"
+  | "budget_exhausted"
+  | "degraded";
+
+export interface ResearchStageUsage {
+  stage: "planner" | "decider" | "finalizer";
+  role: "fast" | "strong";
+  model: string;
+  latency_ms: number;
+  input_tokens: number;
+  output_tokens: number;
+  degraded: boolean;
+}
+
+export interface ResearchMetadata {
+  research_id: string;
+  log_id: string;
+  trace_id?: string | null;
+  profile: string;
+  plan: string;
+  index_versions: Record<string, string>;
+  round_count: number;
+  retrieval_task_count: number;
+  llm_call_count: number;
+  input_tokens: number;
+  output_tokens: number;
+  latency_ms: number;
+  initial_evidence_status: EvidenceStatus;
+  stop_reason: ResearchStopReason;
+  degraded: boolean;
+  errors: string[];
+  stages: ResearchStageUsage[];
+}
+
+export interface ResearchData {
+  query: string;
+  kb_id: string;
+  kb_ids: string[];
+  answer?: string | null;
+  evidence_pack?: EvidencePack | null;
+  plan: ResearchPlanData;
+  rounds: ResearchRoundMetadata[];
+  metadata: ResearchMetadata;
 }

@@ -6,6 +6,7 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.config import settings
+from app.core.index_versions import DEFAULT_INDEX_VERSION
 from app.db.base import Base
 
 
@@ -28,7 +29,11 @@ class Chunk(Base):
     content: Mapped[str] = mapped_column(Text, nullable=False)
     retrieval_text: Mapped[str | None] = mapped_column(Text, nullable=True)
     index_version: Mapped[str] = mapped_column(
-        String(32), nullable=False, default="v1", server_default="v1", index=True
+        String(32),
+        nullable=False,
+        default=DEFAULT_INDEX_VERSION,
+        server_default=DEFAULT_INDEX_VERSION,
+        index=True,
     )
     section_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
     parent_section_id: Mapped[str | None] = mapped_column(String(64), nullable=True)

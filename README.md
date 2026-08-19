@@ -153,7 +153,8 @@ npm run dev
 | `EMBEDDING_BATCH_SIZE` | Embedding 批处理大小 | `10` |
 | `LLM_BASE_URL` | LLM API 地址 | `https://api.deepseek.com/v1` |
 | `LLM_API_KEY` | LLM API Key | — |
-| `LLM_MODEL` | LLM 模型名 | `deepseek-chat` |
+| `LLM_MODEL` | 快速 LLM 模型名 | `deepseek-v4-flash` |
+| `LLM_STRONG_MODEL` | 强 LLM 模型名 | `deepseek-v4-pro` |
 | `VECTOR_STORE` | 向量存储后端 | `pgvector` |
 | `KEYWORD_SEARCH_PROVIDER` | 关键词检索后端 | `elasticsearch` |
 | `ELASTICSEARCH_URL` | Elasticsearch 地址 | `http://localhost:9200` |
