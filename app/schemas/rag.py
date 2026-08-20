@@ -28,15 +28,14 @@ class RetrievalOptions(BaseModel):
 class QueryOptions(BaseModel):
     enabled: bool | None = None
     strategy: str | None = Field(default=None, pattern="^(noop|rewrite)$")
+    synonym_enabled: bool | None = None
 
 
-class RetrievalScopeRequest(BaseModel):
+class KnowledgeBaseQueryRequest(BaseModel):
     kb_id: str | None = Field(default=None, min_length=1, max_length=36)
     kb_ids: list[str] | None = Field(default=None, min_length=1)
     user_id: str = Field(min_length=1, max_length=128)
     query: str = Field(min_length=1)
-    index_version: str | None = Field(default=None, pattern=r"^v[1-9][0-9]*$")
-    profile: RetrieveProfile | None = None
 
     @model_validator(mode="after")
     def normalize_kb_scope(self) -> Self:
@@ -76,12 +75,18 @@ class RetrievalScopeRequest(BaseModel):
         return self
 
 
+class RetrievalScopeRequest(KnowledgeBaseQueryRequest):
+    index_version: str | None = Field(default=None, pattern=r"^v[1-9][0-9]*$")
+    profile: RetrieveProfile | None = None
+
+
 class RetrieveRequest(RetrievalScopeRequest):
     top_k: int | None = Field(default=None, ge=1, le=50)
     retrieval_options: RetrievalOptions | None = None
     rerank_options: RerankOptions | None = None
     evidence_options: EvidenceOptions | None = None
     query_options: QueryOptions | None = None
+    observability_enabled: bool | None = None
 
 
 class TenantPolicyMetadata(BaseModel):
@@ -168,6 +173,7 @@ class QueryProcessingMetadata(BaseModel):
     search_query: str
     latency_ms: int
     synonym_expansions: list[str] = Field(default_factory=list)
+    synonym_enabled: bool = False
     synonym_applied: bool = False
     degraded: bool = False
     degraded_reason: str | None = None

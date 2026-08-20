@@ -94,7 +94,11 @@ def resolve_retrieve_request(
         max_items=evidence_options.max_items,
     )
     if not effective_query_rewrite:
-        query_options = QueryOptions(enabled=False, strategy="noop")
+        query_options = QueryOptions(
+            enabled=False,
+            strategy="noop",
+            synonym_enabled=query_options.synonym_enabled,
+        )
 
     mode = retrieval_options.mode or settings.retrieval_mode
     resolved = request.model_copy(

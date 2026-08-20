@@ -1,14 +1,12 @@
 from __future__ import annotations
 
-from typing import Literal, Self
+from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field
 
 from app.schemas.rag import (
     EvidencePack,
-    RerankOptions,
-    RetrievalOptions,
-    RetrievalScopeRequest,
+    KnowledgeBaseQueryRequest,
 )
 
 ResearchStopReason = Literal[
@@ -131,18 +129,8 @@ def normalize_research_query(query: str) -> str:
     return normalized.rstrip("?？。.!！")
 
 
-class ResearchRequest(RetrievalScopeRequest):
+class ResearchRequest(KnowledgeBaseQueryRequest):
     model_config = ConfigDict(extra="forbid")
-
-    top_k: int | None = Field(default=None, ge=1, le=20)
-    retrieval_options: RetrievalOptions | None = None
-    rerank_options: RerankOptions | None = None
-
-    @model_validator(mode="after")
-    def default_quality_profile(self) -> Self:
-        if self.profile is None:
-            self.profile = "quality"
-        return self
 
 
 class ResearchPlanData(BaseModel):
@@ -210,8 +198,11 @@ class ResearchData(BaseModel):
     query: str
     kb_id: str
     kb_ids: list[str]
-    answer: str | None = None
-    evidence_pack: EvidencePack | None = None
+    # Research always returns these fields. ``answer`` may only be null when the
+    # bounded Finalizer explicitly degrades; the evidence pack itself is never
+    # omitted.
+    answer: str | None
+    evidence_pack: EvidencePack
     plan: ResearchPlanData
     rounds: list[ResearchRoundMetadata]
     metadata: ResearchMetadata

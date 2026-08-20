@@ -376,11 +376,6 @@ export interface ResearchRequest {
   kb_ids?: string[];
   user_id: string;
   query: string;
-  index_version?: string;
-  profile?: RetrieveProfile;
-  top_k?: number;
-  retrieval_options?: RetrievalOptions;
-  rerank_options?: RerankOptions;
 }
 
 export interface ResearchAspect {

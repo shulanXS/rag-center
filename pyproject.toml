@@ -27,7 +27,6 @@ eval = [
   "ragas>=0.2.0,<0.5",
   "datasets>=2.0.0",
   "openai>=1.0.0",
-  "ranx>=0.3.21,<0.4",
 ]
 parsers = [
   "mammoth>=1.6.0",

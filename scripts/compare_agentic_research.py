@@ -950,10 +950,6 @@ async def execute_case(mode: Mode, case: dict[str, Any]) -> dict[str, Any]:
                 kb_ids=case["kb_ids"],
                 user_id="opt18-acceptance",
                 query=case["question"],
-                index_version=index_version,
-                profile="quality",
-                top_k=10,
-                rerank_options=RerankOptions(enabled=True, top_n=10),
             ),
             allow_supplement=mode == "research",
         )

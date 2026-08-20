@@ -117,7 +117,6 @@ def test_finalizer_uses_strong_model_and_backend_generates_stable_citations():
     "block",
     [
         {"text": "无引用结论", "evidence_indexes": [], "kind": "supported"},
-        {"text": "材料不足", "evidence_indexes": [0], "kind": "insufficient"},
         {"text": "带伪引用[E9]", "evidence_indexes": [0], "kind": "supported"},
         {"text": "越界", "evidence_indexes": [9], "kind": "supported"},
     ],
@@ -132,6 +131,21 @@ def test_invalid_answer_blocks_degrade_and_keep_fallback_pack(block):
     assert result.answer is None
     assert result.pack.status == "missing"
     assert result.degraded is True
+
+
+def test_insufficient_block_drops_echoed_evidence_without_degrading():
+    _, result = _run(
+        {
+            "aspects": [{"aspect_index": 0, "evidence": []}],
+            "answer_blocks": [
+                {"text": "当前材料不足，无法确定。", "evidence_indexes": [0], "kind": "insufficient"}
+            ],
+        }
+    )
+
+    assert result.answer == "当前材料不足，无法确定。"
+    assert result.pack.status == "missing"
+    assert result.degraded is False
 
 
 def test_finalizer_failure_returns_decider_pack_without_inventing_answer():

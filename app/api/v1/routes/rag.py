@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Header
 from sqlalchemy.orm import Session
 
 from app.api.v1.deps import get_current_tenant
@@ -30,8 +30,19 @@ async def research(
     request: ResearchRequest,
     db: Session = Depends(get_db),
     tenant: TenantContext = Depends(get_current_tenant),
+    x_eval_allow_supplement: bool | None = Header(
+        default=None,
+        alias="X-Eval-Allow-Supplement",
+        include_in_schema=False,
+    ),
 ) -> dict:
-    data = await ResearchService(db).research(tenant.tenant_id, request)
+    # The hidden switch is consumed only by the offline A/B runner. Normal API
+    # clients always execute the complete bounded Research flow.
+    service = ResearchService(db)
+    if x_eval_allow_supplement is False:
+        data = await service.research(tenant.tenant_id, request, allow_supplement=False)
+    else:
+        data = await service.research(tenant.tenant_id, request)
     return success_response(data.model_dump(mode="json"))
 
 

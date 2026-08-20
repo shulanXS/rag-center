@@ -1,0 +1,76 @@
+{
+  "summary": {
+    "context_recall": 1.0,
+    "context_precision": 0.5694444444143518,
+    "evaluated_cases": 2,
+    "failed_cases": 0,
+    "ragas_skipped_cases": 0,
+    "successful_cases": 2,
+    "request_failed_cases": 0,
+    "latency_mean_ms": 9785.3705,
+    "latency_p50_ms": 9785.3705,
+    "latency_p95_ms": 10277.477450000002,
+    "latency_max_ms": 10332.156,
+    "average_application_model_calls": 5.0,
+    "model_calls_evaluated_cases": 2,
+    "ndcg_at_10": null,
+    "rank_evaluated_cases": 0
+  },
+  "diagnostics": {
+    "graph_affected_cases": 0,
+    "graph_injected_chunks": 0,
+    "supplemental_chunks": 0,
+    "average_evidence_count": 3.5,
+    "average_evidence_chars": 728,
+    "citation_traceable_items": 7,
+    "citation_total_items": 7,
+    "citation_traceability_rate": 1.0,
+    "evidence_statuses": {
+      "complete": 2
+    },
+    "answer_present_cases": 2,
+    "answer_citations_valid_cases": 2,
+    "degraded_cases": 0,
+    "supplement_cases": 1,
+    "average_round_count": 1.5,
+    "average_retrieval_task_count": 2,
+    "average_research_llm_call_count": 3,
+    "average_input_tokens": 8383,
+    "average_output_tokens": 514.5
+  },
+  "per_case": [
+    {
+      "case_id": "payment_combined_refund",
+      "question": "组合支付发生部分退款后，银行卡、优惠券和积分分别怎么退？",
+      "case_type": "independent_multi_aspect",
+      "error": null,
+      "latency_ms": 9238.585,
+      "application_model_calls": 4,
+      "ragas_skipped": null,
+      "context_precision": 0.8055555555287036,
+      "context_recall": 1.0
+    },
+    {
+      "case_id": "live_category_qualification",
+      "question": "直播带货美妆或医疗器械需要哪些额外资质？",
+      "case_type": "dependent_multi_hop",
+      "error": null,
+      "latency_ms": 10332.156,
+      "application_model_calls": 6,
+      "ragas_skipped": null,
+      "context_precision": 0.3333333333,
+      "context_recall": 1.0
+    }
+  ],
+  "ragas": {
+    "telemetry_disabled": true,
+    "max_workers": 4,
+    "timeout_seconds": 120.0,
+    "seed": 42,
+    "deduplicated_identical_inputs": true,
+    "error": null,
+    "missing_only": false,
+    "reused_existing_inputs": 0,
+    "retried_missing_inputs": 4
+  }
+}

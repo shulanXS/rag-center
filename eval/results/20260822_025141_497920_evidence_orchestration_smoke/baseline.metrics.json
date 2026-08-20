@@ -1,0 +1,60 @@
+{
+  "summary": {
+    "context_recall": 0.5,
+    "context_precision": 0.9999999999,
+    "evaluated_cases": 2,
+    "failed_cases": 0,
+    "successful_cases": 2,
+    "request_failed_cases": 0,
+    "latency_mean_ms": 4499.107,
+    "latency_p50_ms": 4499.107,
+    "latency_p95_ms": 4560.9172,
+    "latency_max_ms": 4567.785,
+    "average_application_model_calls": 1.0,
+    "model_calls_evaluated_cases": 2
+  },
+  "diagnostics": {
+    "graph_affected_cases": 0,
+    "graph_injected_chunks": 0,
+    "supplemental_chunks": 0,
+    "average_evidence_count": 10,
+    "average_evidence_chars": 1749.5,
+    "citation_traceable_items": 0,
+    "citation_total_items": 0,
+    "citation_traceability_rate": null,
+    "evidence_statuses": {}
+  },
+  "per_case": [
+    {
+      "case_id": "shipping_sla",
+      "question": "现货普通订单付款后多久必须完成揽收？",
+      "case_type": "direct_fact",
+      "error": null,
+      "latency_ms": 4430.429,
+      "application_model_calls": 1,
+      "context_precision": 0.9999999999,
+      "context_recall": 1.0
+    },
+    {
+      "case_id": "coupon_expire",
+      "question": "优惠券领取后通常有效多久，过期后会补发吗？",
+      "case_type": "direct_fact",
+      "error": null,
+      "latency_ms": 4567.785,
+      "application_model_calls": 1,
+      "context_precision": 0.9999999999,
+      "context_recall": 0.0
+    }
+  ],
+  "ragas": {
+    "telemetry_disabled": true,
+    "max_workers": 4,
+    "timeout_seconds": 120.0,
+    "seed": 42,
+    "deduplicated_identical_inputs": true,
+    "error": null,
+    "missing_only": false,
+    "reused_existing_inputs": 0,
+    "retried_missing_inputs": 4
+  }
+}

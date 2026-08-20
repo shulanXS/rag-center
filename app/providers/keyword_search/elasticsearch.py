@@ -129,25 +129,12 @@ class ElasticsearchKeywordSearchProvider(KeywordSearchProvider):
         ]
         if index_version is not None:
             filters.append({"term": {"index_version": index_version}})
-        fields = (
-            ["retrieval_text"]
-            if index_version and index_version != LEGACY_INDEX_VERSION
-            else ["title^2", "content"]
+        payload = _build_search_payload(
+            query=query,
+            filters=filters,
+            index_version=index_version,
+            top_k=top_k,
         )
-        payload: dict[str, Any] = {
-            "query": {
-                "bool": {
-                    "filter": filters,
-                    "must": {
-                        "multi_match": {
-                            "query": query,
-                            "fields": fields,
-                        }
-                    },
-                }
-            },
-            "size": top_k,
-        }
 
         try:
             async with httpx.AsyncClient(timeout=self.timeout, trust_env=False) as client:
@@ -209,7 +196,6 @@ class ElasticsearchKeywordSearchProvider(KeywordSearchProvider):
             cost_ms,
         )
         return results
-
     async def delete_by_document_id(
         self, document_id: str, *, index_version: str | None = None
     ) -> None:
@@ -393,6 +379,44 @@ class ElasticsearchKeywordSearchProvider(KeywordSearchProvider):
             )
             response.raise_for_status()
             return int(response.json().get("count") or 0)
+
+
+def _build_search_payload(
+    *,
+    query: str,
+    filters: list[dict[str, Any]],
+    index_version: str | None,
+    top_k: int,
+) -> dict[str, Any]:
+    is_legacy_index = not index_version or index_version == LEGACY_INDEX_VERSION
+    fields = (
+        ["metadata.heading_path^2", "content^2", "title"]
+        if is_legacy_index
+        else ["retrieval_text"]
+    )
+    multi_match: dict[str, Any] = {
+        "query": query,
+        "fields": fields,
+    }
+    if is_legacy_index:
+        # Chinese questions contain many function words. Requiring half of
+        # the analyzed terms keeps exact codes and business phrases while
+        # preventing a single common word from producing a noisy candidate.
+        multi_match.update(
+            {
+                "type": "cross_fields",
+                "minimum_should_match": "50%",
+            }
+        )
+    return {
+        "query": {
+            "bool": {
+                "filter": filters,
+                "must": {"multi_match": multi_match},
+            }
+        },
+        "size": top_k,
+    }
 
 
 def _response_text(exc: httpx.HTTPError) -> str | None:

@@ -39,7 +39,7 @@ def load_dataset(path: Path) -> dict[str, Any]:
     with path.open(encoding="utf-8") as handle:
         data = json.load(handle)
     if not isinstance(data, dict):
-        raise ValueError(f"dataset root must be an object: {path}")
+        raise TypeError(f"dataset root must be an object: {path}")
     if "cases" not in data or not isinstance(data["cases"], list):
         raise ValueError(f"dataset must contain a cases array: {path}")
     return data
@@ -120,7 +120,10 @@ def build_ragas_llm():
         )
 
     client = OpenAI(base_url=base_url, api_key=api_key)
-    return llm_factory(model, client=client)
+    # RAGAS needs structured JSON output.  The default 1024-token response
+    # budget is too small for some multi-context questions and can leave a
+    # metric missing even though retrieval itself succeeded.
+    return llm_factory(model, client=client, max_tokens=4096)
 
 
 def load_ragas_metrics():

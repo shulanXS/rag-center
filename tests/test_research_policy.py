@@ -43,7 +43,7 @@ def test_non_pro_research_is_rejected_before_loading_knowledge_bases(monkeypatch
         asyncio.run(
             service.research(
                 "tenant",
-                ResearchRequest(kb_id="kb", user_id="u", query="问题", profile="speed"),
+                ResearchRequest(kb_id="kb", user_id="u", query="问题"),
             )
         )
     assert exc_info.value.code == ErrorCode.FEATURE_NOT_ALLOWED.code
@@ -139,6 +139,18 @@ def test_pro_research_checks_rate_once_without_local_retrieval_log_write(monkeyp
 
     async def fake_run(*, state, request, knowledge_bases, allow_supplement=True):
         assert allow_supplement is True
+        assert request.profile == "quality"
+        assert request.index_version == "v2"
+        assert request.top_k == 10
+        assert request.retrieval_options.mode == "hybrid"
+        assert request.retrieval_options.vector_top_k == 20
+        assert request.retrieval_options.bm25_top_k == 20
+        assert request.retrieval_options.rrf_k == 10
+        assert request.rerank_options.enabled is True
+        assert request.rerank_options.top_n == 10
+        assert request.query_options.enabled is False
+        assert request.query_options.synonym_enabled is False
+        assert request.evidence_options.enabled is False
         aspect = ResearchAspect(aspect_id="A1", description="规则")
         state.aspects = [aspect]
         state.stop_reason = "evidence_complete"
@@ -194,4 +206,5 @@ def test_pro_research_checks_rate_once_without_local_retrieval_log_write(monkeyp
     assert rate_limit.successes == 1
     assert db.commits == 0
     assert data.metadata.stop_reason == "evidence_complete"
+    assert data.metadata.profile == "research_fixed"
     assert data.metadata.trace_id == "trace-1"

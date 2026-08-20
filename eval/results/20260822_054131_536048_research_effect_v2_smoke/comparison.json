@@ -1,0 +1,190 @@
+{
+  "generated_at": "2026-08-22T05:43:48.963127+00:00",
+  "experiment_id": "research_effect_v2",
+  "title": "v2索引下单次检索与完整Research对比实验",
+  "target": "research_effect_v2",
+  "dataset_version": "golden_basic_20_v2",
+  "suite": "research",
+  "case_count": 2,
+  "shared_candidate_top_k": null,
+  "final_top_k": 10,
+  "verdict": "regressed",
+  "verdict_text": "出现负向效果，建议回退",
+  "primary_metric": "context_recall",
+  "changed_fields": [
+    "execution_mode"
+  ],
+  "baseline_label": "v2 + 单次检索 + Qwen3精排 + 普通证据包",
+  "candidate_label": "v2 + Controlled Agentic Research",
+  "baseline_index_version": "v2",
+  "candidate_index_version": "v2",
+  "baseline": {
+    "context_recall": 1.0,
+    "context_precision": 0.87499999997125,
+    "evaluated_cases": 2,
+    "failed_cases": 0,
+    "ragas_skipped_cases": 0,
+    "successful_cases": 2,
+    "request_failed_cases": 0,
+    "latency_mean_ms": 13940.3845,
+    "latency_p50_ms": 13940.3845,
+    "latency_p95_ms": 16392.119049999998,
+    "latency_max_ms": 16664.534,
+    "average_application_model_calls": 2.0,
+    "model_calls_evaluated_cases": 2,
+    "ndcg_at_10": null,
+    "rank_evaluated_cases": 0
+  },
+  "candidate": {
+    "context_recall": 1.0,
+    "context_precision": 0.5694444444143518,
+    "evaluated_cases": 2,
+    "failed_cases": 0,
+    "ragas_skipped_cases": 0,
+    "successful_cases": 2,
+    "request_failed_cases": 0,
+    "latency_mean_ms": 9785.3705,
+    "latency_p50_ms": 9785.3705,
+    "latency_p95_ms": 10277.477450000002,
+    "latency_max_ms": 10332.156,
+    "average_application_model_calls": 5.0,
+    "model_calls_evaluated_cases": 2,
+    "ndcg_at_10": null,
+    "rank_evaluated_cases": 0
+  },
+  "baseline_diagnostics": {
+    "graph_affected_cases": 0,
+    "graph_injected_chunks": 0,
+    "supplemental_chunks": 0,
+    "average_evidence_count": 5,
+    "average_evidence_chars": 993,
+    "citation_traceable_items": 10,
+    "citation_total_items": 10,
+    "citation_traceability_rate": 1.0,
+    "evidence_statuses": {
+      "complete": 2
+    },
+    "answer_present_cases": 0,
+    "answer_citations_valid_cases": 0,
+    "degraded_cases": 0,
+    "supplement_cases": 0,
+    "average_round_count": null,
+    "average_retrieval_task_count": null,
+    "average_research_llm_call_count": null,
+    "average_input_tokens": null,
+    "average_output_tokens": null
+  },
+  "candidate_diagnostics": {
+    "graph_affected_cases": 0,
+    "graph_injected_chunks": 0,
+    "supplemental_chunks": 0,
+    "average_evidence_count": 3.5,
+    "average_evidence_chars": 728,
+    "citation_traceable_items": 7,
+    "citation_total_items": 7,
+    "citation_traceability_rate": 1.0,
+    "evidence_statuses": {
+      "complete": 2
+    },
+    "answer_present_cases": 2,
+    "answer_citations_valid_cases": 2,
+    "degraded_cases": 0,
+    "supplement_cases": 1,
+    "average_round_count": 1.5,
+    "average_retrieval_task_count": 2,
+    "average_research_llm_call_count": 3,
+    "average_input_tokens": 8383,
+    "average_output_tokens": 514.5
+  },
+  "delta": {
+    "average_application_model_calls": 3.0,
+    "context_precision": -0.3055555555568982,
+    "context_recall": 0.0,
+    "evaluated_cases": 0.0,
+    "failed_cases": 0.0,
+    "latency_max_ms": -6332.377999999999,
+    "latency_mean_ms": -4155.013999999999,
+    "latency_p50_ms": -4155.013999999999,
+    "latency_p95_ms": -6114.641599999995,
+    "model_calls_evaluated_cases": 0.0,
+    "ndcg_at_10": null,
+    "ragas_skipped_cases": 0.0,
+    "rank_evaluated_cases": 0.0,
+    "request_failed_cases": 0.0,
+    "successful_cases": 0.0
+  },
+  "thresholds": {
+    "min_primary_improvement": 0.01,
+    "quality_guardrails": {
+      "context_precision": {
+        "min_delta": -0.05
+      }
+    },
+    "cost_limits": {
+      "max_p95_increase_ratio": 2.0,
+      "max_model_calls_increase": 6.0
+    },
+    "max_failed_cases": 0
+  },
+  "checks": {
+    "result_complete": true,
+    "primary_metric": {
+      "delta": 0.0,
+      "min_improvement": 0.01,
+      "passed": false
+    },
+    "quality_improved": false,
+    "quality_guardrails": {
+      "context_precision": {
+        "delta": -0.3055555555568982,
+        "min_delta": -0.05,
+        "passed": false
+      }
+    },
+    "cost": {
+      "latency_p95_increase_ratio": -0.3730232547328892,
+      "max_latency_p95_increase_ratio": 2.0,
+      "latency_passed": true,
+      "model_calls_delta": 3.0,
+      "max_model_calls_increase": 6.0,
+      "model_calls_passed": true,
+      "passed": true
+    },
+    "citation_traceability": {
+      "value": 1.0,
+      "required": 1.0,
+      "passed": true
+    }
+  },
+  "failed_cases": {
+    "baseline_requests": 0,
+    "candidate_requests": 0,
+    "baseline_ragas": 0,
+    "candidate_ragas": 0
+  },
+  "scoring_errors": [],
+  "case_changes": {
+    "improved": [],
+    "regressed": []
+  },
+  "recall_case_changes": {
+    "improved": [],
+    "regressed": []
+  },
+  "recommendation": "主指标明显下降或质量护栏未通过，建议保持「v2 + 单次检索 + Qwen3精排 + 普通证据包」并排查退化题目。",
+  "research_details": {
+    "shared_first_round_cases": 2,
+    "repair_denominator": 0,
+    "repaired_cases": 0,
+    "multi_hop_repair_rate": null,
+    "per_case": [
+      {
+        "case_id": "live_category_qualification",
+        "required_aspects": 2,
+        "baseline_covered": 2,
+        "candidate_covered": 2,
+        "repaired": false
+      }
+    ]
+  }
+}

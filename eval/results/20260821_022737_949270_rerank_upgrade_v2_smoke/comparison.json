@@ -1,0 +1,129 @@
+{
+  "generated_at": "2026-08-21T02:31:08.760010+00:00",
+  "experiment_id": "rerank_upgrade_v2",
+  "title": "v2索引下LLM重排与Qwen3-Rerank精排对比实验",
+  "target": "rerank_upgrade_v2",
+  "dataset_version": "golden_basic_20_v2",
+  "suite": "basic",
+  "case_count": 2,
+  "shared_candidate_top_k": 20,
+  "final_top_k": 10,
+  "verdict": "effective",
+  "verdict_text": "有效，建议启用",
+  "primary_metric": "context_precision",
+  "changed_fields": [
+    "rerank_provider"
+  ],
+  "baseline_label": "v2 + 原有 LLM 重排",
+  "candidate_label": "v2 + Qwen3-Rerank 精排",
+  "baseline_index_version": "v2",
+  "candidate_index_version": "v2",
+  "baseline": {
+    "context_recall": 1.0,
+    "context_precision": 0.8333333332666666,
+    "evaluated_cases": 2,
+    "failed_cases": 0,
+    "successful_cases": 2,
+    "request_failed_cases": 0,
+    "latency_mean_ms": 27792.3975,
+    "latency_p50_ms": 27792.3975,
+    "latency_p95_ms": 35891.99205,
+    "latency_max_ms": 36791.947,
+    "average_application_model_calls": 1.0,
+    "model_calls_evaluated_cases": 2
+  },
+  "candidate": {
+    "context_recall": 1.0,
+    "context_precision": 0.9999999999,
+    "evaluated_cases": 2,
+    "failed_cases": 0,
+    "successful_cases": 2,
+    "request_failed_cases": 0,
+    "latency_mean_ms": 2931.7985,
+    "latency_p50_ms": 2931.7985,
+    "latency_p95_ms": 2961.8814500000003,
+    "latency_max_ms": 2965.224,
+    "average_application_model_calls": 1.0,
+    "model_calls_evaluated_cases": 2
+  },
+  "baseline_diagnostics": {
+    "graph_affected_cases": 0,
+    "graph_injected_chunks": 0,
+    "supplemental_chunks": 0
+  },
+  "candidate_diagnostics": {
+    "graph_affected_cases": 0,
+    "graph_injected_chunks": 0,
+    "supplemental_chunks": 0
+  },
+  "delta": {
+    "average_application_model_calls": 0.0,
+    "context_precision": 0.1666666666333334,
+    "context_recall": 0.0,
+    "evaluated_cases": 0.0,
+    "failed_cases": 0.0,
+    "latency_max_ms": -33826.723,
+    "latency_mean_ms": -24860.599,
+    "latency_p50_ms": -24860.599,
+    "latency_p95_ms": -32930.1106,
+    "model_calls_evaluated_cases": 0.0,
+    "request_failed_cases": 0.0,
+    "successful_cases": 0.0
+  },
+  "thresholds": {
+    "min_primary_improvement": 0.0,
+    "quality_guardrails": {
+      "context_recall": {
+        "min_delta": 0.0
+      }
+    },
+    "cost_limits": {
+      "max_p95_increase_ratio": 0.5,
+      "max_model_calls_increase": 0.0
+    },
+    "max_failed_cases": 0
+  },
+  "checks": {
+    "result_complete": true,
+    "primary_metric": {
+      "delta": 0.1666666666333334,
+      "min_improvement": 0.0,
+      "passed": true
+    },
+    "quality_improved": true,
+    "quality_guardrails": {
+      "context_recall": {
+        "delta": 0.0,
+        "min_delta": 0.0,
+        "passed": true
+      }
+    },
+    "cost": {
+      "latency_p95_increase_ratio": -0.9174779308466943,
+      "max_latency_p95_increase_ratio": 0.5,
+      "latency_passed": true,
+      "model_calls_delta": 0.0,
+      "max_model_calls_increase": 0.0,
+      "model_calls_passed": true,
+      "passed": true
+    }
+  },
+  "failed_cases": {
+    "baseline_requests": 0,
+    "candidate_requests": 0,
+    "baseline_ragas": 0,
+    "candidate_ragas": 0
+  },
+  "scoring_errors": [],
+  "case_changes": {
+    "improved": [
+      {
+        "case_id": "shipping_sla",
+        "question": "现货普通订单付款后多久必须完成揽收？",
+        "delta": 0.3333333332666667
+      }
+    ],
+    "regressed": []
+  },
+  "recommendation": "核心质量指标有提升，质量护栏和成本限制均通过，建议启用「v2 + Qwen3-Rerank 精排」。"
+}

@@ -205,6 +205,7 @@ class ResearchFinalizerService:
             raise ValueError("finalizer returned too many answer blocks")
         total_chars = 0
         referenced: set[int] = set()
+        normalized_blocks: list[FinalizerAnswerBlock] = []
         for block in output.answer_blocks:
             text = block.text.strip()
             if not text or len(text) > MAX_ANSWER_BLOCK_CHARS:
@@ -221,14 +222,39 @@ class ResearchFinalizerService:
             if block.kind == "supported" and not indexes:
                 raise ValueError("supported answer block requires evidence")
             if block.kind == "insufficient" and indexes:
-                raise ValueError("insufficient answer block cannot assert evidence")
+                # Some OpenAI-compatible models still echo the candidates they
+                # inspected for an explicit “材料不足” conclusion. Those indexes
+                # must not become citations, but the otherwise safe no-answer
+                # response should not make the whole Finalizer degrade.
+                if not ResearchFinalizerService._is_insufficient_text(text):
+                    raise ValueError("insufficient answer block cannot assert evidence")
+                block = block.model_copy(update={"evidence_indexes": []})
+                indexes = []
             total_chars += len(text)
             referenced.update(indexes)
+            normalized_blocks.append(block)
         if total_chars > MAX_ANSWER_CHARS:
             raise ValueError("finalizer answer is too long")
         if len(referenced) > MAX_FINAL_EVIDENCE_ITEMS:
             raise ValueError("finalizer selected too many evidence items")
-        return output
+        return output.model_copy(update={"answer_blocks": normalized_blocks})
+
+    @staticmethod
+    def _is_insufficient_text(text: str) -> bool:
+        normalized = "".join(text.split())
+        markers = (
+            "材料不足",
+            "证据不足",
+            "信息不足",
+            "未找到",
+            "没有提供",
+            "未提供",
+            "缺少",
+            "无法确定",
+            "不能确定",
+            "不明确",
+        )
+        return any(marker in normalized for marker in markers)
 
     @staticmethod
     def _render_answer(

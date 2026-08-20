@@ -14,6 +14,8 @@ from app.schemas.rag import (
     EvidenceOptions,
     EvidencePack,
     QueryOptions,
+    RerankOptions,
+    RetrievalOptions,
     RetrieveRequest,
 )
 from app.schemas.research import (
@@ -57,6 +59,13 @@ from app.services.research_supplement_service import (
 from app.tenant.plan_resolver import PlanResolver
 from app.tenant.retrieve_policy import resolve_retrieve_request
 from app.utils.id_generator import generate_uuid
+
+RESEARCH_PROFILE = "quality"
+RESEARCH_METADATA_PROFILE = "research_fixed"
+RESEARCH_INDEX_VERSION = "v2"
+RESEARCH_TOP_K = 10
+RESEARCH_CANDIDATE_TOP_K = 20
+RESEARCH_RRF_K = 10
 
 
 @dataclass(slots=True)
@@ -127,17 +136,56 @@ class ResearchService:
                 context={"plan": plan_context.plan},
             )
 
+        fixed_retrieval_options = RetrievalOptions(
+            mode="hybrid",
+            vector_top_k=RESEARCH_CANDIDATE_TOP_K,
+            bm25_top_k=RESEARCH_CANDIDATE_TOP_K,
+            rrf_k=RESEARCH_RRF_K,
+        )
+        fixed_rerank_options = RerankOptions(enabled=True, top_n=RESEARCH_TOP_K)
+        fixed_evidence_options = EvidenceOptions(enabled=False)
+        fixed_query_options = QueryOptions(
+            enabled=False,
+            strategy="noop",
+            synonym_enabled=False,
+        )
         retrieve_request = RetrieveRequest(
-            **request.model_dump(exclude={"top_k", "retrieval_options", "rerank_options"}),
-            top_k=request.top_k,
-            retrieval_options=request.retrieval_options,
-            rerank_options=request.rerank_options,
-            evidence_options=EvidenceOptions(enabled=False),
-            query_options=QueryOptions(enabled=False, strategy="noop"),
+            **request.model_dump(),
+            profile=RESEARCH_PROFILE,
+            index_version=RESEARCH_INDEX_VERSION,
+            top_k=RESEARCH_TOP_K,
+            retrieval_options=fixed_retrieval_options,
+            rerank_options=fixed_rerank_options,
+            evidence_options=fixed_evidence_options,
+            query_options=fixed_query_options,
         )
         resolved_request, tenant_policy = resolve_retrieve_request(
             retrieve_request,
             plan_context,
+        )
+        # The ordinary retrieve policy honors deployment-wide defaults. Research
+        # has a product-level fixed contract, so reapply it after permission and
+        # knowledge-base-limit validation instead of silently inheriting a profile
+        # or feature-switch variation.
+        resolved_request = resolved_request.model_copy(
+            update={
+                "index_version": RESEARCH_INDEX_VERSION,
+                "profile": RESEARCH_PROFILE,
+                "top_k": RESEARCH_TOP_K,
+                "retrieval_options": fixed_retrieval_options,
+                "rerank_options": fixed_rerank_options,
+                "evidence_options": fixed_evidence_options,
+                "query_options": fixed_query_options,
+            }
+        )
+        tenant_policy = tenant_policy.model_copy(
+            update={
+                "retrieve_profile": RESEARCH_METADATA_PROFILE,
+                "effective_mode": "hybrid",
+                "effective_rerank": True,
+                "effective_evidence": False,
+                "effective_query_rewrite": False,
+            }
         )
         kb_ids = resolved_request.kb_ids or []
         knowledge_bases = self.rag_service._load_knowledge_bases(tenant_id, kb_ids)

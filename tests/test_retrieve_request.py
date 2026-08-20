@@ -100,3 +100,22 @@ def test_index_version_is_optional_and_validated():
             index_version="latest",
             profile="balanced",
         )
+
+
+def test_evaluation_request_can_disable_observability_and_synonyms():
+    request = RetrieveRequest(
+        kb_id="kb-001",
+        user_id="eval_runner",
+        query="价保怎么申请",
+        profile="custom",
+        observability_enabled=False,
+        query_options={
+            "enabled": False,
+            "strategy": "noop",
+            "synonym_enabled": False,
+        },
+    )
+
+    assert request.observability_enabled is False
+    assert request.query_options is not None
+    assert request.query_options.synonym_enabled is False

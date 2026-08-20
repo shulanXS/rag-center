@@ -26,6 +26,8 @@ class QueryProcessResult:
     strategy: str
     latency_ms: int
     synonym_expansions: list[str] = field(default_factory=list)
+    synonym_enabled: bool = False
+    synonym_control_explicit: bool = False
     synonym_applied: bool = False
     degraded: bool = False
     degraded_reason: str | None = None
@@ -34,6 +36,7 @@ class QueryProcessResult:
     def should_expose_metadata(self) -> bool:
         return (
             self.rewrite_attempted
+            or self.synonym_control_explicit
             or self.synonym_applied
             or self.search_query != self.raw_query
         )

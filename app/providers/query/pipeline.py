@@ -23,7 +23,16 @@ class QueryProcessorPipeline:
         else:
             base_result = await self.noop_processor.process(raw_query)
 
-        expand_result = expand_synonyms(base_result.effective_query, kb.settings)
+        synonym_control_explicit = (
+            query_options is not None and query_options.synonym_enabled is not None
+        )
+        synonym_enabled = (
+            query_options is not None and query_options.synonym_enabled is True
+        )
+        expand_result = expand_synonyms(
+            base_result.effective_query,
+            kb.settings if synonym_enabled else None,
+        )
         return QueryProcessResult(
             raw_query=base_result.raw_query,
             effective_query=base_result.effective_query,
@@ -31,6 +40,8 @@ class QueryProcessorPipeline:
             strategy=base_result.strategy,
             latency_ms=base_result.latency_ms,
             synonym_expansions=expand_result.synonym_expansions,
+            synonym_enabled=synonym_enabled,
+            synonym_control_explicit=synonym_control_explicit,
             synonym_applied=expand_result.synonym_applied,
             degraded=base_result.degraded,
             degraded_reason=base_result.degraded_reason,
@@ -47,7 +58,4 @@ class QueryProcessorPipeline:
         if not enabled:
             return False
 
-        if query_options is not None and query_options.strategy == "noop":
-            return False
-
-        return True
+        return not (query_options is not None and query_options.strategy == "noop")

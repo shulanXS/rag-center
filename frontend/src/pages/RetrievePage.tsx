@@ -178,37 +178,16 @@ function buildRetrievePayload(
 function buildResearchPayload(
   selectedKbIds: string[],
   form: Omit<RetrieveForm, "selectedKbIds">,
-  profile: RetrieveProfile,
-  features: AuthFeatures,
 ): ResearchRequest {
   const payload: ResearchRequest = {
     user_id: "debug_user",
     query: form.query.trim(),
-    index_version: form.index_version,
-    profile,
   };
   if (selectedKbIds.length === 1) {
     payload.kb_id = selectedKbIds[0];
   } else {
     payload.kb_ids = selectedKbIds;
   }
-  if (profile !== "custom") {
-    return payload;
-  }
-  payload.top_k = Math.min(form.top_k, 20);
-  payload.retrieval_options = { mode: form.mode };
-  if (form.mode === "hybrid") {
-    payload.retrieval_options = {
-      mode: form.mode,
-      vector_top_k: form.vector_top_k,
-      bm25_top_k: form.bm25_top_k,
-      rrf_k: form.rrf_k,
-    };
-  }
-  payload.rerank_options = {
-    enabled: form.rerank_enabled && features.rerank_allowed,
-    top_n: form.rerank_top_n,
-  };
   return payload;
 }
 
@@ -344,9 +323,6 @@ export function RetrievePage() {
       return;
     }
     setRetrieveMode(nextMode);
-    if (nextMode === "research" && tenantInfo?.features.allowed_profiles.includes("quality")) {
-      setProfile("quality");
-    }
     retrieveMutation.reset();
     researchMutation.reset();
     setFormError(null);
@@ -385,16 +361,17 @@ export function RetrievePage() {
       setFormError(`当前套餐最多支持 ${tenantInfo.limits.max_kb_per_retrieve} 个知识库联合检索`);
       return;
     }
+    const requestedIndexVersion = retrieveMode === "research" ? "v2" : form.index_version;
     const unavailableKb = knowledgeBases.find(
       (kb) =>
         selectedKbIds.includes(kb.kb_id) &&
         !kb.index_versions.some(
           (item) =>
-            item.version === form.index_version && QUERYABLE_INDEX_STATUSES.has(item.status),
+            item.version === requestedIndexVersion && QUERYABLE_INDEX_STATUSES.has(item.status),
         ),
     );
     if (unavailableKb) {
-      setFormError(`知识库「${unavailableKb.name}」没有可查询的 ${form.index_version} 索引`);
+      setFormError(`知识库「${unavailableKb.name}」没有可查询的 ${requestedIndexVersion} 索引`);
       return;
     }
     setFormError(null);
@@ -404,7 +381,7 @@ export function RetrievePage() {
     setFeedbackMessage(null);
     if (retrieveMode === "research") {
       researchMutation.mutate(
-        buildResearchPayload(selectedKbIds, form, profile, tenantInfo.features),
+        buildResearchPayload(selectedKbIds, form),
       );
     } else {
       retrieveMutation.mutate(
@@ -435,7 +412,7 @@ export function RetrievePage() {
   const activeResult = retrieveMode === "research" ? researchResult : result;
   const activeMutation = retrieveMode === "research" ? researchMutation : retrieveMutation;
   const features = tenantInfo?.features;
-  const showAdvanced = profile === "custom";
+  const showAdvanced = retrieveMode === "single" && profile === "custom";
   const allowedModes: RetrievalMode[] = features?.hybrid_allowed
     ? RETRIEVAL_MODES
     : ["vector"];
@@ -455,7 +432,7 @@ export function RetrievePage() {
               variant={retrieveMode === "single" ? "default" : "outline"}
               onClick={() => handleRetrieveModeChange("single")}
             >
-              单次检索
+              普通检索
             </Button>
             <Button
               type="button"
@@ -478,6 +455,7 @@ export function RetrievePage() {
           </CardContent>
         </Card>
 
+        {retrieveMode === "single" ? (
         <Card>
           <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="space-y-1">
@@ -533,6 +511,26 @@ export function RetrievePage() {
             )}
           </CardContent>
         </Card>
+        ) : (
+          <Card>
+            <CardHeader>
+              <CardTitle>Research固定配置</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-3">
+              <div className="flex flex-wrap gap-2">
+                <Badge>v2索引</Badge>
+                <Badge>Hybrid Top20</Badge>
+                <Badge>Qwen3精排 Top10</Badge>
+                <Badge>最多两轮检索</Badge>
+                <Badge>最多10条证据</Badge>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Research使用服务端固定配置，不受速度、均衡、质量或自定义Profile影响；
+                Query Rewrite和同义词扩展固定关闭。
+              </p>
+            </CardContent>
+          </Card>
+        )}
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
@@ -580,9 +578,11 @@ export function RetrievePage() {
                 )}
                 {tenantInfo ? (
                   <p className="mt-2 text-xs text-muted-foreground">
-                    已选 {selectedKbIds.length} / {tenantInfo.limits.max_kb_per_retrieve} 个库
+                    已选 {selectedKbIds.length} / {knowledgeBases.length} 个库
+                    （套餐最多可选 {tenantInfo.limits.max_kb_per_retrieve} 个）
                   </p>
                 ) : null}
+                {retrieveMode === "single" ? (
                 <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border pt-3">
                   <span className="text-xs font-medium text-muted-foreground">索引版本</span>
                   {INDEX_VERSIONS.map((version) => {
@@ -615,6 +615,12 @@ export function RetrievePage() {
                     当前检索将只查询 {form.index_version}，不会混合不同版本
                   </span>
                 </div>
+                ) : (
+                  <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border pt-3">
+                    <span className="text-xs font-medium text-muted-foreground">索引版本</span>
+                    <Badge>v2（Research固定）</Badge>
+                  </div>
+                )}
               </div>
 
               {showAdvanced ? (

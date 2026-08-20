@@ -122,16 +122,17 @@ class RagService:
 
         log_id = generate_uuid()
         observability = RetrieveObservability(log_id)
-        observability.start(
-            tenant_id=tenant_id,
-            kb_ids=kb_ids,
-            user_id=resolved_request.user_id,
-            raw_query=resolved_request.query,
-            profile=tenant_policy.retrieve_profile,
-            plan=tenant_policy.plan,
-            mode=retrieval_mode,
-            top_k=top_k,
-        )
+        if resolved_request.observability_enabled is not False:
+            observability.start(
+                tenant_id=tenant_id,
+                kb_ids=kb_ids,
+                user_id=resolved_request.user_id,
+                raw_query=resolved_request.query,
+                profile=tenant_policy.retrieve_profile,
+                plan=tenant_policy.plan,
+                mode=retrieval_mode,
+                top_k=top_k,
+            )
 
         query_result = await self.query_processor.process(
             resolved_request.query,
@@ -447,6 +448,7 @@ class RagService:
             search_query=query_result.search_query,
             latency_ms=query_result.latency_ms,
             synonym_expansions=query_result.synonym_expansions,
+            synonym_enabled=query_result.synonym_enabled,
             synonym_applied=query_result.synonym_applied,
             degraded=query_result.degraded,
             degraded_reason=query_result.degraded_reason,

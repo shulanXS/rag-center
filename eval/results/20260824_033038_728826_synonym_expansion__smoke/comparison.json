@@ -1,0 +1,183 @@
+{
+  "generated_at": "2026-08-24T03:32:52.377649+00:00",
+  "experiment_id": "synonym_expansion",
+  "title": "同义词扩展消融实验",
+  "target": "synonym_expansion",
+  "dataset_version": "golden_basic_20_v2",
+  "suite": "basic",
+  "case_count": 2,
+  "shared_candidate_top_k": null,
+  "final_top_k": 5,
+  "verdict": "effective",
+  "verdict_text": "有效，建议启用",
+  "primary_metric": "context_recall",
+  "changed_fields": [
+    "query_options.synonym_enabled"
+  ],
+  "baseline_label": "关闭同义词扩展",
+  "candidate_label": "开启同义词扩展",
+  "baseline_index_version": "v1",
+  "candidate_index_version": "v1",
+  "baseline": {
+    "context_recall": 0.25,
+    "context_precision": 0.9999999999,
+    "evaluated_cases": 2,
+    "failed_cases": 0,
+    "ragas_skipped_cases": 0,
+    "successful_cases": 2,
+    "request_failed_cases": 0,
+    "latency_mean_ms": 7243.5805,
+    "latency_p50_ms": 7243.5805,
+    "latency_p95_ms": 7252.644850000001,
+    "latency_max_ms": 7253.652,
+    "average_application_model_calls": 0.0,
+    "model_calls_evaluated_cases": 2,
+    "ndcg_at_10": null,
+    "rank_evaluated_cases": 0
+  },
+  "candidate": {
+    "context_recall": 0.75,
+    "context_precision": 0.9999999999,
+    "evaluated_cases": 2,
+    "failed_cases": 0,
+    "ragas_skipped_cases": 0,
+    "successful_cases": 2,
+    "request_failed_cases": 0,
+    "latency_mean_ms": 8380.1905,
+    "latency_p50_ms": 8380.1905,
+    "latency_p95_ms": 8382.12595,
+    "latency_max_ms": 8382.341,
+    "average_application_model_calls": 0.0,
+    "model_calls_evaluated_cases": 2,
+    "ndcg_at_10": null,
+    "rank_evaluated_cases": 0
+  },
+  "baseline_diagnostics": {
+    "graph_affected_cases": 0,
+    "graph_injected_chunks": 0,
+    "supplemental_chunks": 0,
+    "average_evidence_count": null,
+    "average_evidence_chars": null,
+    "citation_traceable_items": 0,
+    "citation_total_items": 0,
+    "citation_traceability_rate": null,
+    "evidence_statuses": {},
+    "answer_present_cases": 0,
+    "answer_citations_valid_cases": 0,
+    "degraded_cases": 0,
+    "supplement_cases": 0,
+    "average_round_count": null,
+    "average_retrieval_task_count": null,
+    "average_research_llm_call_count": null,
+    "average_input_tokens": null,
+    "average_output_tokens": null
+  },
+  "candidate_diagnostics": {
+    "graph_affected_cases": 0,
+    "graph_injected_chunks": 0,
+    "supplemental_chunks": 0,
+    "average_evidence_count": null,
+    "average_evidence_chars": null,
+    "citation_traceable_items": 0,
+    "citation_total_items": 0,
+    "citation_traceability_rate": null,
+    "evidence_statuses": {},
+    "answer_present_cases": 0,
+    "answer_citations_valid_cases": 0,
+    "degraded_cases": 0,
+    "supplement_cases": 0,
+    "average_round_count": null,
+    "average_retrieval_task_count": null,
+    "average_research_llm_call_count": null,
+    "average_input_tokens": null,
+    "average_output_tokens": null
+  },
+  "delta": {
+    "average_application_model_calls": 0.0,
+    "context_precision": 0.0,
+    "context_recall": 0.5,
+    "evaluated_cases": 0.0,
+    "failed_cases": 0.0,
+    "latency_max_ms": 1128.6890000000003,
+    "latency_mean_ms": 1136.6100000000006,
+    "latency_p50_ms": 1136.6100000000006,
+    "latency_p95_ms": 1129.481099999999,
+    "model_calls_evaluated_cases": 0.0,
+    "ndcg_at_10": null,
+    "ragas_skipped_cases": 0.0,
+    "rank_evaluated_cases": 0.0,
+    "request_failed_cases": 0.0,
+    "successful_cases": 0.0
+  },
+  "thresholds": {
+    "min_primary_improvement": 0.03,
+    "quality_guardrails": {
+      "context_precision": {
+        "min_delta": -0.02
+      }
+    },
+    "cost_limits": {
+      "max_p95_increase_ratio": 0.3,
+      "max_model_calls_increase": 0.0
+    },
+    "max_failed_cases": 0
+  },
+  "checks": {
+    "result_complete": true,
+    "primary_metric": {
+      "delta": 0.5,
+      "min_improvement": 0.03,
+      "passed": true
+    },
+    "quality_improved": true,
+    "quality_guardrails": {
+      "context_precision": {
+        "delta": 0.0,
+        "min_delta": -0.02,
+        "passed": true
+      }
+    },
+    "cost": {
+      "latency_p95_increase_ratio": 0.15573368382983746,
+      "max_latency_p95_increase_ratio": 0.3,
+      "latency_passed": true,
+      "model_calls_delta": 0.0,
+      "max_model_calls_increase": 0.0,
+      "model_calls_passed": true,
+      "passed": true
+    },
+    "citation_traceability": {
+      "value": null,
+      "required": null,
+      "passed": true
+    }
+  },
+  "failed_cases": {
+    "baseline_requests": 0,
+    "candidate_requests": 0,
+    "baseline_ragas": 0,
+    "candidate_ragas": 0
+  },
+  "scoring_errors": [],
+  "case_changes": {
+    "improved": [
+      {
+        "case_id": "coupon_expire",
+        "question": "优惠券领取后通常有效多久，过期后会补发吗？",
+        "delta": 1.0
+      }
+    ],
+    "regressed": []
+  },
+  "recall_case_changes": {
+    "improved": [
+      {
+        "case_id": "coupon_expire",
+        "question": "优惠券领取后通常有效多久，过期后会补发吗？",
+        "delta": 1.0
+      }
+    ],
+    "regressed": []
+  },
+  "recommendation": "核心质量指标有提升，质量护栏和成本限制均通过，建议启用「开启同义词扩展」。"
+}
