@@ -218,6 +218,25 @@ async def retry_failed_shared_rerank(
     replacements = {str(row["case_id"]): row for row in retried_rows}
     merged_rows = [replacements.get(str(row.get("case_id")), row) for row in result_rows]
     _write_jsonl(result_path, merged_rows)
+    manifest_path = run_dir / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    groups: dict[str, Any] = {}
+    all_rows: list[dict[str, Any]] = []
+    for name in ("baseline", "candidate"):
+        rows = _read_jsonl(run_dir / f"{name}.raw.jsonl")
+        all_rows.extend(rows)
+        groups[name] = {
+            "total_cases": len(rows),
+            "successful_cases": sum(row.get("error") is None for row in rows),
+            "failed_cases": sum(row.get("error") is not None for row in rows),
+        }
+    manifest["groups"] = groups
+    manifest["status"] = (
+        "retrieval_complete"
+        if all(row.get("error") is None for row in all_rows)
+        else "retrieval_complete_with_failures"
+    )
+    _write_json(manifest_path, manifest)
     return len(retried_rows)
 
 
@@ -876,10 +895,15 @@ async def _run_shared_rerank_case(
         )
         contexts = _contexts_from_chunks(reranked)
         _assert_index_version(contexts, group.index_version)
+        shared_effective_config = shared.get("effective_config") or {}
+        rewrite_enabled = bool(shared_effective_config.get("rewrite_enabled"))
+        application_model_calls = int(rewrite_enabled) + (
+            0 if group.rerank_provider == "noop" else 1
+        )
         effective_config = {
             "profile": group.profile,
             "retrieval_mode": group.retrieval_options.get("mode"),
-            "rewrite_enabled": False,
+            "rewrite_enabled": rewrite_enabled,
             "synonym_enabled": False,
             "rerank_enabled": group.rerank_provider != "noop",
             "rerank_provider": group.rerank_provider,
@@ -900,7 +924,7 @@ async def _run_shared_rerank_case(
                 "rerank": round(rerank_latency_ms, 3),
                 "evidence": 0,
             },
-            "application_model_calls": 0 if group.rerank_provider == "noop" else 1,
+            "application_model_calls": application_model_calls,
             "retry_count": 0,
             "effective_config": effective_config,
             "ranking_qrels": _ranking_qrels(case=case, candidates=candidates),
@@ -918,7 +942,10 @@ async def _run_shared_rerank_case(
                 "retrieval": (shared.get("stage_latency_ms") or {}).get("retrieval"),
                 "rerank": round(rerank_latency_ms, 3),
             },
-            "application_model_calls": 0 if group.rerank_provider == "noop" else 1,
+            "application_model_calls": (
+                int(bool((shared.get("effective_config") or {}).get("rewrite_enabled")))
+                + (0 if group.rerank_provider == "noop" else 1)
+            ),
             "retry_count": 0,
             "effective_config": {},
             "error": {

@@ -232,7 +232,10 @@ class ExperimentConfig(StrictModel):
             ):
                 if group.retrieval_options.get("mode") != "hybrid":
                     raise ValueError(f"{name} 精排实验必须使用 hybrid 检索")
-                if group.query_options.get("enabled") is not False:
+                if (
+                    group.query_options.get("enabled") is not False
+                    and self.target != "opt20_prechange_quality_baseline"
+                ):
                     raise ValueError(f"{name} 精排实验必须关闭 Query Rewrite")
                 if group.query_options.get("synonym_enabled") is not False:
                     raise ValueError(f"{name} 精排实验必须关闭同义词扩展")

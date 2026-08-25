@@ -6,8 +6,12 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from collections.abc import Iterator
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
+from statistics import mean, median
+from time import perf_counter
 from typing import Any
 
 import httpx
@@ -37,9 +41,20 @@ LINE = "═" * 56
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run RAGAS retrieval evaluation on a golden set.")
     parser.add_argument("--dataset", type=Path, required=True, help="Path to dataset JSON")
-    parser.add_argument("--api-key", required=True, help="RAG API key (Bearer rk_live_...)")
+    parser.add_argument("--api-key", default=None, help="RAG API key (Bearer rk_live_...)")
+    parser.add_argument(
+        "--tenant-id",
+        default=None,
+        help="本地评测租户；未提供 API Key 时创建并自动删除临时 Key",
+    )
     parser.add_argument("--base-url", default="http://127.0.0.1:8000", help="RAG Center base URL")
     parser.add_argument("--profile", default=None, help="Retrieve profile override")
+    parser.add_argument(
+        "--request-config",
+        type=Path,
+        default=None,
+        help="合并进每次 retrieve 请求的冻结配置 JSON",
+    )
     parser.add_argument("--output", type=Path, default=None, help="Write JSON report to this path")
     parser.add_argument(
         "--low-recall-threshold",
@@ -64,11 +79,13 @@ def retrieve_case(
     kb_ids: list[str],
     question: str,
     profile: str,
+    request_config: dict[str, Any],
 ) -> dict[str, Any]:
     payload: dict[str, Any] = {
         "user_id": EVAL_USER_ID,
         "query": question,
         "profile": profile,
+        **request_config,
     }
     if len(kb_ids) == 1:
         payload["kb_id"] = kb_ids[0]
@@ -109,6 +126,7 @@ def collect_eval_rows(
     api_key: str,
     default_kb_id: str,
     profile: str,
+    request_config: dict[str, Any],
     cases: list[dict[str, Any]],
 ) -> tuple[list[dict[str, Any]], list[dict[str, str]]]:
     rows: list[dict[str, Any]] = []
@@ -121,6 +139,7 @@ def collect_eval_rows(
         reference = str(case.get("ground_truth") or "").strip()
         case_kb_ids = resolve_case_kb_ids(case, default_kb_id)
         try:
+            started_at = perf_counter()
             data = retrieve_case(
                 client,
                 base_url=base_url,
@@ -128,7 +147,9 @@ def collect_eval_rows(
                 kb_ids=case_kb_ids,
                 question=question,
                 profile=profile,
+                request_config=request_config,
             )
+            latency_ms = (perf_counter() - started_at) * 1000
         except Exception as exc:
             failures.append({"id": case_id, "question": question, "error": str(exc)})
             print(f"  ✗ [{index}/{len(cases)}] {case_id}")
@@ -147,6 +168,24 @@ def collect_eval_rows(
                 "retrieved_contexts": contexts,
                 "multi_kb": len(data.get("kb_ids") or case_kb_ids) > 1,
                 "kb_ids": data.get("kb_ids") or case_kb_ids,
+                "latency_ms": round(latency_ms, 3),
+                "retrieved_chunks": [
+                    {
+                        "rank": rank,
+                        "kb_id": chunk.get("kb_id"),
+                        "document_id": chunk.get("document_id"),
+                        "chunk_id": chunk.get("chunk_id"),
+                        "title": chunk.get("title"),
+                        "content": chunk.get("content"),
+                        "score": chunk.get("score"),
+                        "vector_score": chunk.get("vector_score"),
+                        "bm25_score": chunk.get("bm25_score"),
+                        "retrieval_source": chunk.get("retrieval_source"),
+                        "index_version": chunk.get("index_version"),
+                    }
+                    for rank, chunk in enumerate(chunks, start=1)
+                ],
+                "metadata": data.get("metadata") or {},
             }
         )
         multi_label = "multi_kb" if len(data.get("kb_ids") or case_kb_ids) > 1 else "single_kb"
@@ -320,6 +359,8 @@ def build_report_payload(
     low_precision: list[dict[str, Any]],
     skipped: list[dict[str, Any]],
     retrieve_failures: list[dict[str, str]],
+    rows: list[dict[str, Any]],
+    request_config: dict[str, Any],
 ) -> dict[str, Any]:
     summary_readable = {
         METRIC_LABELS["context_recall"]: build_metric_readable(
@@ -337,6 +378,7 @@ def build_report_payload(
         "dataset": str(args.dataset),
         "kb_id": kb_id,
         "profile": profile,
+        "request_config": request_config,
         "profile_description": PROFILE_HINTS.get(profile, ""),
         "summary": {
             **summary,
@@ -350,7 +392,41 @@ def build_report_payload(
         "low_recall_cases": low_recall,
         "low_precision_cases": low_precision,
         "retrieve_failures": retrieve_failures,
+        "performance_by_kb_count": summarize_performance_by_kb_count(rows),
+        "retrieval_rows": rows,
     }
+
+
+def summarize_performance_by_kb_count(
+    rows: list[dict[str, Any]],
+) -> dict[str, dict[str, float | int | None]]:
+    grouped: dict[int, list[float]] = {}
+    for row in rows:
+        kb_count = len(row.get("kb_ids") or [])
+        grouped.setdefault(kb_count, []).append(float(row["latency_ms"]))
+    return {
+        str(kb_count): {
+            "case_count": len(values),
+            "latency_mean_ms": mean(values) if values else None,
+            "latency_p50_ms": median(values) if values else None,
+            "latency_p95_ms": _percentile(values, 0.95),
+            "latency_max_ms": max(values) if values else None,
+        }
+        for kb_count, values in sorted(grouped.items())
+    }
+
+
+def _percentile(values: list[float], quantile: float) -> float | None:
+    if not values:
+        return None
+    ordered = sorted(values)
+    if len(ordered) == 1:
+        return ordered[0]
+    position = (len(ordered) - 1) * quantile
+    lower = int(position)
+    upper = min(lower + 1, len(ordered) - 1)
+    fraction = position - lower
+    return ordered[lower] + (ordered[upper] - ordered[lower]) * fraction
 
 
 def main() -> int:
@@ -368,6 +444,13 @@ def main() -> int:
         return 1
 
     profile = args.profile or str(dataset.get("default_profile") or "balanced")
+    try:
+        request_config = load_request_config(args.request_config)
+    except (FileNotFoundError, ValueError) as exc:
+        print(f"错误：{exc}", file=sys.stderr)
+        return 1
+    if request_config.get("profile"):
+        profile = str(request_config["profile"])
     all_cases = dataset.get("cases", [])
     runnable = [case for case in all_cases if ground_truth_ready(case)]
     skipped = [case for case in all_cases if not ground_truth_ready(case)]
@@ -398,15 +481,21 @@ def main() -> int:
     context_precision, context_recall = load_ragas_metrics()
     metric_names = ["context_precision", "context_recall"]
 
-    with httpx.Client(timeout=120.0, trust_env=False) as client:
-        rows, retrieve_failures = collect_eval_rows(
-            client,
-            base_url=args.base_url,
-            api_key=args.api_key,
-            default_kb_id=kb_id,
-            profile=profile,
-            cases=runnable,
-        )
+    try:
+        with evaluation_api_key(args) as api_key:
+            with httpx.Client(timeout=120.0, trust_env=False) as client:
+                rows, retrieve_failures = collect_eval_rows(
+                    client,
+                    base_url=args.base_url,
+                    api_key=api_key,
+                    default_kb_id=kb_id,
+                    profile=profile,
+                    request_config=request_config,
+                    cases=runnable,
+                )
+    except RuntimeError as exc:
+        print(f"错误：{exc}", file=sys.stderr)
+        return 1
 
     if not rows:
         print("\n错误：所有 retrieve 调用均失败", file=sys.stderr)
@@ -473,6 +562,8 @@ def main() -> int:
             low_precision=low_precision,
             skipped=skipped,
             retrieve_failures=retrieve_failures,
+            rows=rows,
+            request_config=request_config,
         )
         args.output.parent.mkdir(parents=True, exist_ok=True)
         with args.output.open("w", encoding="utf-8") as handle:
@@ -494,6 +585,72 @@ def _maybe_float(value: Any) -> float | None:
     except Exception:
         return None
     return float(value)
+
+
+def load_request_config(path: Path | None) -> dict[str, Any]:
+    if path is None:
+        return {}
+    if not path.is_file():
+        raise FileNotFoundError(f"冻结请求配置不存在: {path}")
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"冻结请求配置 JSON 无效: {exc}") from exc
+    if not isinstance(payload, dict):
+        raise ValueError("冻结请求配置必须是 JSON 对象")
+    forbidden = {"query", "user_id", "kb_id", "kb_ids"} & payload.keys()
+    if forbidden:
+        raise ValueError("冻结请求配置不能包含: " + ", ".join(sorted(forbidden)))
+    return payload
+
+
+@contextmanager
+def evaluation_api_key(args: argparse.Namespace) -> Iterator[str]:
+    if args.api_key:
+        yield args.api_key
+        return
+    if not args.tenant_id:
+        raise RuntimeError("缺少评测身份：请传 --api-key 或 --tenant-id")
+
+    from app.db.session import SessionLocal
+    from app.models.api_key import ApiKey
+    from app.repositories.api_key_repository import ApiKeyRepository
+    from app.repositories.tenant_repository import TenantRepository
+    from app.utils.api_key_crypto import generate_api_key_material
+    from app.utils.id_generator import generate_uuid
+    from app.utils.tenant_status import ApiKeyStatus
+
+    db = SessionLocal()
+    key_id = generate_uuid()
+    key_created = False
+    try:
+        tenant = TenantRepository(db).get_by_id(args.tenant_id)
+        if tenant is None:
+            raise RuntimeError(f"评测租户不存在: {args.tenant_id}")
+        raw_key, key_hash, key_prefix = generate_api_key_material()
+        ApiKeyRepository(db).create(
+            ApiKey(
+                id=key_id,
+                tenant_id=args.tenant_id,
+                name="retrieval-eval-temporary",
+                key_prefix=key_prefix,
+                key_hash=key_hash,
+                status=ApiKeyStatus.ACTIVE,
+                expires_at=None,
+            )
+        )
+        db.commit()
+        key_created = True
+        yield raw_key
+    finally:
+        try:
+            if key_created:
+                api_key = db.get(ApiKey, key_id)
+                if api_key is not None:
+                    db.delete(api_key)
+                    db.commit()
+        finally:
+            db.close()
 
 
 if __name__ == "__main__":
