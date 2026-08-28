@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-22T06:00:14.034888+00:00",
+  "generated_at": "2026-08-28T08:32:05.186913+00:00",
   "experiment_id": "research_effect_v2",
   "title": "v2索引下单次检索与完整Research对比实验",
   "target": "research_effect_v2",
@@ -8,8 +8,8 @@
   "case_count": 10,
   "shared_candidate_top_k": null,
   "final_top_k": 10,
-  "verdict": "regressed",
-  "verdict_text": "Research工程链路通过，但复杂题证据质量退化，暂不默认启用",
+  "verdict": "no_clear_gain",
+  "verdict_text": "无明显收益，暂不启用",
   "primary_metric": "context_recall",
   "changed_fields": [
     "execution_mode"
@@ -20,7 +20,7 @@
   "candidate_index_version": "v2",
   "baseline": {
     "context_recall": 0.9444444444444444,
-    "context_precision": 0.8888888888351851,
+    "context_precision": 0.8888888888351852,
     "evaluated_cases": 9,
     "failed_cases": 0,
     "ragas_skipped_cases": 1,
@@ -36,9 +36,9 @@
     "rank_evaluated_cases": 0
   },
   "candidate": {
-    "context_recall": 0.85,
-    "context_precision": 0.830555555512037,
-    "evaluated_cases": 10,
+    "context_recall": 0.9444444444444444,
+    "context_precision": 0.9228395061244856,
+    "evaluated_cases": 9,
     "failed_cases": 0,
     "ragas_skipped_cases": 0,
     "successful_cases": 10,
@@ -99,9 +99,9 @@
   },
   "delta": {
     "average_application_model_calls": 2.9000000000000004,
-    "context_precision": -0.05833333332314816,
-    "context_recall": -0.09444444444444444,
-    "evaluated_cases": 1.0,
+    "context_precision": 0.03395061728930038,
+    "context_recall": 0.0,
+    "evaluated_cases": 0.0,
     "failed_cases": 0.0,
     "latency_max_ms": -20723.811,
     "latency_mean_ms": -10736.326099999998,
@@ -130,16 +130,16 @@
   "checks": {
     "result_complete": true,
     "primary_metric": {
-      "delta": -0.09444444444444444,
+      "delta": 0.0,
       "min_improvement": 0.01,
       "passed": false
     },
-    "quality_improved": false,
+    "quality_improved": true,
     "quality_guardrails": {
       "context_precision": {
-        "delta": -0.05833333332314816,
+        "delta": 0.03395061728930038,
         "min_delta": -0.05,
-        "passed": false
+        "passed": true
       }
     },
     "cost": {
@@ -172,7 +172,28 @@
     "improved": [],
     "regressed": []
   },
-  "recommendation": "完整Research的Context Recall下降9.4个百分点、Context Precision下降5.8个百分点，未证明其比当前单次检索证据链路更有效。但10道题全部返回答案，引用回溯率为100.0%，且无降级，说明受控流程、答案契约和硬上限已经可用。建议保留Research为显式自定义能力，暂不放入默认档位；优先优化Planner查询分解与Decider证据筛选，并扩充真正需要补证的多跳题后复测。",
+  "recommendation": "主指标未达到预设提升门槛，当前数据不足以证明该能力有明确收益，暂不默认启用「v2 + Controlled Agentic Research」。",
+  "quality_comparison": {
+    "case_count": 9,
+    "case_ids": [
+      "aftersales_intercept_refund",
+      "aftersales_seven_day_freight",
+      "control_shipping_scope_conflict",
+      "live_campaign_shipping",
+      "live_category_qualification",
+      "member_points_refund",
+      "payment_combined_refund",
+      "payment_risk_appeal",
+      "search_ad_invoice_reconciliation"
+    ],
+    "excluded_cases": [
+      {
+        "case_id": "control_no_answer_offline_parking",
+        "baseline_reason": "expected_missing_no_context",
+        "candidate_reason": "excluded_to_match_baseline"
+      }
+    ]
+  },
   "research_details": {
     "shared_first_round_cases": 9,
     "repair_denominator": 0,

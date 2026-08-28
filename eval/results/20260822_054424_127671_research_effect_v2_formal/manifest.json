@@ -96,6 +96,6 @@
       "failed_cases": 0
     }
   },
-  "verdict": "regressed",
-  "verdict_text": "Research工程链路通过，但复杂题证据质量退化，暂不默认启用"
+  "verdict": "no_clear_gain",
+  "verdict_text": "无明显收益，暂不启用"
 }

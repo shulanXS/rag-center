@@ -119,16 +119,7 @@ class ResearchFinalizerService:
                 thinking="disabled",
             )
             output = self._validate_output(raw, state=state, candidates=candidates)
-            selections = {
-                state.aspects[item.aspect_index].aspect_id: [
-                    EvidenceReference(
-                        candidate_index=reference.candidate_index,
-                        role=reference.role,
-                    )
-                    for reference in item.evidence
-                ]
-                for item in output.aspects
-            }
+            selections = self._selections(output, state=state)
             evidence_order = [
                 index
                 for block in output.answer_blocks
@@ -219,6 +210,16 @@ class ResearchFinalizerService:
                 raise ValueError("finalizer answer contains duplicate evidence indexes")
             if any(index < 0 or index >= len(candidates) for index in indexes):
                 raise ValueError("finalizer answer evidence index is out of range")
+            if block.kind == "supported" and ResearchFinalizerService._is_insufficient_text(text):
+                block = block.model_copy(
+                    update={
+                        "text": "当前材料不足，无法确定。",
+                        "evidence_indexes": [],
+                        "kind": "insufficient",
+                    }
+                )
+                text = block.text
+                indexes = []
             if block.kind == "supported" and not indexes:
                 raise ValueError("supported answer block requires evidence")
             if block.kind == "insufficient" and indexes:
@@ -247,6 +248,7 @@ class ResearchFinalizerService:
             "证据不足",
             "信息不足",
             "未找到",
+            "未提及",
             "没有提供",
             "未提供",
             "缺少",
@@ -272,6 +274,27 @@ class ResearchFinalizerService:
                 references.append(f"[{evidence_id}]")
             rendered.append(f"{block.text.strip()}{''.join(references)}")
         return "\n\n".join(rendered)
+
+    @staticmethod
+    def _selections(
+        output: FinalizerOutput,
+        *,
+        state: ResearchState,
+    ) -> dict[str, list[EvidenceReference]]:
+        if output.answer_blocks and all(
+            block.kind == "insufficient" for block in output.answer_blocks
+        ):
+            return {aspect.aspect_id: [] for aspect in state.aspects}
+        return {
+            state.aspects[item.aspect_index].aspect_id: [
+                EvidenceReference(
+                    candidate_index=reference.candidate_index,
+                    role=reference.role,
+                )
+                for reference in item.evidence
+            ]
+            for item in output.aspects
+        }
 
     @staticmethod
     def _payload(

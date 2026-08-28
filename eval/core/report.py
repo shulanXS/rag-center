@@ -53,7 +53,7 @@ def generate_report(run_dir: Path) -> dict[str, Any]:
                 comparison["recommendation"] = (
                     "本轮4题没有形成至少2道合法修复分母，且两组只有"
                     f"{details['shared_first_round_cases']}/4道首轮快照一致。"
-                    "Precision改善不能可靠归因于第二轮补证；应先固定复用Planner与首轮候选快照，"
+                    "Precision变化不能可靠归因于第二轮补证；应先固定复用Planner与首轮候选快照，"
                     "并补充首轮确实缺证、知识库中又存在目标证据的多跳题后重测。"
                 )
     _write_json(run_dir / "comparison.json", comparison)
@@ -81,8 +81,18 @@ def build_comparison(
     baseline: dict[str, Any],
     candidate: dict[str, Any],
 ) -> dict[str, Any]:
-    baseline_summary = baseline["summary"]
-    candidate_summary = candidate["summary"]
+    baseline_summary = dict(baseline["summary"])
+    candidate_summary = dict(candidate["summary"])
+    quality_comparison: dict[str, Any] | None = None
+    if experiment.target in {"research_effect_v2", "research_supplement_v2"}:
+        baseline_summary, candidate_summary, quality_comparison = (
+            _align_research_quality_summaries(
+                baseline_summary=baseline_summary,
+                candidate_summary=candidate_summary,
+                baseline_cases=baseline.get("per_case") or [],
+                candidate_cases=candidate.get("per_case") or [],
+            )
+        )
     metric_names = sorted(set(baseline_summary) | set(candidate_summary))
     delta = {
         name: _delta(baseline_summary.get(name), candidate_summary.get(name))
@@ -193,7 +203,7 @@ def build_comparison(
         baseline_summary,
         fallback=len(dataset.cases_for_suite(experiment.suite)),
     )
-    return {
+    comparison = {
         "generated_at": datetime.now(UTC).isoformat(),
         "experiment_id": experiment.experiment_id,
         "title": experiment.title,
@@ -284,6 +294,76 @@ def build_comparison(
             candidate_diagnostics=candidate.get("diagnostics") or {},
         ),
     }
+    if quality_comparison is not None:
+        comparison["quality_comparison"] = quality_comparison
+    return comparison
+
+
+def _align_research_quality_summaries(
+    *,
+    baseline_summary: dict[str, Any],
+    candidate_summary: dict[str, Any],
+    baseline_cases: list[dict[str, Any]],
+    candidate_cases: list[dict[str, Any]],
+) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+    """Compare Research quality only on cases scored successfully in both groups."""
+    baseline_by_id = {str(item["case_id"]): item for item in baseline_cases}
+    candidate_by_id = {str(item["case_id"]): item for item in candidate_cases}
+    shared_ids = sorted(set(baseline_by_id) & set(candidate_by_id))
+    comparable_ids = [
+        case_id
+        for case_id in shared_ids
+        if all(
+            row.get(metric) is not None
+            for row in (baseline_by_id[case_id], candidate_by_id[case_id])
+            for metric in ("context_precision", "context_recall")
+        )
+    ]
+
+    aligned_baseline = dict(baseline_summary)
+    aligned_candidate = dict(candidate_summary)
+    for metric in ("context_precision", "context_recall"):
+        baseline_values = [
+            float(baseline_by_id[case_id][metric]) for case_id in comparable_ids
+        ]
+        candidate_values = [
+            float(candidate_by_id[case_id][metric]) for case_id in comparable_ids
+        ]
+        aligned_baseline[metric] = (
+            sum(baseline_values) / len(baseline_values) if baseline_values else None
+        )
+        aligned_candidate[metric] = (
+            sum(candidate_values) / len(candidate_values) if candidate_values else None
+        )
+    aligned_baseline["evaluated_cases"] = len(comparable_ids)
+    aligned_candidate["evaluated_cases"] = len(comparable_ids)
+
+    excluded = []
+    for case_id in shared_ids:
+        if case_id in comparable_ids:
+            continue
+        baseline_case = baseline_by_id[case_id]
+        candidate_case = candidate_by_id[case_id]
+        excluded.append(
+            {
+                "case_id": case_id,
+                "baseline_reason": baseline_case.get("ragas_skipped")
+                or baseline_case.get("error")
+                or "score_missing",
+                "candidate_reason": candidate_case.get("ragas_skipped")
+                or candidate_case.get("error")
+                or "excluded_to_match_baseline",
+            }
+        )
+    return (
+        aligned_baseline,
+        aligned_candidate,
+        {
+            "case_count": len(comparable_ids),
+            "case_ids": comparable_ids,
+            "excluded_cases": excluded,
+        },
+    )
 
 
 def _executed_case_count(summary: dict[str, Any], *, fallback: int) -> int:
@@ -452,11 +532,25 @@ def render_markdown(comparison: dict[str, Any]) -> str:
     if comparison["target"] in {"research_effect_v2", "research_supplement_v2"}:
         details = comparison.get("research_details") or {}
         diagnostics = comparison["candidate_diagnostics"]
+        quality = comparison.get("quality_comparison") or {}
         lines.extend(
             [
                 "",
                 "## Research诊断",
                 "",
+                (
+                    "- Context指标共同可评价题目："
+                    f"{quality.get('case_count', comparison['case_count'])}/"
+                    f"{comparison['case_count']} 道"
+                ),
+                *[
+                    (
+                        f"- 质量汇总排除 `{item['case_id']}`："
+                        f"baseline={item['baseline_reason']}，"
+                        f"candidate={item['candidate_reason']}"
+                    )
+                    for item in quality.get("excluded_cases") or []
+                ],
                 f"- 最终答案非空：{diagnostics.get('answer_present_cases', 0)}/{comparison['case_count']} 道",
                 f"- 答案引用映射有效：{diagnostics.get('answer_citations_valid_cases', 0)}/{comparison['case_count']} 道",
                 f"- 引用回溯率：{_percentage(diagnostics.get('citation_traceability_rate'))}（硬门槛100%）",
@@ -707,8 +801,9 @@ def _recommendation(
 ) -> str:
     if verdict == "regressed" and target == "research_effect_v2":
         return (
-            f"完整Research的Context Recall下降{_magnitude_points(recall_delta)}、"
-            f"Context Precision下降{_magnitude_points(precision_delta)}，未证明其比当前单次检索证据链路更有效。"
+            f"完整Research的Context Recall{_directional_change(recall_delta)}、"
+            f"Context Precision{_directional_change(precision_delta)}，"
+            "未证明其比当前单次检索证据链路更有效。"
             f"但{case_count}道题全部返回答案，引用回溯率为"
             f"{_percentage(candidate_diagnostics.get('citation_traceability_rate'))}，且无降级，"
             "说明受控流程、答案契约和硬上限已经可用。建议保留Research为显式自定义能力，"
@@ -942,6 +1037,16 @@ def _points(value: Any) -> str:
 
 def _magnitude_points(value: Any) -> str:
     return "不可用" if value is None else f"{abs(float(value)) * 100:.1f}个百分点"
+
+
+def _directional_change(value: Any) -> str:
+    if value is None:
+        return "变化不可用"
+    number = float(value)
+    direction = "提升" if number > 0 else "下降" if number < 0 else "持平"
+    if direction == "持平":
+        return direction
+    return f"{direction}{abs(number) * 100:.1f}个百分点"
 
 
 def _milliseconds(value: Any) -> str:

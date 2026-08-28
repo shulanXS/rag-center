@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-22T06:00:14.468709+00:00",
+  "generated_at": "2026-08-28T08:32:05.186271+00:00",
   "experiment_id": "research_supplement_v2",
   "title": "v2索引下禁止补证与允许一次补证对比实验",
   "target": "research_supplement_v2",
@@ -172,7 +172,17 @@
     "improved": [],
     "regressed": []
   },
-  "recommendation": "本轮4题没有形成至少2道合法修复分母，且两组只有2/4道首轮快照一致。Precision改善不能可靠归因于第二轮补证；应先固定复用Planner与首轮候选快照，并补充首轮确实缺证、知识库中又存在目标证据的多跳题后重测。",
+  "recommendation": "本轮4题没有形成至少2道合法修复分母，且两组只有2/4道首轮快照一致。Precision变化不能可靠归因于第二轮补证；应先固定复用Planner与首轮候选快照，并补充首轮确实缺证、知识库中又存在目标证据的多跳题后重测。",
+  "quality_comparison": {
+    "case_count": 4,
+    "case_ids": [
+      "aftersales_intercept_refund",
+      "live_campaign_shipping",
+      "live_category_qualification",
+      "search_ad_invoice_reconciliation"
+    ],
+    "excluded_cases": []
+  },
   "research_details": {
     "shared_first_round_cases": 2,
     "repair_denominator": 0,

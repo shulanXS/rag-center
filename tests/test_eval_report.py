@@ -18,6 +18,10 @@ CONTEXT_GRAPH_EXPERIMENT = load_experiment(
     PROJECT_ROOT / "eval" / "experiments" / "context_graph_upgrade.json",
     project_root=PROJECT_ROOT,
 )
+RESEARCH_EXPERIMENT = load_experiment(
+    PROJECT_ROOT / "eval" / "experiments" / "research_effect_v2.json",
+    project_root=PROJECT_ROOT,
+)
 
 
 def _metrics(
@@ -264,3 +268,61 @@ def test_incomplete_results_cannot_claim_effectiveness():
     )
 
     assert comparison["verdict"] == "evaluation_failed"
+
+
+def test_research_quality_uses_same_evaluable_case_intersection():
+    baseline = _metrics(recall=0.5, precision=0.5, p95=800, calls=2)
+    candidate = _metrics(recall=0.5, precision=0.5, p95=900, calls=5)
+    baseline["summary"].update({"successful_cases": 2, "ragas_skipped_cases": 1})
+    candidate["summary"].update({"successful_cases": 2, "ragas_skipped_cases": 0})
+    baseline["diagnostics"] = {
+        "citation_traceability_rate": 1.0,
+        "answer_present_cases": 0,
+        "answer_citations_valid_cases": 0,
+        "degraded_cases": 0,
+    }
+    candidate["diagnostics"] = {
+        "citation_traceability_rate": 1.0,
+        "answer_present_cases": 2,
+        "answer_citations_valid_cases": 2,
+        "degraded_cases": 0,
+    }
+    baseline["per_case"] = [
+        {
+            "case_id": "answerable",
+            "context_precision": 0.8,
+            "context_recall": 1.0,
+        },
+        {
+            "case_id": "expected_missing",
+            "ragas_skipped": "expected_missing_no_context",
+        },
+    ]
+    candidate["per_case"] = [
+        {
+            "case_id": "answerable",
+            "context_precision": 0.9,
+            "context_recall": 1.0,
+        },
+        {
+            "case_id": "expected_missing",
+            "context_precision": 0.0,
+            "context_recall": 0.0,
+        },
+    ]
+
+    comparison = build_comparison(
+        experiment=RESEARCH_EXPERIMENT,
+        dataset=DATASET,
+        baseline=baseline,
+        candidate=candidate,
+    )
+    markdown = render_markdown(comparison)
+
+    assert comparison["baseline"]["context_precision"] == 0.8
+    assert comparison["candidate"]["context_precision"] == 0.9
+    assert comparison["baseline"]["context_recall"] == 1.0
+    assert comparison["candidate"]["context_recall"] == 1.0
+    assert comparison["quality_comparison"]["case_count"] == 1
+    assert "Context指标共同可评价题目：1/2 道" in markdown
+    assert "expected_missing_no_context" in markdown

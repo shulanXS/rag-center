@@ -148,6 +148,56 @@ def test_insufficient_block_drops_echoed_evidence_without_degrading():
     assert result.degraded is False
 
 
+def test_all_insufficient_blocks_cannot_mark_evidence_complete():
+    _, result = _run(
+        {
+            "aspects": [
+                {
+                    "aspect_index": 0,
+                    "evidence": [{"candidate_index": 0, "role": "core"}],
+                }
+            ],
+            "answer_blocks": [
+                {
+                    "text": "现有材料没有说明该场景，无法确定。",
+                    "evidence_indexes": [],
+                    "kind": "insufficient",
+                }
+            ],
+        }
+    )
+
+    assert result.answer == "现有材料没有说明该场景，无法确定。"
+    assert result.pack.status == "missing"
+    assert result.pack.items == []
+    assert result.degraded is False
+
+
+def test_supported_label_cannot_turn_missing_mention_into_a_categorical_answer():
+    _, result = _run(
+        {
+            "aspects": [
+                {
+                    "aspect_index": 0,
+                    "evidence": [{"candidate_index": 0, "role": "core"}],
+                }
+            ],
+            "answer_blocks": [
+                {
+                    "text": "规则未提及停车费，因此停车费不可以抵扣。",
+                    "evidence_indexes": [0],
+                    "kind": "supported",
+                }
+            ],
+        }
+    )
+
+    assert result.answer == "当前材料不足，无法确定。"
+    assert result.pack.status == "missing"
+    assert result.pack.items == []
+    assert result.degraded is False
+
+
 def test_finalizer_failure_returns_decider_pack_without_inventing_answer():
     _, result = _run(RuntimeError("provider unavailable"))
     assert result.answer is None
