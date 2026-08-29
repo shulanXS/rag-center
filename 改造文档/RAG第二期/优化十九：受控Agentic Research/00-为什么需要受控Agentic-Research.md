@@ -112,6 +112,8 @@ Decider 组织证据并判断缺失要点
           生成带引用回答
 ```
 
+![单次检索与受控 Agentic Research 的双入口架构](https://pic.niumianoffer.com/images/fs/single-retrieve-vs-controlled-research.png)
+
 第一版固定限制为：
 
 | 控制项 | 上限 |
@@ -250,6 +252,8 @@ Research 不能只依赖“达到最大轮数”停止。每次执行后都要�
 | `degraded` | 模型或检索阶段异常，返回可用的已有结果 |
 
 停止原因既用于前端解释，也用于判断 Agent 是否真正受控。
+
+![Research 的控制闭环、停止原因与安全降级](https://pic.niumianoffer.com/images/fs/research-control-loop.png)
 
 ## 异常时应该返回什么
 

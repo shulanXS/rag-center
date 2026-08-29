@@ -54,6 +54,8 @@ Qwen3-Rerank 联合判断问题与每个片段
 返回 Top10
 ```
 
+![通用 LLM 生成式重排与 Qwen3 专用精排对比](https://pic.niumianoffer.com/images/fs/rerank-mechanism-comparison.png)
+
 各阶段分工如下：
 
 | 阶段 | 主要目标 | 默认数量 |
@@ -115,6 +117,8 @@ Context Precision 会综合评价 Top10 的内容质量，但不直接说明正�
 RAGAS 和统一运行器直接读取同一套 Golden Set、原始结果和实验配置，生成相同格式的报告。最终结论需要综合两个实验：先确认精排带来的质量与排序变化，再结合 LLM 重排和 Qwen3 精排的质量、延迟、稳定性与调用成本完成在线选型。
 
 20 道题的正式结果表明，Qwen3 相对不精排将 Context Recall 提升 5.0 个百分点、nDCG@10 提升 2.9 个百分点，Context Precision 下降 1.1 个百分点，P95 增加约 0.86 秒。它相对 LLM 重排的 Context Precision 低 5.1 个百分点，但 Recall 高 3.3 个百分点，并将 P95 从 79.7 秒降到 3.3 秒。Qwen3 没有让所有质量指标同时提升，但能够改善证据覆盖和整体排序，且速度、稳定性和规模化成本更适合在线 RAG 中台，因此保留为默认精排能力；LLM 重排只作为离线参照或低频高价值场景的可选能力。
+
+![从是否精排到在线模型选型的两级 A/B 证据链](https://pic.niumianoffer.com/images/fs/rerank-ab-evidence-chain.png)
 
 ## 完成升级后有什么变化
 
