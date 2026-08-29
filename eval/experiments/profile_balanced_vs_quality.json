@@ -5,11 +5,12 @@
   "target": "retrieve_profile",
   "changed_fields": [
     "profile",
-    "top_k",
     "retrieval_options.vector_top_k",
     "retrieval_options.bm25_top_k",
     "rerank_options.enabled",
-    "query_options.enabled"
+    "rerank_options.top_n",
+    "query_options.enabled",
+    "query_options.strategy"
   ],
   "dataset": "eval/datasets/golden_basic_20.json",
   "suite": "basic",
@@ -20,39 +21,11 @@
   "timeout_seconds": 120,
   "baseline": {
     "label": "balanced",
-    "profile": "balanced",
-    "top_k": 5,
-    "retrieval_options": {
-      "mode": "hybrid",
-      "vector_top_k": 10,
-      "bm25_top_k": 10,
-      "rrf_k": 60
-    },
-    "rerank_options": {"enabled": false, "top_n": 5},
-    "evidence_options": {"enabled": false},
-    "query_options": {
-      "enabled": false,
-      "strategy": "rewrite",
-      "synonym_enabled": false
-    }
+    "profile": "balanced"
   },
   "candidate": {
     "label": "quality",
-    "profile": "quality",
-    "top_k": 8,
-    "retrieval_options": {
-      "mode": "hybrid",
-      "vector_top_k": 20,
-      "bm25_top_k": 20,
-      "rrf_k": 60
-    },
-    "rerank_options": {"enabled": true, "top_n": 5},
-    "evidence_options": {"enabled": false},
-    "query_options": {
-      "enabled": true,
-      "strategy": "rewrite",
-      "synonym_enabled": false
-    }
+    "profile": "quality"
   },
   "decision": {
     "min_primary_improvement": 0.03,

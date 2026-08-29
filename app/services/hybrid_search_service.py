@@ -12,11 +12,11 @@ class HybridSearchService:
         rrf_k: int,
         top_n: int,
     ) -> list[dict]:
-        merged: dict[str, dict] = {}
+        merged: dict[tuple[str, str], dict] = {}
 
         for rank, chunk in enumerate(vector_chunks, start=1):
-            chunk_id = chunk["chunk_id"]
-            merged[chunk_id] = {
+            key = (str(chunk.get("kb_id") or ""), str(chunk["chunk_id"]))
+            merged[key] = {
                 **chunk,
                 "vector_score": chunk.get("score"),
                 "bm25_score": None,
@@ -25,10 +25,10 @@ class HybridSearchService:
             }
 
         for rank, chunk in enumerate(bm25_chunks, start=1):
-            chunk_id = chunk["chunk_id"]
-            existing = merged.get(chunk_id)
+            key = (str(chunk.get("kb_id") or ""), str(chunk["chunk_id"]))
+            existing = merged.get(key)
             if existing is None:
-                merged[chunk_id] = {
+                merged[key] = {
                     **chunk,
                     "vector_score": None,
                     "bm25_score": chunk.get("bm25_score"),
@@ -72,7 +72,19 @@ class HybridSearchService:
                 }
             )
 
-        fused.sort(key=lambda item: item["score"], reverse=True)
+        fused.sort(
+            key=lambda item: (
+                -item["score"],
+                -int(item["retrieval_source"] == "hybrid"),
+                min(
+                    rank
+                    for rank in (item.get("vector_rank"), item.get("bm25_rank"))
+                    if rank is not None
+                ),
+                str(item.get("kb_id") or ""),
+                str(item.get("chunk_id") or ""),
+            )
+        )
         results = fused[:top_n]
         logger.info(
             "RRF_FUSION_SUCCESS | vector_count=%s | bm25_count=%s | fused_count=%s | rrf_k=%s | top_n=%s",

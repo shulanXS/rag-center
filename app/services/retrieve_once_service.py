@@ -34,6 +34,7 @@ class RetrieveOnceBackend(Protocol):
         self,
         *,
         request: RetrieveRequest,
+        rerank_query: str,
         chunks: list[dict],
         top_k: int,
     ) -> tuple[list[dict], RetrieveRerankMetadata]: ...
@@ -41,9 +42,6 @@ class RetrieveOnceBackend(Protocol):
     def _get_retrieval_mode(self, request: RetrieveRequest) -> str: ...
 
     def _get_retrieval_candidate_k(self, request: RetrieveRequest, top_k: int) -> int: ...
-
-    def _get_per_kb_top_k(self, request: RetrieveRequest, candidate_k: int) -> int: ...
-
 
 @dataclass(slots=True)
 class RetrieveOnceResult:
@@ -88,8 +86,6 @@ class RetrieveOnceService:
         retrieval_mode = self.backend._get_retrieval_mode(request)
         top_k = request.top_k or settings.top_k
         retrieval_candidate_k = self.backend._get_retrieval_candidate_k(request, top_k)
-        per_kb_top_k = self.backend._get_per_kb_top_k(request, retrieval_candidate_k)
-
         try:
             chunks, retrieval_metadata = await self.backend._retrieve_multi_kb(
                 tenant_id=tenant_id,
@@ -98,7 +94,6 @@ class RetrieveOnceService:
                 search_query=search_query,
                 mode=retrieval_mode,
                 top_k=retrieval_candidate_k,
-                per_kb_top_k=per_kb_top_k,
                 index_versions=index_versions,
             )
             empty_reason = self.backend._resolve_empty_reason(
@@ -141,8 +136,15 @@ class RetrieveOnceService:
             )
 
         candidate_snapshot = [dict(chunk) for chunk in chunks]
+        query_options = request.query_options
+        rerank_query = (
+            search_query
+            if query_options and query_options.enabled and query_options.strategy == "rewrite"
+            else request.query
+        )
         chunks, rerank_metadata = await self.backend._maybe_rerank(
             request=request,
+            rerank_query=rerank_query,
             chunks=chunks,
             top_k=min(top_k, len(chunks)) if chunks else top_k,
         )

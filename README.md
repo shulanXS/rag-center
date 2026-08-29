@@ -158,6 +158,9 @@ npm run dev
 | `VECTOR_STORE` | 向量存储后端 | `pgvector` |
 | `KEYWORD_SEARCH_PROVIDER` | 关键词检索后端 | `elasticsearch` |
 | `ELASTICSEARCH_URL` | Elasticsearch 地址 | `http://localhost:9200` |
+| `EXTERNAL_HTTP_MAX_CONNECTIONS` | 单进程外部 HTTP 最大连接数 | `100` |
+| `EXTERNAL_HTTP_MAX_KEEPALIVE_CONNECTIONS` | 单进程外部 HTTP 保活连接数 | `20` |
+| `EXTERNAL_HTTP_KEEPALIVE_EXPIRY_SECONDS` | 外部 HTTP 保活连接有效期（秒） | `30` |
 | `RETRIEVAL_MODE` | 默认检索模式 | `vector` |
 | `TOP_K` | 默认返回条数 | `5` |
 | `CHUNK_SIZE` | 分块大小（字符） | `800` |
@@ -171,7 +174,6 @@ npm run dev
 | `QUERY_REWRITE_TIMEOUT_MS` | query 改写 LLM 超时（毫秒） | `2000` |
 | `CELERY_BROKER_URL` | Celery Broker（Redis） | `redis://localhost:6379/0` |
 | `CELERY_RESULT_BACKEND` | Celery 结果后端 | `redis://localhost:6379/1` |
-| `HYBRID_RRF_K` | 混合检索 RRF 参数 | `60` |
 
 完整配置见 [`.env.example`](.env.example)。
 

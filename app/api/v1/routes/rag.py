@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.api.v1.deps import get_current_tenant
 from app.core.auth import TenantContext
+from app.core.http_clients import ExternalHttpClients, get_external_http_clients
 from app.db.session import get_db
 from app.schemas.common import success_response
 from app.schemas.feedback import FeedbackRequest
@@ -20,8 +21,12 @@ async def retrieve(
     request: RetrieveRequest,
     db: Session = Depends(get_db),
     tenant: TenantContext = Depends(get_current_tenant),
+    http_clients: ExternalHttpClients = Depends(get_external_http_clients),
 ) -> dict:
-    data = await RagService(db).retrieve(tenant.tenant_id, request)
+    data = await RagService(db, http_clients=http_clients).retrieve(
+        tenant.tenant_id,
+        request,
+    )
     return success_response(data.model_dump(mode="json"))
 
 
@@ -30,6 +35,7 @@ async def research(
     request: ResearchRequest,
     db: Session = Depends(get_db),
     tenant: TenantContext = Depends(get_current_tenant),
+    http_clients: ExternalHttpClients = Depends(get_external_http_clients),
     x_eval_allow_supplement: bool | None = Header(
         default=None,
         alias="X-Eval-Allow-Supplement",
@@ -38,7 +44,7 @@ async def research(
 ) -> dict:
     # The hidden switch is consumed only by the offline A/B runner. Normal API
     # clients always execute the complete bounded Research flow.
-    service = ResearchService(db)
+    service = ResearchService(db, http_clients=http_clients)
     if x_eval_allow_supplement is False:
         data = await service.research(tenant.tenant_id, request, allow_supplement=False)
     else:

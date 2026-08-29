@@ -13,6 +13,7 @@ from eval.core.runner import (
     _assert_legacy_index,
     _build_payload,
     _contexts_from_chunks,
+    _experiment_snapshot,
     _retrieve_shared_candidates_bounded,
     _run_cases_bounded,
     _run_evidence_cases_bounded,
@@ -42,6 +43,21 @@ def _group() -> ExperimentGroup:
             "synonym_enabled": False,
         },
     )
+
+
+def test_named_profile_snapshot_can_be_reloaded():
+    experiment = load_experiment(
+        PROJECT_ROOT / "eval" / "experiments" / "opt20_v2_speed_vs_balanced_regression.json",
+        project_root=PROJECT_ROOT,
+    )
+
+    snapshot = _experiment_snapshot(experiment)
+
+    assert snapshot["baseline"]["profile"] == "speed"
+    assert snapshot["candidate"]["profile"] == "balanced"
+    assert "top_k" not in snapshot["baseline"]
+    assert "retrieval_options" not in snapshot["candidate"]
+    assert type(experiment).model_validate(snapshot) == experiment
 
 
 def test_payload_explicitly_locks_first_phase_index():

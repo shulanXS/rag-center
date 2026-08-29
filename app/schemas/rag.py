@@ -96,6 +96,9 @@ class TenantPolicyMetadata(BaseModel):
     effective_rerank: bool
     effective_evidence: bool
     effective_query_rewrite: bool
+    rerank_disabled_reason: str | None = None
+    evidence_disabled_reason: str | None = None
+    query_rewrite_disabled_reason: str | None = None
     max_kb_per_retrieve: int | None = None
     actual_kb_count: int | None = None
 

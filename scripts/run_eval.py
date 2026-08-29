@@ -7,6 +7,7 @@ import argparse
 import asyncio
 import json
 import os
+import shutil
 import sys
 from collections import Counter
 from collections.abc import Iterator
@@ -205,7 +206,19 @@ def _run(args: argparse.Namespace) -> int:
             )
         )
     print(f"检索完成：{run_dir}")
-    score_run_directory(run_dir, show_progress=not args.no_progress)
+    if experiment.baseline_run_dir:
+        source_dir = Path(experiment.baseline_run_dir)
+        if not source_dir.is_absolute():
+            source_dir = PROJECT_ROOT / source_dir
+        source_metrics = source_dir / f"{experiment.baseline_group}.metrics.json"
+        if not source_metrics.is_file():
+            raise EvaluationRunError(f"冻结 baseline metrics 不存在: {source_metrics}")
+        shutil.copyfile(source_metrics, run_dir / "baseline.metrics.json")
+    score_run_directory(
+        run_dir,
+        show_progress=not args.no_progress,
+        missing_only=bool(experiment.baseline_run_dir),
+    )
     print("评分完成")
     comparison = generate_report(run_dir)
     print(f"报告：{run_dir / 'report.md'}")

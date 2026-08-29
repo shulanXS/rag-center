@@ -48,7 +48,6 @@ const PARAM_TOOLTIPS = {
   mode: "vector：按语义相似度搜；bm25：按关键词字面匹配；hybrid：两路都搜再合并，中文文档一般更稳。",
   vector_top_k: "混合模式下，语义检索先捞多少条候选。越大覆盖面越广，速度会稍慢。",
   bm25_top_k: "混合模式下，关键词检索先捞多少条候选。适合含职级、专有名词等字面匹配的问题。",
-  rrf_k: "两路结果合并时的平滑系数。越大靠后名次的结果也有机会排上来；常用 60，一般不用常改。",
   rerank: "用专用精排模型对初筛结果重新打分排序；调试初始召回时可先关掉。",
   evidence: "从本次已有候选中选择并分组回答所需证据；不会改变检索结果，也不会生成答案。",
   query_rewrite:
@@ -152,7 +151,6 @@ function buildRetrievePayload(
       mode: form.mode,
       vector_top_k: form.vector_top_k,
       bm25_top_k: form.bm25_top_k,
-      rrf_k: form.rrf_k,
     };
   }
 
@@ -170,6 +168,7 @@ function buildRetrievePayload(
   payload.query_options = {
     enabled: queryRewriteEnabled,
     strategy: queryRewriteEnabled ? "rewrite" : "noop",
+    synonym_enabled: form.synonym_enabled,
   };
 
   return payload;
@@ -198,12 +197,12 @@ interface RetrieveForm {
   mode: RetrievalMode;
   vector_top_k: number;
   bm25_top_k: number;
-  rrf_k: number;
   rerank_enabled: boolean;
   rerank_top_n: number;
   evidence_enabled: boolean;
   evidence_max_items: number;
   query_rewrite_enabled: boolean;
+  synonym_enabled: boolean;
 }
 
 const defaultForm = (indexVersion = "v2"): RetrieveForm => ({
@@ -213,12 +212,12 @@ const defaultForm = (indexVersion = "v2"): RetrieveForm => ({
   mode: "hybrid",
   vector_top_k: 20,
   bm25_top_k: 20,
-  rrf_k: 60,
   rerank_enabled: false,
   rerank_top_n: 5,
   evidence_enabled: false,
   evidence_max_items: 8,
   query_rewrite_enabled: false,
+  synonym_enabled: false,
 });
 
 export function RetrievePage() {
@@ -692,16 +691,6 @@ export function RetrievePage() {
                       }
                     />
                   </InlineField>
-                  <InlineField label="rrf_k" htmlFor="retrieve-rrf-k" tooltip={PARAM_TOOLTIPS.rrf_k}>
-                    <Input
-                      id="retrieve-rrf-k"
-                      type="number"
-                      min={1}
-                      className="h-9 w-20"
-                      value={form.rrf_k}
-                      onChange={(event) => updateForm("rrf_k", Number(event.target.value))}
-                    />
-                  </InlineField>
                 </div>
               ) : null}
 
@@ -726,6 +715,16 @@ export function RetrievePage() {
                       onChange={(event) =>
                         updateForm("query_rewrite_enabled", event.target.checked)
                       }
+                    />
+                    启用
+                  </label>
+                </InlineField>
+                <InlineField label="同义词扩展">
+                  <label className="flex items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={form.synonym_enabled}
+                      onChange={(event) => updateForm("synonym_enabled", event.target.checked)}
                     />
                     启用
                   </label>
@@ -1605,18 +1604,27 @@ function RetrieveSummaryCard({ data }: { data: RetrieveData }) {
                 rerank：
                 <span className="text-foreground">
                   {tenantPolicy.effective_rerank ? "已启用" : "未启用"}
+                  {tenantPolicy.rerank_disabled_reason
+                    ? `（${tenantPolicy.rerank_disabled_reason}）`
+                    : ""}
                 </span>
               </p>
               <p>
                 证据编排：
                 <span className="text-foreground">
                   {tenantPolicy.effective_evidence ? "已启用" : "未启用"}
+                  {tenantPolicy.evidence_disabled_reason
+                    ? `（${tenantPolicy.evidence_disabled_reason}）`
+                    : ""}
                 </span>
               </p>
               <p>
                 query 改写：
                 <span className="text-foreground">
                   {tenantPolicy.effective_query_rewrite ? "已启用" : "未启用"}
+                  {tenantPolicy.query_rewrite_disabled_reason
+                    ? `（${tenantPolicy.query_rewrite_disabled_reason}）`
+                    : ""}
                 </span>
               </p>
               {tenantPolicy.max_kb_per_retrieve != null ? (
@@ -1684,14 +1692,32 @@ function RetrieveSummaryCard({ data }: { data: RetrieveData }) {
         ) : null}
 
         {retrieval ? (
-          <div className="flex flex-wrap gap-2 text-muted-foreground">
-            {retrieval.vector_count != null ? <span>vector: {retrieval.vector_count}</span> : null}
-            {retrieval.bm25_count != null ? <span>bm25: {retrieval.bm25_count}</span> : null}
-            {retrieval.fused_count != null ? <span>fused: {retrieval.fused_count}</span> : null}
-            {retrieval.keyword_search ? (
-              <span>keyword_search: {retrieval.keyword_search}</span>
-            ) : null}
-            {retrieval.cost_ms != null ? <span>召回耗时: {retrieval.cost_ms} ms</span> : null}
+          <div className="rounded-md border border-border bg-muted/40 p-3">
+            <div className="mb-1 font-medium">实际召回配置</div>
+            <div className="flex flex-wrap gap-2 text-muted-foreground">
+              {retrieval.vector_top_k != null ? <span>Vector Top{retrieval.vector_top_k}</span> : null}
+              {retrieval.bm25_top_k != null ? <span>BM25 Top{retrieval.bm25_top_k}</span> : null}
+              {retrieval.fusion ? (
+                <span>{retrieval.fusion_scope === "global" ? "全局 " : ""}{retrieval.fusion} / rrf_k={retrieval.rrf_k}</span>
+              ) : null}
+              {retrieval.vector_count != null ? <span>vector: {retrieval.vector_count}</span> : null}
+              {retrieval.bm25_count != null ? <span>bm25: {retrieval.bm25_count}</span> : null}
+              {retrieval.fused_count != null ? <span>fused: {retrieval.fused_count}</span> : null}
+              {retrieval.embedding_request_count != null ? (
+                <span>Embedding调用: {retrieval.embedding_request_count}</span>
+              ) : null}
+              {retrieval.vector_request_count != null ? (
+                <span>Vector调用: {retrieval.vector_request_count}</span>
+              ) : null}
+              {retrieval.bm25_request_count != null ? (
+                <span>BM25调用: {retrieval.bm25_request_count}</span>
+              ) : null}
+              {retrieval.hybrid_latency_ms != null ? (
+                <span>Hybrid墙钟耗时: {retrieval.hybrid_latency_ms} ms</span>
+              ) : retrieval.cost_ms != null ? (
+                <span>召回耗时: {retrieval.cost_ms} ms</span>
+              ) : null}
+            </div>
           </div>
         ) : null}
 

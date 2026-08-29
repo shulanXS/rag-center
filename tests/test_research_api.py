@@ -42,10 +42,12 @@ def test_research_request_rejects_limits_and_external_tool_controls(field, value
 
 def test_research_route_uses_dedicated_service(monkeypatch):
     expected = SimpleNamespace(model_dump=lambda **kwargs: {"query": "问题"})
+    clients = SimpleNamespace()
 
     class FakeService:
-        def __init__(self, db):
+        def __init__(self, db, *, http_clients):
             self.db = db
+            assert http_clients is clients
 
         async def research(self, tenant_id, request):
             assert tenant_id == "tenant"
@@ -58,6 +60,7 @@ def test_research_route_uses_dedicated_service(monkeypatch):
             ResearchRequest(kb_id="kb", user_id="user", query="问题"),
             db=SimpleNamespace(),
             tenant=SimpleNamespace(tenant_id="tenant"),
+            http_clients=clients,
         )
     )
     assert response["code"] == 0

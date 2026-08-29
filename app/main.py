@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Request
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
@@ -5,6 +7,7 @@ from fastapi.responses import JSONResponse
 
 from app.api.v1.router import api_router
 from app.core.exceptions import AppError, ErrorCode
+from app.core.http_clients import build_external_http_clients
 from app.core.logging import configure_logging, get_logger
 from app.core.middleware import request_response_log_middleware
 from app.schemas.common import error_response
@@ -12,7 +15,18 @@ from app.schemas.common import error_response
 configure_logging()
 logger = get_logger(__name__)
 
-app = FastAPI(title="RAG Center", version="0.1.0")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    clients = build_external_http_clients()
+    app.state.external_http_clients = clients
+    try:
+        yield
+    finally:
+        await clients.aclose()
+
+
+app = FastAPI(title="RAG Center", version="0.1.0", lifespan=lifespan)
 app.middleware("http")(request_response_log_middleware)
 app.include_router(api_router)
 

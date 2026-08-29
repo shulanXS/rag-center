@@ -2,6 +2,7 @@ import asyncio
 from types import SimpleNamespace
 
 from app.schemas.rag import (
+    QueryOptions,
     RetrieveContextMetadata,
     RetrieveGraphInjectionMetadata,
     RetrieveRequest,
@@ -25,6 +26,7 @@ def _chunk(chunk_id: str = "chunk-1") -> dict:
 class FakeBackend:
     def __init__(self):
         self.calls: list[str] = []
+        self.rerank_query: str | None = None
         self.graph_candidate_expansion_service = SimpleNamespace(expand_candidates=self._graph)
         self.context_expansion_service = SimpleNamespace(expand=self._context)
 
@@ -32,9 +34,6 @@ class FakeBackend:
         return "hybrid"
 
     def _get_retrieval_candidate_k(self, request, top_k):
-        return 20
-
-    def _get_per_kb_top_k(self, request, candidate_k):
         return 20
 
     async def _retrieve_multi_kb(self, **kwargs):
@@ -51,8 +50,9 @@ class FakeBackend:
             metadata=RetrieveGraphInjectionMetadata(executed=True, candidate_count=1),
         )
 
-    async def _maybe_rerank(self, *, request, chunks, top_k):
+    async def _maybe_rerank(self, *, request, rerank_query, chunks, top_k):
         self.calls.append("rerank")
+        self.rerank_query = rerank_query
         return chunks[:top_k], RetrieveRerankMetadata(
             enabled=True,
             provider="fake",
@@ -75,6 +75,7 @@ def test_retrieve_once_runs_shared_pipeline_without_orchestration_side_effects()
         query="raw question",
         profile="quality",
         top_k=5,
+        query_options=QueryOptions(enabled=True, strategy="rewrite"),
     )
     result = asyncio.run(
         RetrieveOnceService(backend).execute(
@@ -90,6 +91,7 @@ def test_retrieve_once_runs_shared_pipeline_without_orchestration_side_effects()
     )
 
     assert backend.calls == ["retrieve", "graph", "rerank", "context"]
+    assert backend.rerank_query == "planned query"
     assert result.query == "planned query"
     assert result.query_id == "Q1"
     assert result.aspect_ids == ["A1"]
@@ -97,3 +99,29 @@ def test_retrieve_once_runs_shared_pipeline_without_orchestration_side_effects()
     assert result.candidate_snapshot[0]["chunk_id"] == "chunk-1"
     assert result.retrieved_chunks[0]["chunk_id"] == "chunk-1"
     assert result.degraded is False
+
+
+def test_retrieve_once_keeps_raw_rerank_query_when_rewrite_is_disabled():
+    backend = FakeBackend()
+    request = RetrieveRequest(
+        kb_id="kb",
+        user_id="user",
+        query="raw research question",
+        profile="quality",
+        top_k=5,
+        query_options=QueryOptions(enabled=False, strategy="noop"),
+    )
+
+    asyncio.run(
+        RetrieveOnceService(backend).execute(
+            tenant_id="tenant",
+            request=request,
+            knowledge_bases=[SimpleNamespace(id="kb", name="KB")],
+            index_versions={"kb": "v2"},
+            search_query="planned research query",
+            graph_injection=False,
+            expand_context=False,
+        )
+    )
+
+    assert backend.rerank_query == "raw research question"

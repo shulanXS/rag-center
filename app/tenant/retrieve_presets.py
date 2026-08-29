@@ -5,6 +5,8 @@ from typing import Any
 
 from app.tenant.plan_presets import RetrieveProfileName
 
+FIXED_RRF_K = 60
+
 
 @dataclass(frozen=True, slots=True)
 class RetrieveProfilePreset:
@@ -19,11 +21,15 @@ class RetrieveProfilePreset:
 
 RETRIEVE_PROFILE_PRESETS: dict[RetrieveProfileName, RetrieveProfilePreset | None] = {
     "speed": RetrieveProfilePreset(
-        top_k=3,
-        retrieval_options={"mode": "vector"},
+        top_k=5,
+        retrieval_options={
+            "mode": "vector",
+            "vector_top_k": 10,
+            "rrf_k": FIXED_RRF_K,
+        },
         rerank_options={"enabled": False},
         evidence_options={"enabled": False},
-        query_options={"enabled": False, "strategy": "noop"},
+        query_options={"enabled": False, "strategy": "noop", "synonym_enabled": False},
     ),
     "balanced": RetrieveProfilePreset(
         top_k=5,
@@ -31,21 +37,23 @@ RETRIEVE_PROFILE_PRESETS: dict[RetrieveProfileName, RetrieveProfilePreset | None
             "mode": "hybrid",
             "vector_top_k": 10,
             "bm25_top_k": 10,
+            "rrf_k": FIXED_RRF_K,
         },
         rerank_options={"enabled": False},
         evidence_options={"enabled": False},
-        query_options={"enabled": False, "strategy": "noop"},
+        query_options={"enabled": False, "strategy": "noop", "synonym_enabled": False},
     ),
     "quality": RetrieveProfilePreset(
-        top_k=8,
+        top_k=5,
         retrieval_options={
             "mode": "hybrid",
             "vector_top_k": 20,
             "bm25_top_k": 20,
+            "rrf_k": FIXED_RRF_K,
         },
-        rerank_options={"enabled": True},
+        rerank_options={"enabled": True, "top_n": 5},
         evidence_options={"enabled": False},
-        query_options={"enabled": True, "strategy": "rewrite"},
+        query_options={"enabled": True, "strategy": "rewrite", "synonym_enabled": False},
     ),
     "custom": None,
 }

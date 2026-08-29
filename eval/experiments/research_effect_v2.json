@@ -14,7 +14,7 @@
   "baseline": {
     "label": "v2 + 单次检索 + Qwen3精排 + 普通证据包",
     "index_version": "v2",
-    "profile": "quality",
+    "profile": "custom",
     "top_k": 10,
     "retrieval_options": {
       "mode": "hybrid",
@@ -35,7 +35,7 @@
   "candidate": {
     "label": "v2 + Controlled Agentic Research",
     "index_version": "v2",
-    "profile": "quality",
+    "profile": "custom",
     "top_k": 10,
     "retrieval_options": {
       "mode": "hybrid",

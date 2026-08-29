@@ -1,5 +1,7 @@
 import json
 import time
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from typing import Literal
 
 import httpx
@@ -17,12 +19,22 @@ class OpenAICompatibleLLMProvider(LLMProvider):
         api_key: str = settings.llm_api_key,
         model: str = settings.llm_model,
         timeout_seconds: int = settings.llm_timeout_seconds,
+        client: httpx.AsyncClient | None = None,
     ) -> None:
         self.base_url = base_url.rstrip("/")
         self.api_key = api_key
         self.model = model
         self.timeout_seconds = timeout_seconds
+        self.client = client
         self.last_usage: dict = {}
+
+    @asynccontextmanager
+    async def _client(self) -> AsyncIterator[httpx.AsyncClient]:
+        if self.client is not None:
+            yield self.client
+            return
+        async with httpx.AsyncClient(timeout=self.timeout_seconds) as client:
+            yield client
 
     async def chat_json(
         self,
@@ -73,11 +85,13 @@ class OpenAICompatibleLLMProvider(LLMProvider):
         )
 
         try:
-            async with httpx.AsyncClient(timeout=timeout_seconds or self.timeout_seconds) as client:
+            request_timeout = timeout_seconds or self.timeout_seconds
+            async with self._client() as client:
                 response = await client.post(
                     f"{self.base_url}/chat/completions",
                     json=payload,
                     headers=headers,
+                    timeout=request_timeout,
                 )
                 response.raise_for_status()
         except httpx.HTTPError as exc:

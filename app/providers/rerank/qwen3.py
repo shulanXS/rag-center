@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import math
 import time
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from typing import Any
 
 import httpx
@@ -13,7 +15,11 @@ from app.providers.rerank.base import RerankProvider, RerankProviderError
 logger = get_logger(__name__)
 
 QWEN3_RERANK_INSTRUCT = (
-    "Given a question, retrieve passages that contain evidence needed to answer the question."
+    "根据用户问题对候选片段进行严格相关性排序。"
+    "只提高能够直接回答问题、提供明确规则、条件、时间、金额或结论的片段。"
+    "仅主题相似、只提供背景信息、需要推测才能关联的片段应降低排名。"
+    "对于包含多个子问题的查询，优先覆盖所有子问题。"
+    "重复或信息高度重叠的片段应降低排名。"
 )
 QWEN3_RERANK_MAX_CANDIDATES = 50
 QWEN3_RERANK_CHUNK_MAX_CHARS = 1024
@@ -33,6 +39,7 @@ class Qwen3RerankProvider(RerankProvider):
         max_candidates: int = QWEN3_RERANK_MAX_CANDIDATES,
         chunk_max_chars: int = QWEN3_RERANK_CHUNK_MAX_CHARS,
         transport: httpx.AsyncBaseTransport | None = None,
+        client: httpx.AsyncClient | None = None,
     ) -> None:
         self.base_url = base_url.rstrip("/")
         self.api_key = (
@@ -44,7 +51,19 @@ class Qwen3RerankProvider(RerankProvider):
         self.max_candidates = max_candidates
         self.chunk_max_chars = chunk_max_chars
         self.transport = transport
+        self.client = client
         self.last_usage: dict[str, Any] = {}
+
+    @asynccontextmanager
+    async def _client(self) -> AsyncIterator[httpx.AsyncClient]:
+        if self.client is not None:
+            yield self.client
+            return
+        async with httpx.AsyncClient(
+            timeout=self.timeout_seconds,
+            transport=self.transport,
+        ) as client:
+            yield client
 
     async def rerank(
         self,
@@ -85,14 +104,12 @@ class Qwen3RerankProvider(RerankProvider):
         )
 
         try:
-            async with httpx.AsyncClient(
-                timeout=self.timeout_seconds,
-                transport=self.transport,
-            ) as client:
+            async with self._client() as client:
                 response = await client.post(
                     f"{self.base_url}/reranks",
                     json=payload,
                     headers=headers,
+                    timeout=self.timeout_seconds,
                 )
                 response.raise_for_status()
         except httpx.TimeoutException as exc:

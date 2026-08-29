@@ -3,7 +3,12 @@
   "experiment_id": "profile_speed_vs_balanced",
   "title": "Speed 与 Balanced Profile 对比实验",
   "target": "retrieve_profile",
-  "changed_fields": ["profile", "top_k", "retrieval_options.mode"],
+  "changed_fields": [
+    "profile",
+    "top_k",
+    "retrieval_options.mode",
+    "retrieval_options.bm25_top_k"
+  ],
   "dataset": "eval/datasets/golden_basic_20.json",
   "suite": "basic",
   "primary_metric": "context_recall",
@@ -13,39 +18,11 @@
   "timeout_seconds": 120,
   "baseline": {
     "label": "speed",
-    "profile": "speed",
-    "top_k": 3,
-    "retrieval_options": {
-      "mode": "vector",
-      "vector_top_k": 10,
-      "bm25_top_k": 10,
-      "rrf_k": 60
-    },
-    "rerank_options": {"enabled": false, "top_n": 5},
-    "evidence_options": {"enabled": false},
-    "query_options": {
-      "enabled": false,
-      "strategy": "noop",
-      "synonym_enabled": false
-    }
+    "profile": "speed"
   },
   "candidate": {
     "label": "balanced",
-    "profile": "balanced",
-    "top_k": 5,
-    "retrieval_options": {
-      "mode": "hybrid",
-      "vector_top_k": 10,
-      "bm25_top_k": 10,
-      "rrf_k": 60
-    },
-    "rerank_options": {"enabled": false, "top_n": 5},
-    "evidence_options": {"enabled": false},
-    "query_options": {
-      "enabled": false,
-      "strategy": "noop",
-      "synonym_enabled": false
-    }
+    "profile": "balanced"
   },
   "decision": {
     "min_primary_improvement": 0.03,

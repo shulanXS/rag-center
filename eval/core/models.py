@@ -4,6 +4,8 @@ from typing import Any, Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from app.tenant.retrieve_presets import RETRIEVE_PROFILE_PRESETS
+
 CaseType = Literal[
     "direct_fact",
     "paraphrase",
@@ -145,6 +147,38 @@ class ExperimentGroup(StrictModel):
     rerank_provider: EvalRerankProvider | None = None
     execution_mode: EvalExecutionMode = "retrieve"
 
+    @model_validator(mode="before")
+    @classmethod
+    def resolve_named_profile(cls, value: Any) -> Any:
+        if not isinstance(value, dict):
+            return value
+        profile = value.get("profile", "custom")
+        if profile not in {"speed", "balanced", "quality"}:
+            return value
+        advanced_fields = {
+            "top_k",
+            "retrieval_options",
+            "rerank_options",
+            "evidence_options",
+            "query_options",
+        }
+        conflicts = sorted(advanced_fields & set(value))
+        if conflicts:
+            raise ValueError(
+                "命名评测档位只声明 profile，不能复制高级参数: "
+                + ", ".join(conflicts)
+            )
+        preset = RETRIEVE_PROFILE_PRESETS[profile]
+        assert preset is not None
+        return {
+            **value,
+            "top_k": preset.top_k,
+            "retrieval_options": dict(preset.retrieval_options or {}),
+            "rerank_options": dict(preset.rerank_options or {}),
+            "evidence_options": dict(preset.evidence_options or {}),
+            "query_options": dict(preset.query_options or {}),
+        }
+
     def comparable_config(self) -> dict[str, Any]:
         return self.model_dump(exclude={"label"}, exclude_none=True)
 
@@ -170,7 +204,7 @@ class ExperimentConfig(StrictModel):
     experiment_id: str = Field(pattern=r"^[a-z0-9_]+$")
     title: str
     target: str
-    changed_fields: list[str] = Field(min_length=1)
+    changed_fields: list[str] = Field(default_factory=list)
     dataset: str
     suite: str
     primary_metric: Literal["context_precision", "context_recall"]
@@ -179,12 +213,16 @@ class ExperimentConfig(StrictModel):
     warmup_cases: int = Field(default=0, ge=0, le=10)
     timeout_seconds: float = Field(default=120, gt=0, le=600)
     shared_candidate_top_k: int | None = Field(default=None, ge=1, le=50)
+    baseline_run_dir: str | None = None
+    baseline_group: Literal["baseline", "candidate"] = "baseline"
     baseline: ExperimentGroup
     candidate: ExperimentGroup
     decision: DecisionRules = Field(default_factory=DecisionRules)
 
     @model_validator(mode="after")
     def validate_group_differences(self) -> Self:
+        if not self.changed_fields and self.baseline_run_dir is None:
+            raise ValueError("非冻结基线实验必须声明 changed_fields")
         actual = diff_paths(
             self.baseline.comparable_config(),
             self.candidate.comparable_config(),
@@ -200,6 +238,9 @@ class ExperimentConfig(StrictModel):
             raise ValueError(
                 "changed_fields 中的字段实际没有变化: " + ", ".join(sorted(unchanged))
             )
+
+        if self.baseline_run_dir is not None and actual:
+            raise ValueError("冻结基线实验的 baseline/candidate 配置必须完全相同")
 
         providers = (
             self.baseline.rerank_provider,

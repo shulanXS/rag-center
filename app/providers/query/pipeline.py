@@ -1,4 +1,5 @@
 from app.core.config import settings
+from app.providers.llm.base import LLMProvider
 from app.providers.query.base import KnowledgeBaseQueryContext, QueryProcessResult
 from app.providers.query.llm_rewrite import LLMRewriteQueryProcessor
 from app.providers.query.noop import NoopQueryProcessor
@@ -7,9 +8,9 @@ from app.schemas.rag import QueryOptions
 
 
 class QueryProcessorPipeline:
-    def __init__(self) -> None:
+    def __init__(self, *, llm_provider: LLMProvider | None = None) -> None:
         self.noop_processor = NoopQueryProcessor()
-        self.rewrite_processor = LLMRewriteQueryProcessor()
+        self.rewrite_processor = LLMRewriteQueryProcessor(llm_provider)
 
     async def process(
         self,

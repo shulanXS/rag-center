@@ -1,4 +1,6 @@
 import time
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 
 import httpx
 
@@ -18,6 +20,7 @@ class OpenAICompatibleEmbeddingProvider(EmbeddingProvider):
         dimensions: int = settings.embedding_dimensions,
         batch_size: int = settings.embedding_batch_size,
         timeout: float = 60.0,
+        client: httpx.AsyncClient | None = None,
     ) -> None:
         self.base_url = base_url.rstrip("/")
         self.api_key = api_key
@@ -25,6 +28,15 @@ class OpenAICompatibleEmbeddingProvider(EmbeddingProvider):
         self.dimensions = dimensions
         self.batch_size = batch_size
         self.timeout = timeout
+        self.client = client
+
+    @asynccontextmanager
+    async def _client(self) -> AsyncIterator[httpx.AsyncClient]:
+        if self.client is not None:
+            yield self.client
+            return
+        async with httpx.AsyncClient(timeout=self.timeout) as client:
+            yield client
 
     async def embed_texts(self, texts: list[str]) -> list[list[float]]:
         if not texts:
@@ -85,11 +97,12 @@ class OpenAICompatibleEmbeddingProvider(EmbeddingProvider):
         )
 
         try:
-            async with httpx.AsyncClient(timeout=self.timeout) as client:
+            async with self._client() as client:
                 response = await client.post(
                     f"{self.base_url}/embeddings",
                     json=payload,
                     headers=headers,
+                    timeout=self.timeout,
                 )
                 response.raise_for_status()
         except httpx.HTTPError as exc:

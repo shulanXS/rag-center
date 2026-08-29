@@ -31,7 +31,13 @@ class Settings(BaseSettings):
     elasticsearch_index: str = "rag_chunks"
     elasticsearch_timeout_seconds: int = Field(default=30, ge=1)
 
+    external_http_max_connections: int = Field(default=100, ge=1)
+    external_http_max_keepalive_connections: int = Field(default=20, ge=0)
+    external_http_keepalive_expiry_seconds: float = Field(default=30.0, ge=0)
+
     retrieval_mode: str = "vector"
+    # Deprecated deployment keys retained so existing .env files still load.
+    # Retrieval always uses RRF with FIXED_RRF_K and profile-defined candidate widths.
     hybrid_fusion: str = "rrf"
     hybrid_rrf_k: int = Field(default=60, ge=1)
     hybrid_vector_top_k: int = Field(default=20, ge=1, le=50)

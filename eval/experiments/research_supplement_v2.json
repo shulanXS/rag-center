@@ -14,7 +14,7 @@
   "baseline": {
     "label": "v2 + 查询分解 + 首轮并行检索（禁止补证）",
     "index_version": "v2",
-    "profile": "quality",
+    "profile": "custom",
     "top_k": 10,
     "retrieval_options": {
       "mode": "hybrid",
@@ -35,7 +35,7 @@
   "candidate": {
     "label": "v2 + 查询分解 + 一次定向补证",
     "index_version": "v2",
-    "profile": "quality",
+    "profile": "custom",
     "top_k": 10,
     "retrieval_options": {
       "mode": "hybrid",

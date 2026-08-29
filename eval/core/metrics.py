@@ -28,15 +28,24 @@ def score_run_directory(
     *,
     show_progress: bool = True,
     missing_only: bool = False,
+    groups: tuple[str, ...] | None = None,
 ) -> dict[str, Any]:
     from eval.core.models import ExperimentConfig
 
     experiment = ExperimentConfig.model_validate(
         _read_json(run_dir / "experiment.snapshot.json")
     )
+    if groups is None:
+        groups = (
+            ("baseline", "candidate")
+            if missing_only
+            or not experiment.baseline_run_dir
+            or not (run_dir / "baseline.metrics.json").is_file()
+            else ("candidate",)
+        )
     rows_by_group = {
         group_name: _read_jsonl(run_dir / f"{group_name}.raw.jsonl")
-        for group_name in ("baseline", "candidate")
+        for group_name in groups
     }
     all_rows = [row for rows in rows_by_group.values() for row in rows]
     existing_cache = (

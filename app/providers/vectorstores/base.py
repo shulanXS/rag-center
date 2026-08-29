@@ -19,6 +19,17 @@ class VectorStore(ABC):
         pass
 
     @abstractmethod
+    async def similarity_search_scope(
+        self,
+        query_vector: list[float],
+        *,
+        tenant_id: str,
+        index_versions: dict[str, str],
+        top_k: int = 5,
+    ) -> list[dict]:
+        pass
+
+    @abstractmethod
     async def delete_by_document_id(
         self, document_id: str, *, index_version: str | None = None
     ) -> None:

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from app.core.config import settings
 from app.core.exceptions import AppError, ErrorCode
+from app.core.logging import get_logger
 from app.schemas.rag import (
     EvidenceOptions,
     QueryOptions,
@@ -12,7 +13,16 @@ from app.schemas.rag import (
 )
 from app.tenant.plan_presets import DEFAULT_RETRIEVE_PROFILE, RetrieveProfileName
 from app.tenant.plan_resolver import PlanContext
-from app.tenant.retrieve_presets import RETRIEVE_PROFILE_PRESETS
+from app.tenant.retrieve_presets import FIXED_RRF_K, RETRIEVE_PROFILE_PRESETS
+
+logger = get_logger(__name__)
+NAMED_PROFILE_OVERRIDE_FIELDS = (
+    "top_k",
+    "retrieval_options",
+    "rerank_options",
+    "evidence_options",
+    "query_options",
+)
 
 
 def resolve_retrieve_request(
@@ -29,9 +39,18 @@ def resolve_retrieve_request(
         )
 
     if profile == "custom":
-        top_k = request.top_k or settings.top_k
+        top_k = request.top_k if request.top_k is not None else settings.top_k
         retrieval_options = request.retrieval_options or RetrievalOptions(
             mode=settings.retrieval_mode,
+        )
+        if retrieval_options.rrf_k is not None:
+            logger.warning(
+                "RETRIEVE_RRF_K_DEPRECATED | requested_rrf_k=%s | effective_rrf_k=%s",
+                retrieval_options.rrf_k,
+                FIXED_RRF_K,
+            )
+        retrieval_options = retrieval_options.model_copy(
+            update={"rrf_k": FIXED_RRF_K}
         )
         rerank_options = request.rerank_options or RerankOptions(
             enabled=settings.rerank_enabled,
@@ -42,19 +61,34 @@ def resolve_retrieve_request(
         query_options = request.query_options or QueryOptions(
             enabled=settings.query_rewrite_enabled,
             strategy="rewrite" if settings.query_rewrite_enabled else "noop",
+            synonym_enabled=False,
         )
     else:
+        conflicting_fields = [
+            field
+            for field in NAMED_PROFILE_OVERRIDE_FIELDS
+            if field in request.model_fields_set
+        ]
+        if conflicting_fields:
+            raise AppError(
+                ErrorCode.PARAM_ERROR,
+                msg="命名检索档位不允许覆盖高级参数，请使用 custom",
+                data={
+                    "profile": profile,
+                    "conflicting_fields": conflicting_fields,
+                },
+                context={
+                    "profile": profile,
+                    "conflicting_fields": conflicting_fields,
+                },
+            )
         preset = RETRIEVE_PROFILE_PRESETS[profile]
         assert preset is not None
-        top_k = request.top_k or preset.top_k or settings.top_k
-        retrieval_options = _build_retrieval_options(
-            preset.retrieval_options, request.retrieval_options
-        )
-        rerank_options = _build_rerank_options(preset.rerank_options, request.rerank_options)
-        evidence_options = _build_evidence_options(
-            preset.evidence_options, request.evidence_options
-        )
-        query_options = _build_query_options(preset.query_options, request.query_options)
+        top_k = preset.top_k or settings.top_k
+        retrieval_options = RetrievalOptions(**(preset.retrieval_options or {}))
+        rerank_options = RerankOptions(**(preset.rerank_options or {}))
+        evidence_options = EvidenceOptions(**(preset.evidence_options or {}))
+        query_options = QueryOptions(**(preset.query_options or {}))
 
     _validate_plan_ceiling(
         plan_context,
@@ -81,9 +115,12 @@ def resolve_retrieve_request(
             },
         )
 
-    effective_rerank = _effective_rerank_enabled(rerank_options)
-    effective_evidence = _effective_evidence_enabled(evidence_options)
-    effective_query_rewrite = _effective_query_rewrite_enabled(query_options)
+    requested_rerank = _requested_rerank_enabled(rerank_options)
+    requested_evidence = _requested_evidence_enabled(evidence_options)
+    requested_query_rewrite = _requested_query_rewrite_enabled(query_options)
+    effective_rerank = requested_rerank and settings.rerank_enabled
+    effective_evidence = requested_evidence and settings.evidence_enabled
+    effective_query_rewrite = requested_query_rewrite and settings.query_rewrite_enabled
 
     rerank_options = RerankOptions(
         enabled=effective_rerank,
@@ -117,54 +154,21 @@ def resolve_retrieve_request(
         effective_rerank=effective_rerank,
         effective_evidence=effective_evidence,
         effective_query_rewrite=effective_query_rewrite,
+        rerank_disabled_reason=(
+            "disabled_by_system" if requested_rerank and not effective_rerank else None
+        ),
+        evidence_disabled_reason=(
+            "disabled_by_system" if requested_evidence and not effective_evidence else None
+        ),
+        query_rewrite_disabled_reason=(
+            "disabled_by_system"
+            if requested_query_rewrite and not effective_query_rewrite
+            else None
+        ),
         max_kb_per_retrieve=plan_context.limits.max_kb_per_retrieve,
         actual_kb_count=len(kb_ids),
     )
     return resolved, tenant_policy
-
-
-def _build_retrieval_options(
-    preset: dict | None,
-    override: RetrievalOptions | None,
-) -> RetrievalOptions:
-    base = preset or {}
-    if override is None:
-        return RetrievalOptions(**base)
-    merged = {**base, **override.model_dump(exclude_none=True)}
-    return RetrievalOptions(**merged)
-
-
-def _build_rerank_options(
-    preset: dict | None,
-    override: RerankOptions | None,
-) -> RerankOptions:
-    base = preset or {}
-    if override is None:
-        return RerankOptions(**base)
-    merged = {**base, **override.model_dump(exclude_none=True)}
-    return RerankOptions(**merged)
-
-
-def _build_evidence_options(
-    preset: dict | None,
-    override: EvidenceOptions | None,
-) -> EvidenceOptions:
-    base = preset or {}
-    if override is None:
-        return EvidenceOptions(**base)
-    merged = {**base, **override.model_dump(exclude_none=True)}
-    return EvidenceOptions(**merged)
-
-
-def _build_query_options(
-    preset: dict | None,
-    override: QueryOptions | None,
-) -> QueryOptions:
-    base = preset or {}
-    if override is None:
-        return QueryOptions(**base)
-    merged = {**base, **override.model_dump(exclude_none=True)}
-    return QueryOptions(**merged)
 
 
 def _validate_plan_ceiling(
@@ -231,21 +235,3 @@ def _requested_evidence_enabled(evidence_options: EvidenceOptions) -> bool:
     if evidence_options.enabled is not None:
         return evidence_options.enabled
     return settings.evidence_enabled
-
-
-def _effective_rerank_enabled(rerank_options: RerankOptions) -> bool:
-    if not _requested_rerank_enabled(rerank_options):
-        return False
-    return settings.rerank_enabled
-
-
-def _effective_evidence_enabled(evidence_options: EvidenceOptions) -> bool:
-    if not _requested_evidence_enabled(evidence_options):
-        return False
-    return settings.evidence_enabled
-
-
-def _effective_query_rewrite_enabled(query_options: QueryOptions) -> bool:
-    if not _requested_query_rewrite_enabled(query_options):
-        return False
-    return settings.query_rewrite_enabled

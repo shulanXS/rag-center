@@ -192,7 +192,10 @@ def test_qwen3_clamps_scores_and_keeps_input_order_on_ties() -> None:
 
 
 def test_rag_service_records_qwen3_metadata(monkeypatch) -> None:
+    captured = {}
+
     def handler(request: httpx.Request) -> httpx.Response:
+        captured.update(__import__("json").loads(request.content))
         return httpx.Response(200, json={"results": [{"index": 1, "relevance_score": 0.9}]})
 
     service = RagService(MagicMock())
@@ -209,12 +212,14 @@ def test_rag_service_records_qwen3_metadata(monkeypatch) -> None:
     chunks, metadata = asyncio.run(
         service._maybe_rerank(
             request=request,
+            rerank_query="改写后的问题",
             chunks=[_chunk("a"), _chunk("b")],
             top_k=2,
         )
     )
 
     assert chunks[0]["chunk_id"] == "b"
+    assert captured["query"] == "改写后的问题"
     assert metadata.provider == "qwen3"
     assert metadata.model == "qwen3-rerank"
     assert metadata.candidate_count == 2
@@ -241,6 +246,7 @@ def test_rag_service_degrades_on_qwen3_failure(monkeypatch) -> None:
     chunks, metadata = asyncio.run(
         service._maybe_rerank(
             request=request,
+            rerank_query="改写后的问题",
             chunks=[_chunk("a"), _chunk("b")],
             top_k=2,
         )

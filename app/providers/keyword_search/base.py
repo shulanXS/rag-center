@@ -21,6 +21,17 @@ class KeywordSearchProvider(ABC):
         pass
 
     @abstractmethod
+    async def keyword_search_scope(
+        self,
+        *,
+        query: str,
+        tenant_id: str,
+        index_versions: dict[str, str],
+        top_k: int = 20,
+    ) -> list[dict]:
+        pass
+
+    @abstractmethod
     async def delete_by_document_id(
         self, document_id: str, *, index_version: str | None = None
     ) -> None:

@@ -27,10 +27,10 @@ export const PROFILE_PRESET_PARAMS: {
     label: "追求速度",
     profile: "speed",
     params: [
-      "检索模式：vector",
-      "top_k：3",
+      "检索模式：vector，候选 Top10",
+      "最终返回：Top5",
       "rerank：关",
-      "query 改写：关",
+      "query 改写 / 同义词：关",
     ],
   },
   {
@@ -39,9 +39,10 @@ export const PROFILE_PRESET_PARAMS: {
     params: [
       "检索模式：hybrid",
       "vector_top_k / bm25_top_k：10",
-      "top_k：5",
+      "全局融合：RRF（rrf_k=60）",
+      "最终返回：Top5",
       "rerank：关",
-      "query 改写：关",
+      "query 改写 / 同义词：关",
     ],
   },
   {
@@ -50,9 +51,10 @@ export const PROFILE_PRESET_PARAMS: {
     params: [
       "检索模式：hybrid",
       "vector_top_k / bm25_top_k：20",
-      "top_k：8",
-      "rerank：开",
-      "query 改写：开（rewrite）",
+      "全局共同候选：20",
+      "Qwen3 精排：Top5",
+      "最终返回：Top5",
+      "query 改写：开；同义词：关",
     ],
   },
   {

@@ -131,7 +131,6 @@ export interface RetrievalOptions {
   mode?: RetrievalMode;
   vector_top_k?: number;
   bm25_top_k?: number;
-  rrf_k?: number;
 }
 
 export interface RerankOptions {
@@ -147,6 +146,7 @@ export interface EvidenceOptions {
 export interface QueryOptions {
   enabled?: boolean;
   strategy?: "noop" | "rewrite";
+  synonym_enabled?: boolean;
 }
 
 export type RetrieveProfile = "speed" | "balanced" | "quality" | "custom";
@@ -228,6 +228,7 @@ export interface RetrieveRerankMetadata {
 export interface RetrieveRetrievalMetadata {
   mode?: string;
   fusion?: string | null;
+  fusion_scope?: string | null;
   rrf_k?: number | null;
   vector_store?: string;
   keyword_search?: string | null;
@@ -242,9 +243,17 @@ export interface RetrieveRetrievalMetadata {
   multi_kb?: boolean;
   kb_count?: number;
   kb_ids?: string[];
-  per_kb_top_k?: number;
   index_version?: string;
   index_versions?: Record<string, string>;
+  embedding_request_count?: number;
+  vector_request_count?: number;
+  bm25_request_count?: number;
+  source_distribution?: Record<string, number>;
+  vector_latency_ms?: number;
+  embedding_latency_ms?: number;
+  vector_store_latency_ms?: number;
+  bm25_latency_ms?: number;
+  hybrid_latency_ms?: number;
 }
 
 export interface QueryProcessingMetadata {
@@ -255,6 +264,7 @@ export interface QueryProcessingMetadata {
   search_query: string;
   latency_ms: number;
   synonym_expansions: string[];
+  synonym_enabled: boolean;
   synonym_applied: boolean;
   degraded: boolean;
   degraded_reason: string | null;
@@ -267,6 +277,9 @@ export interface TenantPolicyMetadata {
   effective_rerank: boolean;
   effective_evidence: boolean;
   effective_query_rewrite: boolean;
+  rerank_disabled_reason?: string | null;
+  evidence_disabled_reason?: string | null;
+  query_rewrite_disabled_reason?: string | null;
   max_kb_per_retrieve?: number | null;
   actual_kb_count?: number | null;
 }

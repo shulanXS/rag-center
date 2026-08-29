@@ -20,6 +20,29 @@ class EvaluationRunError(RuntimeError):
     pass
 
 
+def _experiment_snapshot(experiment: ExperimentConfig) -> dict[str, Any]:
+    """Serialize a reloadable experiment snapshot.
+
+    Named profiles are expanded to production presets during validation.  Their
+    advanced fields must not be persisted, otherwise loading the snapshot would
+    incorrectly treat the generated preset values as user overrides.
+    """
+    snapshot = experiment.model_dump(mode="json")
+    advanced_fields = {
+        "top_k",
+        "retrieval_options",
+        "rerank_options",
+        "evidence_options",
+        "query_options",
+    }
+    for group_name in ("baseline", "candidate"):
+        group = snapshot[group_name]
+        if group.get("profile") in {"speed", "balanced", "quality"}:
+            for field_name in advanced_fields:
+                group.pop(field_name, None)
+    return snapshot
+
+
 async def run_retrieval_groups(
     *,
     experiment: ExperimentConfig,
@@ -50,7 +73,7 @@ async def run_retrieval_groups(
         experiment_id=experiment.experiment_id,
         output_suffix=output_suffix,
     )
-    _write_json(run_dir / "experiment.snapshot.json", experiment.model_dump(mode="json"))
+    _write_json(run_dir / "experiment.snapshot.json", _experiment_snapshot(experiment))
     _write_json(run_dir / "dataset.snapshot.json", dataset.model_dump(mode="json"))
 
     started_at = datetime.now(UTC)
@@ -68,6 +91,13 @@ async def run_retrieval_groups(
         "Content-Type": "application/json",
     }
     timeout = httpx.Timeout(experiment.timeout_seconds)
+    if experiment.baseline_run_dir and experiment.target in {
+        "evidence_orchestration",
+        "rerank_effect_v2",
+        "research_effect_v2",
+        "research_supplement_v2",
+    }:
+        raise EvaluationRunError("当前专题实验不支持冻结 baseline 复用")
     async with httpx.AsyncClient(
         base_url=base_url.rstrip("/"),
         headers=headers,
@@ -120,10 +150,21 @@ async def run_retrieval_groups(
                 _write_jsonl(run_dir / f"{group_name}.raw.jsonl", results)
         else:
             group_results = {}
-            for group_name, group in (
-                ("baseline", experiment.baseline),
-                ("candidate", experiment.candidate),
-            ):
+            groups: tuple[tuple[str, ExperimentGroup], ...]
+            if experiment.baseline_run_dir:
+                frozen_rows = _load_frozen_baseline_rows(
+                    experiment=experiment,
+                    cases=cases,
+                )
+                group_results["baseline"] = frozen_rows
+                _write_jsonl(run_dir / "baseline.raw.jsonl", frozen_rows)
+                groups = (("candidate", experiment.candidate),)
+            else:
+                groups = (
+                    ("baseline", experiment.baseline),
+                    ("candidate", experiment.candidate),
+                )
+            for group_name, group in groups:
                 warmup_count = min(experiment.warmup_cases, len(cases))
                 for case in cases[:warmup_count]:
                     await _run_case(
@@ -163,6 +204,32 @@ async def run_retrieval_groups(
     )
     _write_json(run_dir / "manifest.json", manifest)
     return run_dir
+
+
+def _load_frozen_baseline_rows(
+    *,
+    experiment: ExperimentConfig,
+    cases: list[EvalCase],
+) -> list[dict[str, Any]]:
+    assert experiment.baseline_run_dir is not None
+    project_root = Path(__file__).resolve().parents[2]
+    source_dir = Path(experiment.baseline_run_dir)
+    if not source_dir.is_absolute():
+        source_dir = project_root / source_dir
+    source_path = source_dir / f"{experiment.baseline_group}.raw.jsonl"
+    if not source_path.is_file():
+        raise EvaluationRunError(f"冻结 baseline raw 不存在: {source_path}")
+    rows_by_case = {
+        str(row.get("case_id")): row
+        for row in _read_jsonl(source_path)
+    }
+    frozen_rows: list[dict[str, Any]] = []
+    for case in cases:
+        row = rows_by_case.get(case.id)
+        if row is None:
+            raise EvaluationRunError(f"冻结 baseline 缺少题目: {case.id}")
+        frozen_rows.append({**row, "group": "baseline"})
+    return frozen_rows
 
 
 async def retry_failed_shared_rerank(
@@ -1122,14 +1189,19 @@ def _build_payload(
         "user_id": EVAL_USER_ID,
         "query": case.question,
         "profile": group.profile,
-        "top_k": group.top_k,
         "index_version": group.index_version,
-        "retrieval_options": group.retrieval_options,
-        "rerank_options": group.rerank_options,
-        "evidence_options": group.evidence_options,
-        "query_options": group.query_options,
         "observability_enabled": False,
     }
+    if group.profile == "custom":
+        payload.update(
+            {
+                "top_k": group.top_k,
+                "retrieval_options": group.retrieval_options,
+                "rerank_options": group.rerank_options,
+                "evidence_options": group.evidence_options,
+                "query_options": group.query_options,
+            }
+        )
     if len(kb_ids) == 1:
         payload["kb_id"] = kb_ids[0]
     else:
@@ -1401,6 +1473,14 @@ def _build_manifest(
         "timeout_seconds": experiment.timeout_seconds,
         "baseline": experiment.baseline.model_dump(mode="json"),
         "candidate": experiment.candidate.model_dump(mode="json"),
+        "frozen_baseline": (
+            {
+                "run_dir": experiment.baseline_run_dir,
+                "group": experiment.baseline_group,
+            }
+            if experiment.baseline_run_dir
+            else None
+        ),
         "telemetry": {
             "ragas_do_not_track": True,
             "offline_langfuse_enabled": False,

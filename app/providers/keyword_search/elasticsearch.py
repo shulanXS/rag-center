@@ -1,4 +1,6 @@
 import json
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from datetime import UTC, datetime
 from time import perf_counter
 from typing import Any
@@ -23,10 +25,20 @@ class ElasticsearchKeywordSearchProvider(KeywordSearchProvider):
         base_url: str = settings.elasticsearch_url,
         index_name: str = settings.elasticsearch_index,
         timeout: float = settings.elasticsearch_timeout_seconds,
+        client: httpx.AsyncClient | None = None,
     ) -> None:
         self.base_url = base_url.rstrip("/")
         self.index_name = index_name
         self.timeout = timeout
+        self.client = client
+
+    @asynccontextmanager
+    async def _client(self) -> AsyncIterator[httpx.AsyncClient]:
+        if self.client is not None:
+            yield self.client
+            return
+        async with httpx.AsyncClient(timeout=self.timeout, trust_env=False) as client:
+            yield client
 
     async def add_chunks(self, chunks: list[dict]) -> None:
         if not chunks:
@@ -64,11 +76,12 @@ class ElasticsearchKeywordSearchProvider(KeywordSearchProvider):
 
         payload = "\n".join(bulk_lines) + "\n"
         try:
-            async with httpx.AsyncClient(timeout=self.timeout, trust_env=False) as client:
+            async with self._client() as client:
                 response = await client.post(
                     f"{self.base_url}/_bulk",
                     content=payload,
                     headers={"Content-Type": "application/x-ndjson"},
+                    timeout=self.timeout,
                 )
                 response.raise_for_status()
                 body = response.json()
@@ -122,37 +135,49 @@ class ElasticsearchKeywordSearchProvider(KeywordSearchProvider):
         index_version: str | None = None,
         top_k: int = 20,
     ) -> list[dict]:
-        started_at = perf_counter()
-        filters: list[dict[str, Any]] = [
-            {"term": {"tenant_id": tenant_id}},
-            {"term": {"kb_id": kb_id}},
-        ]
-        if index_version is not None:
-            filters.append({"term": {"index_version": index_version}})
-        payload = _build_search_payload(
+        return await self.keyword_search_scope(
             query=query,
-            filters=filters,
-            index_version=index_version,
+            tenant_id=tenant_id,
+            index_versions={kb_id: index_version or DEFAULT_INDEX_VERSION},
+            top_k=top_k,
+        )
+
+    async def keyword_search_scope(
+        self,
+        *,
+        query: str,
+        tenant_id: str,
+        index_versions: dict[str, str],
+        top_k: int = 20,
+    ) -> list[dict]:
+        if not index_versions:
+            return []
+        started_at = perf_counter()
+        payload = _build_scope_search_payload(
+            query=query,
+            tenant_id=tenant_id,
+            index_versions=index_versions,
             top_k=top_k,
         )
 
         try:
-            async with httpx.AsyncClient(timeout=self.timeout, trust_env=False) as client:
+            async with self._client() as client:
                 response = await client.post(
                     f"{self.base_url}/{self.index_name}/_search",
                     json=payload,
+                    timeout=self.timeout,
                 )
                 response.raise_for_status()
                 body = response.json()
         except httpx.HTTPError as exc:
             error_body = _response_text(exc)
             logger.error(
-                "BM25_SEARCH_FAILED | provider=%s | index=%s | tenant_id=%s | kb_id=%s | "
+                "BM25_SEARCH_FAILED | provider=%s | index=%s | tenant_id=%s | kb_ids=%s | "
                 "top_k=%s | error=%s | response_body=%s",
                 self.name,
                 self.index_name,
                 tenant_id,
-                kb_id,
+                sorted(index_versions),
                 top_k,
                 str(exc),
                 error_body,
@@ -161,7 +186,11 @@ class ElasticsearchKeywordSearchProvider(KeywordSearchProvider):
             raise AppError(
                 ErrorCode.KEYWORD_SEARCH_ERROR,
                 internal_msg=f"elasticsearch bm25 search failed: {exc}; response_body={error_body}",
-                context={"index": self.index_name, "tenant_id": tenant_id, "kb_id": kb_id},
+                context={
+                    "index": self.index_name,
+                    "tenant_id": tenant_id,
+                    "kb_ids": sorted(index_versions),
+                },
             ) from exc
 
         results: list[dict] = []
@@ -169,6 +198,7 @@ class ElasticsearchKeywordSearchProvider(KeywordSearchProvider):
             source = hit.get("_source", {})
             results.append(
                 {
+                    "kb_id": source.get("kb_id"),
                     "document_id": source.get("document_id"),
                     "chunk_id": source.get("chunk_id"),
                     "title": source.get("title", ""),
@@ -185,17 +215,18 @@ class ElasticsearchKeywordSearchProvider(KeywordSearchProvider):
 
         cost_ms = (perf_counter() - started_at) * 1000
         logger.info(
-            "BM25_SEARCH_SUCCESS | provider=%s | index=%s | tenant_id=%s | kb_id=%s | "
+            "BM25_SEARCH_SUCCESS | provider=%s | index=%s | tenant_id=%s | kb_ids=%s | "
             "top_k=%s | result_count=%s | cost_ms=%.2f",
             self.name,
             self.index_name,
             tenant_id,
-            kb_id,
+            sorted(index_versions),
             top_k,
             len(results),
             cost_ms,
         )
         return results
+
     async def delete_by_document_id(
         self, document_id: str, *, index_version: str | None = None
     ) -> None:
@@ -204,10 +235,11 @@ class ElasticsearchKeywordSearchProvider(KeywordSearchProvider):
             filters.append({"term": {"index_version": index_version}})
         payload = {"query": {"bool": {"filter": filters}}}
         try:
-            async with httpx.AsyncClient(timeout=self.timeout, trust_env=False) as client:
+            async with self._client() as client:
                 response = await client.post(
                     f"{self.base_url}/{self.index_name}/_delete_by_query",
                     json=payload,
+                    timeout=self.timeout,
                 )
                 response.raise_for_status()
         except httpx.HTTPError as exc:
@@ -240,17 +272,20 @@ class ElasticsearchKeywordSearchProvider(KeywordSearchProvider):
                 }
             }
         }
-        async with httpx.AsyncClient(timeout=self.timeout, trust_env=False) as client:
+        async with self._client() as client:
             response = await client.post(
                 f"{self.base_url}/{self.index_name}/_delete_by_query?refresh=true&conflicts=proceed",
                 json=payload,
+                timeout=self.timeout,
             )
             response.raise_for_status()
 
     async def ensure_index(self) -> None:
         try:
-            async with httpx.AsyncClient(timeout=self.timeout, trust_env=False) as client:
-                response = await client.head(f"{self.base_url}/{self.index_name}")
+            async with self._client() as client:
+                response = await client.head(
+                    f"{self.base_url}/{self.index_name}", timeout=self.timeout
+                )
                 if response.status_code == 200:
                     await self._ensure_mapping(client)
                     return
@@ -260,6 +295,7 @@ class ElasticsearchKeywordSearchProvider(KeywordSearchProvider):
                 create_response = await client.put(
                     f"{self.base_url}/{self.index_name}",
                     json=self._index_body(),
+                    timeout=self.timeout,
                 )
                 create_response.raise_for_status()
         except httpx.HTTPError as exc:
@@ -336,6 +372,7 @@ class ElasticsearchKeywordSearchProvider(KeywordSearchProvider):
                     "order_index": {"type": "integer"},
                 }
             },
+            timeout=self.timeout,
         )
         response.raise_for_status()
 
@@ -348,10 +385,11 @@ class ElasticsearchKeywordSearchProvider(KeywordSearchProvider):
             },
             "query": {"bool": {"must_not": {"exists": {"field": "index_version"}}}},
         }
-        async with httpx.AsyncClient(timeout=self.timeout, trust_env=False) as client:
+        async with self._client() as client:
             response = await client.post(
                 f"{self.base_url}/{self.index_name}/_update_by_query?refresh=true&conflicts=proceed",
                 json=payload,
+                timeout=self.timeout,
             )
             response.raise_for_status()
             body = response.json()
@@ -372,10 +410,11 @@ class ElasticsearchKeywordSearchProvider(KeywordSearchProvider):
             filters.append({"bool": {"must_not": {"exists": {"field": "index_version"}}}})
         else:
             filters.append({"term": {"index_version": index_version}})
-        async with httpx.AsyncClient(timeout=self.timeout, trust_env=False) as client:
+        async with self._client() as client:
             response = await client.post(
                 f"{self.base_url}/{self.index_name}/_count",
                 json={"query": {"bool": {"filter": filters}}},
+                timeout=self.timeout,
             )
             response.raise_for_status()
             return int(response.json().get("count") or 0)
@@ -416,6 +455,62 @@ def _build_search_payload(
             }
         },
         "size": top_k,
+        "sort": [
+            {"_score": {"order": "desc"}},
+            {"kb_id": {"order": "asc"}},
+            {"chunk_id": {"order": "asc"}},
+        ],
+    }
+
+
+def _build_scope_search_payload(
+    *,
+    query: str,
+    tenant_id: str,
+    index_versions: dict[str, str],
+    top_k: int,
+) -> dict[str, Any]:
+    scoped_queries: list[dict[str, Any]] = []
+    for kb_id, index_version in sorted(index_versions.items()):
+        is_legacy_index = index_version == LEGACY_INDEX_VERSION
+        fields = (
+            ["metadata.heading_path^2", "content^2", "title"]
+            if is_legacy_index
+            else ["retrieval_text"]
+        )
+        multi_match: dict[str, Any] = {"query": query, "fields": fields}
+        if is_legacy_index:
+            multi_match.update(
+                {
+                    "type": "cross_fields",
+                    "minimum_should_match": "50%",
+                }
+            )
+        scoped_queries.append(
+            {
+                "bool": {
+                    "filter": [
+                        {"term": {"kb_id": kb_id}},
+                        {"term": {"index_version": index_version}},
+                    ],
+                    "must": [{"multi_match": multi_match}],
+                }
+            }
+        )
+    return {
+        "query": {
+            "bool": {
+                "filter": [{"term": {"tenant_id": tenant_id}}],
+                "should": scoped_queries,
+                "minimum_should_match": 1,
+            }
+        },
+        "size": top_k,
+        "sort": [
+            {"_score": {"order": "desc"}},
+            {"kb_id": {"order": "asc"}},
+            {"chunk_id": {"order": "asc"}},
+        ],
     }
 
 

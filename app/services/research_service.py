@@ -7,7 +7,9 @@ from typing import Any
 from sqlalchemy.orm import Session
 
 from app.core.exceptions import AppError, ErrorCode
+from app.core.http_clients import ExternalHttpClients
 from app.observability.research_observability import ResearchObservability
+from app.providers.llm.role_router import LLMRole, LLMRoleRouter
 from app.repositories.chunk_repository import ChunkRepository
 from app.repositories.tenant_repository import TenantRepository
 from app.schemas.rag import (
@@ -93,11 +95,12 @@ class ResearchService:
         parallel_retrieval: ResearchParallelRetrievalService | None = None,
         fusion: ResearchCandidateFusionService | None = None,
         supplement: ResearchSupplementService | None = None,
+        http_clients: ExternalHttpClients | None = None,
     ) -> None:
         if rag_service is None:
             if db is None:
                 raise ValueError("db or rag_service is required")
-            rag_service = RagService(db)
+            rag_service = RagService(db, http_clients=http_clients)
         self.rag_service = rag_service
         repository = getattr(rag_service, "chunk_repository", None)
         if repository is None:
@@ -105,14 +108,23 @@ class ResearchService:
                 raise ValueError("a chunk repository is required")
             repository = ChunkRepository(db)
         pack_builder = EvidencePackBuilder(repository)
-        self.planner = planner or ResearchPlannerService()
+        model_client = http_clients.model if http_clients else None
+        self.planner = planner or ResearchPlannerService(
+            LLMRoleRouter.provider_for(LLMRole.FAST, client=model_client)
+        )
         self.parallel_retrieval = parallel_retrieval or ResearchParallelRetrievalService(
             rag_service.retrieve_once_service
         )
         self.fusion = fusion or ResearchCandidateFusionService()
-        self.decider = decider or ResearchDeciderService(pack_builder)
+        self.decider = decider or ResearchDeciderService(
+            pack_builder,
+            LLMRoleRouter.provider_for(LLMRole.FAST, client=model_client),
+        )
         self.supplement = supplement or ResearchSupplementService(self.parallel_retrieval)
-        self.finalizer = finalizer or ResearchFinalizerService(pack_builder)
+        self.finalizer = finalizer or ResearchFinalizerService(
+            pack_builder,
+            LLMRoleRouter.provider_for(LLMRole.STRONG, client=model_client),
+        )
 
     async def research(
         self,
@@ -153,11 +165,6 @@ class ResearchService:
             **request.model_dump(),
             profile=RESEARCH_PROFILE,
             index_version=RESEARCH_INDEX_VERSION,
-            top_k=RESEARCH_TOP_K,
-            retrieval_options=fixed_retrieval_options,
-            rerank_options=fixed_rerank_options,
-            evidence_options=fixed_evidence_options,
-            query_options=fixed_query_options,
         )
         resolved_request, tenant_policy = resolve_retrieve_request(
             retrieve_request,
