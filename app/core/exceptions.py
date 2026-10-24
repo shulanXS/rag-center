@@ -48,6 +48,7 @@ class ErrorCode(Enum):
     SERVER_ERROR = (50000, "服务器异常")
     SYSTEM_BUSY = (50001, "系统繁忙，请稍后再试")
     RETRIEVAL_FAILED = (50002, "检索服务异常")
+    RESEARCH_FAILED = (50003, "Research 任务执行失败")
 
     @property
     def code(self) -> int:

@@ -5,6 +5,7 @@ import httpx
 import pytest
 
 from app.core.config import settings
+from app.core.exceptions import AppError, ErrorCode
 from app.providers.rerank.base import RerankProviderError
 from app.providers.rerank.qwen3 import Qwen3RerankProvider
 from app.schemas.rag import RerankOptions, RetrieveRequest
@@ -228,7 +229,10 @@ def test_rag_service_records_qwen3_metadata(monkeypatch) -> None:
     assert metadata.degraded is False
 
 
-def test_rag_service_degrades_on_qwen3_failure(monkeypatch) -> None:
+def test_rag_service_raises_on_qwen3_failure(monkeypatch) -> None:
+    """When the rerank provider fails, surface an explicit RERANK_FAILED error
+    instead of silently returning the unreranked prefix. Clients must be able
+    to distinguish a failed rerank from a successful no-op."""
     def handler(request: httpx.Request) -> httpx.Response:
         return httpx.Response(500, json={"message": "failed"})
 
@@ -243,19 +247,15 @@ def test_rag_service_degrades_on_qwen3_failure(monkeypatch) -> None:
         rerank_options=RerankOptions(enabled=True, top_n=1),
     )
 
-    chunks, metadata = asyncio.run(
-        service._maybe_rerank(
-            request=request,
-            rerank_query="改写后的问题",
-            chunks=[_chunk("a"), _chunk("b")],
-            top_k=2,
+    with pytest.raises(AppError) as exc_info:
+        asyncio.run(
+            service._maybe_rerank(
+                request=request,
+                rerank_query="改写后的问题",
+                chunks=[_chunk("a"), _chunk("b")],
+                top_k=2,
+            )
         )
-    )
 
-    assert [item["chunk_id"] for item in chunks] == ["a"]
-    assert chunks[0]["rerank_score"] is None
-    assert metadata.provider == "qwen3"
-    assert metadata.model == "qwen3-rerank"
-    assert metadata.returned_count == 1
-    assert metadata.degraded is True
-    assert "HTTP 500" in str(metadata.error)
+    assert exc_info.value.code == ErrorCode.RERANK_FAILED.code
+    assert exc_info.value.error_name == ErrorCode.RERANK_FAILED.name

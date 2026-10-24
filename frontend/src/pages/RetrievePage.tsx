@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { ChevronDown, ChevronRight, HelpCircle, Loader2, Star } from "lucide-react";
+import { ChevronDown, ChevronRight, HelpCircle, Loader2, Star, X } from "lucide-react";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
@@ -125,9 +125,10 @@ function buildRetrievePayload(
   form: Omit<RetrieveForm, "selectedKbIds">,
   profile: RetrieveProfile,
   features: AuthFeatures,
+  userId: string,
 ): RetrieveRequest {
   const payload: RetrieveRequest = {
-    user_id: "debug_user",
+    user_id: userId,
     query: form.query.trim(),
     index_version: form.index_version,
     profile,
@@ -177,9 +178,10 @@ function buildRetrievePayload(
 function buildResearchPayload(
   selectedKbIds: string[],
   form: Omit<RetrieveForm, "selectedKbIds">,
+  userId: string,
 ): ResearchRequest {
   const payload: ResearchRequest = {
-    user_id: "debug_user",
+    user_id: userId,
     query: form.query.trim(),
   };
   if (selectedKbIds.length === 1) {
@@ -287,12 +289,28 @@ export function RetrievePage() {
     setParamsExpanded(profile === "custom");
   }, [profile]);
 
+  const researchAbortRef = useRef<AbortController | null>(null);
+  // When the component unmounts we must cancel any in-flight research
+  // polling so the browser does not keep the request alive.
+  useEffect(() => {
+    return () => {
+      researchAbortRef.current?.abort();
+    };
+  }, []);
+
   const retrieveMutation = useMutation({
     mutationFn: retrieve,
   });
 
   const researchMutation = useMutation({
-    mutationFn: research,
+    mutationFn: (payload: ResearchRequest) => {
+      // Abort any previous in-flight research request so the user can
+      // safely submit again without piling up polling timers.
+      researchAbortRef.current?.abort();
+      const controller = new AbortController();
+      researchAbortRef.current = controller;
+      return research(payload, { signal: controller.signal });
+    },
   });
 
   const feedbackMutation = useMutation({
@@ -322,6 +340,9 @@ export function RetrievePage() {
       return;
     }
     setRetrieveMode(nextMode);
+    // Cancel any in-flight research polling so the user does not see
+    // a stale result when toggling between modes.
+    researchAbortRef.current?.abort();
     retrieveMutation.reset();
     researchMutation.reset();
     setFormError(null);
@@ -380,11 +401,21 @@ export function RetrievePage() {
     setFeedbackMessage(null);
     if (retrieveMode === "research") {
       researchMutation.mutate(
-        buildResearchPayload(selectedKbIds, form),
+        buildResearchPayload(
+          selectedKbIds,
+          form,
+          tenantInfo?.tenant_id ?? "anonymous",
+        ),
       );
     } else {
       retrieveMutation.mutate(
-        buildRetrievePayload(selectedKbIds, form, profile, tenantInfo.features),
+        buildRetrievePayload(
+          selectedKbIds,
+          form,
+          profile,
+          tenantInfo.features,
+          tenantInfo?.tenant_id ?? "anonymous",
+        ),
       );
     }
   }
@@ -857,9 +888,24 @@ export function RetrievePage() {
               </div>
 
               {activeMutation.isPending ? (
-                <div className="flex items-center py-6 text-sm text-muted-foreground">
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {retrieveMode === "research" ? "Research 执行中..." : "检索中..."}
+                <div className="flex flex-wrap items-center gap-3 py-6 text-sm text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>
+                    {retrieveMode === "research"
+                      ? "Research 任务已提交，后台执行中（每 3s 轮询）..."
+                      : "检索中..."}
+                  </span>
+                  {retrieveMode === "research" ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => researchAbortRef.current?.abort()}
+                    >
+                      <X className="mr-1 h-3.5 w-3.5" />
+                      取消轮询
+                    </Button>
+                  ) : null}
                 </div>
               ) : null}
 

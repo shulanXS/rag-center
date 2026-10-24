@@ -1,8 +1,7 @@
 from collections.abc import Generator
 
 from pgvector.psycopg import register_vector
-from sqlalchemy import event
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.core.config import settings

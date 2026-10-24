@@ -15,7 +15,9 @@ from app.schemas.knowledge_base import (
     TenantTreeItem,
     UpdateKnowledgeBaseRequest,
 )
-from app.services.chunk_purge_service import purge_document_chunks
+from app.services.chunk_purge_service import (
+    purge_kb_all_versions,
+)
 from app.services.index_version_service import IndexVersionService
 from app.services.quota_service import QuotaService
 from app.utils.id_generator import generate_uuid
@@ -121,8 +123,14 @@ class KnowledgeBaseService:
                 context={"tenant_id": tenant_id, "kb_id": kb_id},
             )
 
+        # One ES _delete_by_query per index version instead of one per
+        # document. This collapses the O(N) round-trips the previous
+        # per-document purge path required.
+        await purge_kb_all_versions(self.db, tenant_id, kb_id)
         for document in documents:
-            await purge_document_chunks(self.db, document.id)
+            # Use the per-document SQL delete so foreign-key cascades
+            # on chunk_relation rows fire correctly. The ES side has
+            # already been cleared by ``purge_kb_all_versions``.
             self.document_repository.delete(document)
 
         self.repository.delete(knowledge_base)

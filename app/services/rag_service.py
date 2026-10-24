@@ -200,7 +200,6 @@ class RagService:
         observability.finish(chunks, latency_ms=latency_ms)
 
         primary_kb_id = kb_ids[0]
-        get_rate_limit_service().record_retrieve_success(tenant_id)
 
         logger.info(
             "BUSINESS_NODE | rag_retrieve_success | kb_ids=%s | mode=%s | returned_count=%s | "
@@ -765,28 +764,34 @@ class RagService:
                 returned_count=len(reranked),
                 latency_ms=int((perf_counter() - rerank_started_at) * 1000),
             )
+        except asyncio.CancelledError:
+            # Do not swallow cancellation — let it propagate.
+            raise
         except Exception as exc:
-            logger.warning(
-                "BUSINESS_NODE | rerank_degraded | kb_ids=%s | candidate_count=%s | error_type=%s | error=%s",
+            # Rerank is a critical part of retrieval quality. Silent fallback
+            # to unordered candidates previously produced confusingly bad
+            # answers; surface the failure explicitly with a dedicated code
+            # so the client (and operators) can react appropriately.
+            logger.error(
+                "BUSINESS_NODE | rerank_failed | kb_ids=%s | candidate_count=%s | "
+                "error_type=%s | error=%s",
                 request.kb_ids,
                 candidate_count,
                 type(exc).__name__,
                 str(exc),
                 exc_info=(type(exc), exc, exc.__traceback__),
             )
-            fallback_top_n = min(top_n, len(chunks))
-            fallback_chunks = [{**chunk, "rerank_score": None} for chunk in chunks[:fallback_top_n]]
-            return fallback_chunks, RetrieveRerankMetadata(
-                enabled=True,
-                provider=rerank_provider.name,
-                model=rerank_provider.model,
-                top_n=top_n,
-                candidate_count=candidate_count,
-                returned_count=len(fallback_chunks),
-                latency_ms=int((perf_counter() - rerank_started_at) * 1000),
-                degraded=True,
-                error=str(exc),
-            )
+            raise AppError(
+                ErrorCode.RERANK_FAILED,
+                msg="Rerank 调用失败",
+                internal_msg=str(exc),
+                context={
+                    "provider": rerank_provider.name,
+                    "model": rerank_provider.model,
+                    "candidate_count": candidate_count,
+                    "top_n": top_n,
+                },
+            ) from exc
 
     def _build_rerank_provider(self) -> RerankProvider:
         return Qwen3RerankProvider(

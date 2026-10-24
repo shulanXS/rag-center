@@ -6,6 +6,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from app.api.v1.router import api_router
+from app.core.config import settings
 from app.core.exceptions import AppError, ErrorCode
 from app.core.http_clients import build_external_http_clients
 from app.core.logging import configure_logging, get_logger
@@ -16,8 +17,39 @@ configure_logging()
 logger = get_logger(__name__)
 
 
+def _is_production() -> bool:
+    return settings.app_env.lower() in ("production", "prod")
+
+
+def verify_production_config() -> None:
+    """
+    Hard-fail any startup that does not satisfy the production
+    security baseline. The intention is to make it impossible to
+    accidentally ship a deployment that:
+      - has auth disabled (bypasses multi-tenant isolation)
+      - uses placeholder API keys (LLM calls would 401 / 403)
+      - stores documents without encryption at rest
+    """
+    if not _is_production():
+        return
+    problems: list[str] = []
+    if not settings.auth_enabled:
+        problems.append("auth_enabled must be True in production")
+    if not settings.model_api_key or settings.model_api_key.startswith("your-"):
+        problems.append("model_api_key is not configured in production")
+    if not settings.llm_api_key or settings.llm_api_key.startswith("your-"):
+        problems.append("llm_api_key is not configured in production")
+    if not settings.document_encryption_key:
+        problems.append("document_encryption_key is required in production")
+    if problems:
+        message = "production config validation failed: " + "; ".join(problems)
+        logger.error("PRODUCTION_CONFIG_INVALID | problems=%s", problems)
+        raise RuntimeError(message)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    verify_production_config()
     clients = build_external_http_clients()
     app.state.external_http_clients = clients
     try:

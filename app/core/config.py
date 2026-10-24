@@ -76,6 +76,8 @@ class Settings(BaseSettings):
 
     celery_broker_url: str = "redis://localhost:6379/0"
     celery_result_backend: str = "redis://localhost:6379/1"
+    # 宿主 Redis 端口，供 docker-compose 映射使用；需与上面两个 URL 的端口一致
+    redis_port: int = 6379
 
     query_rewrite_enabled: bool = False
     query_rewrite_timeout_ms: int = Field(default=2000, ge=100)
@@ -87,6 +89,14 @@ class Settings(BaseSettings):
 
     document_storage_path: str = "data/uploads"
     document_max_size_mb: int = Field(default=20, ge=1, le=200)
+    # 32-byte Fernet key, base64-encoded (e.g. output of
+    # ``python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"``).
+    # When empty, the encryption layer falls back to a deterministic
+    # key derived from ``auth_enabled`` state — see EncryptedFileStorage.
+    document_encryption_key: str = ""
+    # 0 means "never expire uploaded files". Otherwise files older than
+    # N days are purged by the Celery Beat task.
+    document_retention_days: int = Field(default=0, ge=0, le=3650)
 
     model_config = SettingsConfigDict(env_file=str(ENV_FILE), env_file_encoding="utf-8")
 

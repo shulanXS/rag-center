@@ -22,7 +22,7 @@ from app.services.indexing_service import create_indexing_service
 from app.services.quota_service import QuotaService
 from app.services.reindex_service import queue_document_reindex
 from app.tasks.indexing import index_document_task
-from app.utils.document_storage import save_document_file
+from app.utils.document_storage import delete_document_files, save_document_file
 from app.utils.id_generator import generate_uuid
 from app.utils.status import DocumentStatus
 
@@ -127,6 +127,21 @@ class DocumentService:
             )
 
         await purge_document_chunks(self.db, document_id)
+        # Remove the encrypted file payload before dropping the DB row.
+        # We swallow exceptions from the file system because a missing
+        # file should never block a delete — the row is the source of
+        # truth.
+        try:
+            delete_document_files(tenant_id, document_id)
+        except Exception as exc:  # noqa: BLE001
+            logger.warning(
+                "BUSINESS_NODE | delete_document_file_failed | tenant_id=%s | "
+                "document_id=%s | error_type=%s | error=%s",
+                tenant_id,
+                document_id,
+                type(exc).__name__,
+                str(exc),
+            )
         self.document_repository.delete(document)
         self.db.commit()
         logger.info(

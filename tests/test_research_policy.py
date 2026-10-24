@@ -60,13 +60,9 @@ def test_pro_research_checks_rate_once_without_local_retrieval_log_write(monkeyp
     class FakeRateLimit:
         def __init__(self):
             self.checks = 0
-            self.successes = 0
 
         def check_retrieve(self, *args, **kwargs):
             self.checks += 1
-
-        def record_retrieve_success(self, tenant_id):
-            self.successes += 1
 
     class FakeDb:
         def __init__(self):
@@ -203,7 +199,6 @@ def test_pro_research_checks_rate_once_without_local_retrieval_log_write(monkeyp
         )
     )
     assert rate_limit.checks == 1
-    assert rate_limit.successes == 1
     assert db.commits == 0
     assert data.metadata.stop_reason == "evidence_complete"
     assert data.metadata.profile == "research_fixed"

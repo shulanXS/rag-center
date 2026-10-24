@@ -40,7 +40,11 @@ services:
     image: redis:7-alpine
     container_name: rag-center-redis
     ports:
-      - "6379:6379"
+      # 宿主端口可配：默认 6379；若被其他实例占用，在 .env 设 REDIS_PORT=6380
+      # 并同步修改 CELERY_BROKER_URL / CELERY_RESULT_BACKEND
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -84,4 +88,5 @@ services:
 volumes:
   postgres_data:
   es_data:
+  redis_data:
   langfuse_db_data:

@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
@@ -17,7 +17,7 @@ class ApiKeyRepository:
         return api_key
 
     def get_active_by_hash(self, key_hash: str, *, now: datetime | None = None) -> ApiKey | None:
-        checked_at = now or datetime.now(timezone.utc)
+        checked_at = now or datetime.now(UTC)
         stmt = (
             select(ApiKey)
             .options(joinedload(ApiKey.tenant))

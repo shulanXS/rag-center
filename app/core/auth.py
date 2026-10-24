@@ -31,7 +31,21 @@ def parse_bearer_token(authorization: str | None) -> str | None:
 
 
 def resolve_tenant_context(db: Session, authorization: str | None) -> TenantContext:
+    """
+    Resolve the calling tenant from a Bearer token.
+
+    When ``settings.auth_enabled`` is True the function validates the
+    API key and returns the owning tenant, or raises UNAUTHORIZED.
+
+    When ``settings.auth_enabled`` is False the function falls back to
+    a development-only :data:`DEFAULT_DEV_TENANT_ID` so local testing
+    can work without a key. Production deployments are expected to
+    have ``auth_enabled=True`` — the lifespan startup hook in
+    :mod:`app.main` refuses to boot otherwise.
+    """
     if not settings.auth_enabled:
+        # Dev mode. The lifespan hook in app.main.verify_production_config
+        # guarantees we never reach this branch in production.
         tenant_repository = TenantRepository(db)
         tenant = tenant_repository.get_by_id(DEFAULT_DEV_TENANT_ID)
         tenant_name = tenant.name if tenant is not None else DEFAULT_DEV_TENANT_ID

@@ -21,7 +21,9 @@ ResearchStopReason = Literal[
 
 ResearchStage = Literal[
     "planning",
-    "retrieving",
+    "premise_retrieving",
+    "premise_deciding",
+    "answer_retrieving",
     "deciding",
     "supplementing",
     "finalizing",

@@ -5,10 +5,10 @@ from dataclasses import dataclass
 from app.models.tenant import Tenant
 from app.tenant.plan_presets import (
     PLAN_PRESETS,
+    VALID_PLANS,
     PlanFeatures,
     PlanLimits,
     PlanName,
-    VALID_PLANS,
 )
 
 

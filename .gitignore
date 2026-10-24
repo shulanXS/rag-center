@@ -17,3 +17,7 @@ data/uploads/
 eval/reports/
 eval/datasets/imported_from_feedback.json
 vite-env.d.ts
+
+# 本地工具与个人笔记，不入库
+.claude/
+zzz/

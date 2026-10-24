@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+import asyncio
 import json
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
@@ -14,6 +17,9 @@ from app.core.logging import get_logger, safe_json
 from app.providers.keyword_search.base import KeywordSearchProvider
 
 logger = get_logger(__name__)
+
+# RRF k parameter — must match the vector-side RRF k
+RRF_K = 60
 
 
 class ElasticsearchKeywordSearchProvider(KeywordSearchProvider):
@@ -150,16 +156,99 @@ class ElasticsearchKeywordSearchProvider(KeywordSearchProvider):
         index_versions: dict[str, str],
         top_k: int = 20,
     ) -> list[dict]:
+        """
+        Search each knowledge base in parallel, then apply RRF fusion at the Python
+        level so that large KBs cannot monopolise the result set.
+
+        Returns results in the same format as the old single-query implementation
+        (kb_id, document_id, chunk_id, title, content, retrieval_text,
+        index_version, section_id, parent_section_id, order_index, bm25_score, metadata).
+        """
         if not index_versions:
             return []
         started_at = perf_counter()
-        payload = _build_scope_search_payload(
-            query=query,
-            tenant_id=tenant_id,
-            index_versions=index_versions,
-            top_k=top_k,
+
+        # Fire one search per KB concurrently
+        kb_ids_sorted = sorted(index_versions.items())  # deterministic order
+        kb_results = await asyncio.gather(
+            *[
+                self._search_single_kb(
+                    query=query,
+                    tenant_id=tenant_id,
+                    kb_id=kb_id,
+                    index_version=index_version,
+                    top_k=top_k,
+                )
+                for kb_id, index_version in kb_ids_sorted
+            ],
+            return_exceptions=True,
         )
 
+        # Collect hits with per-KB rank information
+        all_hits: list[tuple[str, int, dict]] = []  # (kb_id, kb_rank_1based, hit_dict)
+        failed_kbs: list[tuple[str, str]] = []  # (kb_id, error_message)
+        for idx, kb_result in enumerate(kb_results):
+            kb_id, _ = kb_ids_sorted[idx]
+            if isinstance(kb_result, Exception):
+                logger.warning(
+                    "BM25_KB_SEARCH_FAILED | provider=%s | index=%s | tenant_id=%s | "
+                    "kb_id=%s | error_type=%s | error=%s",
+                    self.name,
+                    self.index_name,
+                    tenant_id,
+                    kb_id,
+                    type(kb_result).__name__,
+                    str(kb_result),
+                    exc_info=(
+                        type(kb_result),
+                        kb_result,
+                        kb_result.__traceback__,
+                    ),
+                )
+                failed_kbs.append((kb_id, str(kb_result)))
+                continue
+            for rank_1based, hit in enumerate(kb_result, start=1):
+                all_hits.append((kb_id, rank_1based, hit))
+
+        # RRF fusion across KBs (Python level, k=60)
+        fused = _rrf_fuse_hits(all_hits, top_k=top_k)
+
+        cost_ms = (perf_counter() - started_at) * 1000
+        logger.info(
+            "BM25_SEARCH_SUCCESS | provider=%s | index=%s | tenant_id=%s | kb_count=%s | "
+            "total_hits=%s | returned=%s | failed_kbs=%s | cost_ms=%.2f",
+            self.name,
+            self.index_name,
+            tenant_id,
+            len(index_versions),
+            len(all_hits),
+            len(fused),
+            [kb for kb, _ in failed_kbs],
+            cost_ms,
+        )
+        return fused
+
+    async def _search_single_kb(
+        self,
+        *,
+        query: str,
+        tenant_id: str,
+        kb_id: str,
+        index_version: str,
+        top_k: int,
+    ) -> list[dict]:
+        """
+        Execute one BM25 search for a single knowledge base.
+        Returns raw hits with bm25_score in the same format as before,
+        plus an internal _kb_rank field for RRF.
+        """
+        payload = _build_single_kb_payload(
+            query=query,
+            tenant_id=tenant_id,
+            kb_id=kb_id,
+            index_version=index_version,
+            top_k=top_k,
+        )
         try:
             async with self._client() as client:
                 response = await client.post(
@@ -172,24 +261,26 @@ class ElasticsearchKeywordSearchProvider(KeywordSearchProvider):
         except httpx.HTTPError as exc:
             error_body = _response_text(exc)
             logger.error(
-                "BM25_SEARCH_FAILED | provider=%s | index=%s | tenant_id=%s | kb_ids=%s | "
-                "top_k=%s | error=%s | response_body=%s",
+                "BM25_KB_SEARCH_FAILED | provider=%s | index=%s | tenant_id=%s | "
+                "kb_id=%s | index_version=%s | error=%s | response_body=%s",
                 self.name,
                 self.index_name,
                 tenant_id,
-                sorted(index_versions),
-                top_k,
+                kb_id,
+                index_version,
                 str(exc),
                 error_body,
                 exc_info=(type(exc), exc, exc.__traceback__),
             )
             raise AppError(
                 ErrorCode.KEYWORD_SEARCH_ERROR,
-                internal_msg=f"elasticsearch bm25 search failed: {exc}; response_body={error_body}",
+                internal_msg=f"elasticsearch bm25 search failed for kb {kb_id}: {exc}",
                 context={
                     "index": self.index_name,
                     "tenant_id": tenant_id,
-                    "kb_ids": sorted(index_versions),
+                    "kb_id": kb_id,
+                    "index_version": index_version,
+                    "response_body": error_body,
                 },
             ) from exc
 
@@ -212,19 +303,6 @@ class ElasticsearchKeywordSearchProvider(KeywordSearchProvider):
                     "metadata": source.get("metadata", {}),
                 }
             )
-
-        cost_ms = (perf_counter() - started_at) * 1000
-        logger.info(
-            "BM25_SEARCH_SUCCESS | provider=%s | index=%s | tenant_id=%s | kb_ids=%s | "
-            "top_k=%s | result_count=%s | cost_ms=%.2f",
-            self.name,
-            self.index_name,
-            tenant_id,
-            sorted(index_versions),
-            top_k,
-            len(results),
-            cost_ms,
-        )
         return results
 
     async def delete_by_document_id(
@@ -256,7 +334,7 @@ class ElasticsearchKeywordSearchProvider(KeywordSearchProvider):
             )
             raise AppError(
                 ErrorCode.KEYWORD_SEARCH_ERROR,
-                internal_msg=f"elasticsearch delete failed: {exc}; response_body={error_body}",
+                internal_msg=f"elasticsearch delete failed: {exc}",
                 context={"index": self.index_name, "document_id": document_id},
             ) from exc
 
@@ -310,7 +388,7 @@ class ElasticsearchKeywordSearchProvider(KeywordSearchProvider):
             )
             raise AppError(
                 ErrorCode.KEYWORD_SEARCH_ERROR,
-                internal_msg=f"elasticsearch index init failed: {exc}; response_body={error_body}",
+                internal_msg=f"elasticsearch index init failed: {exc}",
                 context={"index": self.index_name},
             ) from exc
 
@@ -420,27 +498,30 @@ class ElasticsearchKeywordSearchProvider(KeywordSearchProvider):
             return int(response.json().get("count") or 0)
 
 
-def _build_search_payload(
+# ---------------------------------------------------------------------------
+# Helper functions
+# ---------------------------------------------------------------------------
+
+def _build_single_kb_payload(
     *,
     query: str,
-    filters: list[dict[str, Any]],
-    index_version: str | None,
+    tenant_id: str,
+    kb_id: str,
+    index_version: str,
     top_k: int,
 ) -> dict[str, Any]:
-    is_legacy_index = not index_version or index_version == LEGACY_INDEX_VERSION
+    """
+    Build ES query payload for a single knowledge base.
+    Returns top_k hits with scores sorted by bm25 score.
+    """
+    is_legacy_index = index_version == LEGACY_INDEX_VERSION
     fields = (
         ["metadata.heading_path^2", "content^2", "title"]
         if is_legacy_index
         else ["retrieval_text"]
     )
-    multi_match: dict[str, Any] = {
-        "query": query,
-        "fields": fields,
-    }
+    multi_match: dict[str, Any] = {"query": query, "fields": fields}
     if is_legacy_index:
-        # Chinese questions contain many function words. Requiring half of
-        # the analyzed terms keeps exact codes and business phrases while
-        # preventing a single common word from producing a noisy candidate.
         multi_match.update(
             {
                 "type": "cross_fields",
@@ -450,68 +531,66 @@ def _build_search_payload(
     return {
         "query": {
             "bool": {
-                "filter": filters,
-                "must": {"multi_match": multi_match},
+                "filter": [
+                    {"term": {"tenant_id": tenant_id}},
+                    {"term": {"kb_id": kb_id}},
+                    {"term": {"index_version": index_version}},
+                ],
+                "must": [{"multi_match": multi_match}],
             }
         },
         "size": top_k,
         "sort": [
             {"_score": {"order": "desc"}},
-            {"kb_id": {"order": "asc"}},
             {"chunk_id": {"order": "asc"}},
         ],
     }
 
 
-def _build_scope_search_payload(
+def _rrf_fuse_hits(
+    hits: list[tuple[str, int, dict]],
     *,
-    query: str,
-    tenant_id: str,
-    index_versions: dict[str, str],
     top_k: int,
-) -> dict[str, Any]:
-    scoped_queries: list[dict[str, Any]] = []
-    for kb_id, index_version in sorted(index_versions.items()):
-        is_legacy_index = index_version == LEGACY_INDEX_VERSION
-        fields = (
-            ["metadata.heading_path^2", "content^2", "title"]
-            if is_legacy_index
-            else ["retrieval_text"]
-        )
-        multi_match: dict[str, Any] = {"query": query, "fields": fields}
-        if is_legacy_index:
-            multi_match.update(
-                {
-                    "type": "cross_fields",
-                    "minimum_should_match": "50%",
-                }
-            )
-        scoped_queries.append(
+) -> list[dict]:
+    """
+    Apply Reciprocal Rank Fusion across per-KB BM25 results.
+
+    hits: list of (kb_id, kb_rank_1based, hit_dict)
+    Returns: top_k fused hits in the same dict format as before
+    """
+    if not hits:
+        return []
+
+    # Deduplicate by (kb_id, chunk_id), keeping the first occurrence (best rank)
+    seen: dict[tuple[str, str], int] = {}  # (kb_id, chunk_id) -> first kb_rank
+    deduped: list[tuple[str, int, dict]] = []  # (kb_id, kb_rank, hit)
+
+    for kb_id, kb_rank, hit in hits:
+        key = (kb_id, str(hit.get("chunk_id") or ""))
+        if key not in seen:
+            seen[key] = kb_rank
+            deduped.append((kb_id, kb_rank, hit))
+
+    # Compute RRF score per unique hit
+    scored: list[tuple[float, int, tuple[str, int, dict]]] = []  # (rrf_score, tiebreak, original)
+    for tiebreak, (kb_id, kb_rank, hit) in enumerate(deduped, start=0):
+        rrf_score = 1.0 / (RRF_K + kb_rank)
+        scored.append((rrf_score, tiebreak, (kb_id, kb_rank, hit)))
+
+    # Sort: highest RRF score first, then by tiebreak (stable)
+    scored.sort(key=lambda x: (-x[0], x[1]))
+
+    fused: list[dict] = []
+    for rrf_score, _, (kb_id, kb_rank, hit) in scored[:top_k]:
+        # Preserve the raw bm25_score from the original ES hit
+        fused.append(
             {
-                "bool": {
-                    "filter": [
-                        {"term": {"kb_id": kb_id}},
-                        {"term": {"index_version": index_version}},
-                    ],
-                    "must": [{"multi_match": multi_match}],
-                }
+                **hit,
+                "score": rrf_score,
+                "bm25_rank": kb_rank,
             }
         )
-    return {
-        "query": {
-            "bool": {
-                "filter": [{"term": {"tenant_id": tenant_id}}],
-                "should": scoped_queries,
-                "minimum_should_match": 1,
-            }
-        },
-        "size": top_k,
-        "sort": [
-            {"_score": {"order": "desc"}},
-            {"kb_id": {"order": "asc"}},
-            {"chunk_id": {"order": "asc"}},
-        ],
-    }
+    return fused
 
 
 def _response_text(exc: httpx.HTTPError) -> str | None:

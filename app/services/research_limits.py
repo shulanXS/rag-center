@@ -1,6 +1,10 @@
 MAX_INITIAL_QUERIES = 3
 MAX_SUPPLEMENT_QUERIES = 2
-MAX_RESEARCH_ROUNDS = 2
+# Bumped from 2 to 3 to allow the two-stage dependent flow:
+#   round 1 = premise retrieval
+#   round 2 = answer retrieval (using confirmed premise values)
+#   round 3 = supplement if answer is still missing
+MAX_RESEARCH_ROUNDS = 3
 MAX_RESEARCH_LLM_CALLS = 3
 MAX_RESEARCH_CANDIDATES = 24
 MAX_FINAL_EVIDENCE_ITEMS = 10

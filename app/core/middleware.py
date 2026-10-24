@@ -80,4 +80,4 @@ async def _reset_request_body(request: Request, body: bytes) -> None:
     async def receive() -> dict:
         return {"type": "http.request", "body": body, "more_body": False}
 
-    request._receive = receive  # noqa: SLF001
+    request._receive = receive

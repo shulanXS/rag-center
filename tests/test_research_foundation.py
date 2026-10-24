@@ -86,6 +86,8 @@ def test_research_state_normalizes_queries_and_accumulates_usage():
 def test_research_limits_are_bounded():
     assert research_limits.MAX_INITIAL_QUERIES == 3
     assert research_limits.MAX_SUPPLEMENT_QUERIES == 2
-    assert research_limits.MAX_RESEARCH_ROUNDS == 2
+    # MAX_RESEARCH_ROUNDS is now 3 to support the two-stage dependent
+    # flow: premise round + answer round + one supplement round.
+    assert research_limits.MAX_RESEARCH_ROUNDS == 3
     assert research_limits.MAX_RESEARCH_LLM_CALLS == 3
     assert research_limits.DEFAULT_RESEARCH_TIMEOUT_SECONDS == 90

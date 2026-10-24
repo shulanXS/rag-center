@@ -21,6 +21,7 @@ from app.schemas.rag import (
     RetrieveRequest,
 )
 from app.schemas.research import (
+    PlannedQuery,
     ResearchCandidate,
     ResearchData,
     ResearchMetadata,
@@ -259,8 +260,6 @@ class ResearchService:
             degraded=run.state.degraded,
         )
 
-        get_rate_limit_service().record_retrieve_success(tenant_id)
-
         stages = [
             self._stage_usage(
                 stage="planner",
@@ -348,47 +347,108 @@ class ResearchService:
         if planner_result.degraded:
             self._mark_degraded(state, planner_result.error)
 
-        state.stage = "retrieving"
-        round_one = await self.parallel_retrieval.execute(
-            state=state,
-            queries=planner_result.queries,
-            request=request,
-            knowledge_bases=knowledge_bases,
-            round=1,
-        )
-        if round_one.success_count == 0:
-            raise AppError(
-                ErrorCode.RETRIEVAL_FAILED,
-                internal_msg="all initial Research retrieval tasks failed",
-                context={"research_id": state.research_id},
+        # ------------------------------------------------------------------
+        # Stage 1: premise retrieval (dependent only) or initial retrieval
+        # ------------------------------------------------------------------
+        premise_queries = self._select_premise_queries(planner_result)
+        answer_queries = self._select_answer_queries(planner_result)
+
+        if planner_result.problem_type == "dependent":
+            # Two-stage dependent flow: only the premise queries are
+            # dispatched in the first round. The answer queries wait
+            # for the premise to be confirmed.
+            premise_result = await self._run_premise_round(
+                state=state,
+                request=request,
+                knowledge_bases=knowledge_bases,
+                queries=premise_queries,
+                started_at=started_at,
             )
-        first_fusion = self.fusion.fuse(
-            results=round_one.results,
-            aspects=state.aspects,
-        )
-        self._record_round(
-            state,
-            retrieval=round_one,
-            fusion=first_fusion,
-            purpose="initial",
-            new_chunk_count=len(first_fusion.candidates),
-        )
-        if round_one.degraded:
-            self._mark_degraded(state, "initial retrieval degraded")
+            first_fusion = premise_result["fusion"]
+            round_one = premise_result["retrieval"]
+            all_results = list(round_one.results)
+            decider_result = premise_result["decider"]
 
-        state.stage = "deciding"
-        self._reserve_llm_call(state)
-        decider_result = await self.decider.decide(
-            state=state,
-            candidates=first_fusion.candidates,
-        )
-        state.record_usage(decider_result.usage)
-        state.missing_aspect_ids = decider_result.missing_aspect_ids
-        if decider_result.degraded:
-            self._mark_degraded(state, decider_result.error)
+            # Stage 2: if all premise aspects are covered, dispatch the
+            # answer queries. Otherwise we keep what we have and let
+            # the supplement path handle the missing premise info.
+            if self._all_premises_confirmed(decider_result, state):
+                answer_round = await self._run_answer_round(
+                    state=state,
+                    request=request,
+                    knowledge_bases=knowledge_bases,
+                    queries=answer_queries,
+                    started_at=started_at,
+                )
+                all_results.extend(answer_round["retrieval"].results)
+                # Re-fuse across all rounds so the finalizer sees every
+                # candidate.
+                final_fusion = self.fusion.fuse(
+                    results=all_results,
+                    aspects=state.aspects,
+                )
+                # Re-run the decider against the merged candidate pool
+                # to get a fresh answer-side pack.
+                self._reserve_llm_call(state)
+                state.stage = "deciding"
+                decider_result = await self.decider.decide(
+                    state=state,
+                    candidates=final_fusion.candidates,
+                )
+                state.record_usage(decider_result.usage)
+                state.missing_aspect_ids = decider_result.missing_aspect_ids
+                if decider_result.degraded:
+                    self._mark_degraded(state, decider_result.error)
+            else:
+                # Premise not yet complete; the supplement step will
+                # try to fill the gap.
+                final_fusion = first_fusion
+        else:
+            # Non-dependent: one retrieval round covering all aspects.
+            state.stage = "retrieving"
+            round_one = await self.parallel_retrieval.execute(
+                state=state,
+                queries=planner_result.queries,
+                request=request,
+                knowledge_bases=knowledge_bases,
+                round=1,
+            )
+            if round_one.success_count == 0:
+                raise AppError(
+                    ErrorCode.RETRIEVAL_FAILED,
+                    internal_msg="all initial Research retrieval tasks failed",
+                    context={"research_id": state.research_id},
+                )
+            first_fusion = self.fusion.fuse(
+                results=round_one.results,
+                aspects=state.aspects,
+            )
+            self._record_round(
+                state,
+                retrieval=round_one,
+                fusion=first_fusion,
+                purpose="initial",
+                new_chunk_count=len(first_fusion.candidates),
+            )
+            if round_one.degraded:
+                self._mark_degraded(state, "initial retrieval degraded")
+            all_results = list(round_one.results)
+            final_fusion = first_fusion
 
-        all_results = list(round_one.results)
-        final_fusion = first_fusion
+            state.stage = "deciding"
+            self._reserve_llm_call(state)
+            decider_result = await self.decider.decide(
+                state=state,
+                candidates=first_fusion.candidates,
+            )
+            state.record_usage(decider_result.usage)
+            state.missing_aspect_ids = decider_result.missing_aspect_ids
+            if decider_result.degraded:
+                self._mark_degraded(state, decider_result.error)
+
+        # ------------------------------------------------------------------
+        # Stage 3: supplement if still missing evidence
+        # ------------------------------------------------------------------
         if decider_result.pack.status == "complete":
             state.stop_reason = "evidence_complete"
         elif not allow_supplement:
@@ -414,7 +474,7 @@ class ResearchService:
                 queries=decider_result.next_queries,
                 request=request,
                 knowledge_bases=knowledge_bases,
-                existing_candidates=first_fusion.candidates,
+                existing_candidates=final_fusion.candidates,
             )
             all_results.extend(supplement_result.retrieval.results)
             supplement_fusion = self.fusion.fuse(
@@ -477,6 +537,171 @@ class ResearchService:
             decider=decider_result,
             finalizer=finalizer_result,
         )
+
+    # ------------------------------------------------------------------
+    # Two-stage dependent helpers
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _select_premise_queries(planner_result: PlannerResult) -> list[PlannedQuery]:
+        """Return only the queries that target premise aspects.
+
+        For non-dependent plans this returns the full query list (no
+        premise aspect exists, so all queries are treated as answer
+        queries). For dependent plans this returns the subset bound
+        to ``stage == "premise"`` aspects. If the planner produced
+        nothing, fall back to all queries so the dependent flow can
+        still make progress.
+        """
+        if planner_result.problem_type != "dependent":
+            return list(planner_result.queries)
+        premise_aspect_ids = {
+            aspect.aspect_id
+            for aspect in planner_result.aspects
+            if aspect.stage == "premise"
+        }
+        if not premise_aspect_ids:
+            return list(planner_result.queries)
+        return [
+            query
+            for query in planner_result.queries
+            if any(aid in premise_aspect_ids for aid in query.aspect_ids)
+        ] or list(planner_result.queries)
+
+    @staticmethod
+    def _select_answer_queries(planner_result: PlannerResult) -> list[PlannedQuery]:
+        """Return only the queries that target answer aspects.
+
+        For non-dependent plans this returns the full query list. For
+        dependent plans, only queries whose aspects are all
+        ``stage == "answer"`` are returned.
+        """
+        if planner_result.problem_type != "dependent":
+            return []
+        answer_aspect_ids = {
+            aspect.aspect_id
+            for aspect in planner_result.aspects
+            if aspect.stage == "answer"
+        }
+        if not answer_aspect_ids:
+            return []
+        # Answer queries are those whose aspect_ids are entirely within
+        # the answer-aspect set.
+        result = []
+        for query in planner_result.queries:
+            if not query.aspect_ids:
+                continue
+            if all(aid in answer_aspect_ids for aid in query.aspect_ids):
+                result.append(query)
+        return result
+
+    @staticmethod
+    def _all_premises_confirmed(decider_result: DeciderResult, state: ResearchState) -> bool:
+        """True when every premise aspect has at least one core
+        evidence reference."""
+        premise_aspect_ids = {
+            aspect.aspect_id
+            for aspect in state.aspects
+            if aspect.stage == "premise"
+        }
+        if not premise_aspect_ids:
+            return True
+        for aspect in state.aspects:
+            if aspect.aspect_id not in premise_aspect_ids:
+                continue
+            references = decider_result.selections.get(aspect.aspect_id, [])
+            if not any(ref.role == "core" for ref in references):
+                return False
+        return True
+
+    async def _run_premise_round(
+        self,
+        *,
+        state: ResearchState,
+        request: RetrieveRequest,
+        knowledge_bases: list[Any],
+        queries: list[PlannedQuery],
+        started_at: float,
+    ) -> dict:
+        """Round 1 of the dependent flow: dispatch the premise queries
+        and verify the premise aspects are covered."""
+        state.stage = "premise_retrieving"
+        retrieval = await self.parallel_retrieval.execute(
+            state=state,
+            queries=queries,
+            request=request,
+            knowledge_bases=knowledge_bases,
+            round=1,
+        )
+        if retrieval.success_count == 0:
+            raise AppError(
+                ErrorCode.RETRIEVAL_FAILED,
+                internal_msg="all premise Research retrieval tasks failed",
+                context={"research_id": state.research_id},
+            )
+        fusion = self.fusion.fuse(
+            results=retrieval.results,
+            aspects=state.aspects,
+        )
+        self._record_round(
+            state,
+            retrieval=retrieval,
+            fusion=fusion,
+            purpose="premise",
+            new_chunk_count=len(fusion.candidates),
+        )
+        if retrieval.degraded:
+            self._mark_degraded(state, "premise retrieval degraded")
+
+        # Verify the premise: LLM decides which aspects have core
+        # evidence. The answer queries cannot run until the premise
+        # is covered.
+        state.stage = "premise_deciding"
+        self._reserve_llm_call(state)
+        decider_result = await self.decider.decide(
+            state=state,
+            candidates=fusion.candidates,
+        )
+        state.record_usage(decider_result.usage)
+        if decider_result.degraded:
+            self._mark_degraded(state, decider_result.error)
+        return {"retrieval": retrieval, "fusion": fusion, "decider": decider_result}
+
+    async def _run_answer_round(
+        self,
+        *,
+        state: ResearchState,
+        request: RetrieveRequest,
+        knowledge_bases: list[Any],
+        queries: list[PlannedQuery],
+        started_at: float,
+    ) -> dict:
+        """Round 2 of the dependent flow: dispatch the answer queries
+        that wait for the confirmed premise values."""
+        if not queries:
+            return {"retrieval": _empty_retrieval_result()}
+        state.stage = "answer_retrieving"
+        retrieval = await self.parallel_retrieval.execute(
+            state=state,
+            queries=queries,
+            request=request,
+            knowledge_bases=knowledge_bases,
+            round=2,
+        )
+        fusion = self.fusion.fuse(
+            results=retrieval.results,
+            aspects=state.aspects,
+        )
+        self._record_round(
+            state,
+            retrieval=retrieval,
+            fusion=fusion,
+            purpose="answer",
+            new_chunk_count=len(fusion.candidates),
+        )
+        if retrieval.degraded:
+            self._mark_degraded(state, "answer retrieval degraded")
+        return {"retrieval": retrieval, "fusion": fusion}
 
     @staticmethod
     def _record_round(
@@ -583,3 +808,22 @@ class ResearchService:
             output_tokens=int(value.get("completion_tokens", 0) or 0),
             degraded=degraded,
         )
+
+
+def _empty_retrieval_result() -> ParallelRetrievalResult:
+    """Stand-in ParallelRetrievalResult used when the dependent flow
+    has no answer queries to dispatch (e.g. planner produced no
+    answer-stage aspects). Keeps the call sites simple at the cost of
+    one synthetic empty result object."""
+    from app.services.research_parallel_retrieval_service import (
+        ParallelRetrievalResult,
+    )
+
+    return ParallelRetrievalResult(
+        results=[],
+        tasks=[],
+        success_count=0,
+        failed_count=0,
+        latency_ms=0,
+        degraded=True,
+    )
